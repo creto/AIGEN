@@ -1,0 +1,12 @@
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\bin\Debug\net8.0\Aigen.Templates.deps.json
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\bin\Debug\net8.0\Aigen.Templates.dll
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\bin\Debug\net8.0\Aigen.Templates.pdb
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\Aigen.Templates.GeneratedMSBuildEditorConfig.editorconfig
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\Aigen.Templates.AssemblyInfoInputs.cache
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\Aigen.Templates.AssemblyInfo.cs
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\Aigen.Templates.csproj.CoreCompileInputs.cache
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\Aigen.Templates.sourcelink.json
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\Aigen.Templates.dll
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\refint\Aigen.Templates.dll
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\Aigen.Templates.pdb
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\ref\Aigen.Templates.dll
