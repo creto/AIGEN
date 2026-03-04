@@ -1,0 +1,55 @@
+using Aigen.Core.Metadata;
+using FluentAssertions;
+using Xunit;
+
+namespace Aigen.Tests.Templates;
+
+public class TableMetadataExtensionsTests
+{
+    private static TableMetadata T(string name) =>
+        new() { TableName = name, ClassName = name };
+
+    [Theory]
+    [InlineData("TM_Factura",    TableType.Movement)]
+    [InlineData("TB_Ciudad",     TableType.Basic)]
+    [InlineData("TBR_Detalle",   TableType.BasicRelated)]
+    [InlineData("TP_Config",     TableType.Parameter)]
+    [InlineData("TR_Relacion",   TableType.Relational)]
+    [InlineData("TA_Auditoria",  TableType.Audit)]
+    [InlineData("TS_Sistema",    TableType.System)]
+    [InlineData("TH_Historico",  TableType.Historical)]
+    [InlineData("SinPrefijo",    TableType.Unknown)]
+    public void GetTableType_DetectsPrefixCorrectly(string name, TableType expected)
+        => T(name).GetTableType().Should().Be(expected);
+
+    [Theory]
+    [InlineData("TM_Factura",   true)]
+    [InlineData("TB_Ciudad",    true)]
+    [InlineData("TP_Config",    true)]
+    [InlineData("TA_Auditoria", false)]
+    [InlineData("TS_Sistema",   false)]
+    [InlineData("TH_Historico", false)]
+    public void HasFullCrud_CorrectByType(string name, bool expected)
+        => T(name).HasFullCrud().Should().Be(expected);
+
+    [Theory]
+    [InlineData("TA_Auditoria",  true)]
+    [InlineData("TS_Sistema",    true)]
+    [InlineData("TH_Historico",  true)]
+    [InlineData("TM_Factura",    false)]
+    [InlineData("TB_Ciudad",     false)]
+    public void IsReadOnly_CorrectByType(string name, bool expected)
+        => T(name).IsReadOnly().Should().Be(expected);
+
+    [Fact]
+    public void HasEstadoField_TrueWhenColumnExists()
+    {
+        var t = T("TM_Factura");
+        t.Columns.Add(new() { ColumnName = "Estado" });
+        t.HasEstadoField().Should().BeTrue();
+    }
+
+    [Fact]
+    public void HasEstadoField_FalseWhenNoColumn()
+        => T("TM_Factura").HasEstadoField().Should().BeFalse();
+}

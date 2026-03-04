@@ -1,8 +1,19 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Aigen.Templates</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Scriban" Version="5.10.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Aigen.Core\Aigen.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Templates\**\*.scriban">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>
