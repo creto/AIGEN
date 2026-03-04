@@ -1,19 +1,28 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Aigen.Templates</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Description>AIGEN Templates - Plantillas Scriban para generacion de codigo</Description>
+    <Version>1.0.0</Version>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Scriban" Version="5.10.0" />
   </ItemGroup>
+
   <ItemGroup>
+    <!-- Templates depende de Core (no al reves) -->
     <ProjectReference Include="..\Aigen.Core\Aigen.Core.csproj" />
   </ItemGroup>
+
   <ItemGroup>
+    <!-- Incluir plantillas .scriban en el build -->
     <None Update="Templates\**\*.scriban">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+
 </Project>

@@ -1,22 +1,29 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Aigen.Tests</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <IsPackable>false</IsPackable>
+    <Description>AIGEN Tests - Tests unitarios e integracion</Description>
   </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="xunit"                     Version="2.9.0" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+    <PackageReference Include="xunit"                                Version="2.9.0" />
+    <PackageReference Include="xunit.runner.visualstudio"            Version="2.8.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="FluentAssertions"          Version="6.12.0" />
-    <PackageReference Include="Moq"                       Version="4.20.72" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk"    Version="17.11.1" />
+    <PackageReference Include="FluentAssertions"    Version="6.12.0" />
+    <PackageReference Include="Moq"                 Version="4.20.72" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
   </ItemGroup>
+
   <ItemGroup>
+    <!-- Tests referencia Core Y Templates -->
     <ProjectReference Include="..\..\src\Aigen.Core\Aigen.Core.csproj" />
+    <ProjectReference Include="..\..\src\Aigen.Templates\Aigen.Templates.csproj" />
   </ItemGroup>
+
 </Project>

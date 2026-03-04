@@ -1,9 +1,5 @@
 namespace Aigen.Core.Metadata;
 
-/// <summary>
-/// Extensiones de TableMetadata con clasificacion por tipo de tabla
-/// y helpers para las plantillas Scriban.
-/// </summary>
 public static class TableMetadataExtensions
 {
     private static readonly Dictionary<string, TableType> PrefixMap =

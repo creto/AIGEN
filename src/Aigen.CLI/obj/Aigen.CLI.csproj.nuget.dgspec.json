@@ -106,6 +106,9 @@
               },
               "C:\\DevOps\\AIGEN\\AIGEN\\aigen\\src\\Aigen.Core\\Aigen.Core.csproj": {
                 "projectPath": "C:\\DevOps\\AIGEN\\AIGEN\\aigen\\src\\Aigen.Core\\Aigen.Core.csproj"
+              },
+              "C:\\DevOps\\AIGEN\\AIGEN\\aigen\\src\\Aigen.Templates\\Aigen.Templates.csproj": {
+                "projectPath": "C:\\DevOps\\AIGEN\\AIGEN\\aigen\\src\\Aigen.Templates\\Aigen.Templates.csproj"
               }
             }
           }
@@ -133,6 +136,18 @@
             "Microsoft.Extensions.DependencyInjection": {
               "target": "Package",
               "version": "[8.0.1, )"
+            },
+            "Microsoft.Extensions.Logging.Console": {
+              "target": "Package",
+              "version": "[8.0.1, )"
+            },
+            "Serilog.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Serilog.Sinks.Console": {
+              "target": "Package",
+              "version": "[6.0.0, )"
             },
             "Spectre.Console": {
               "target": "Package",
@@ -192,11 +207,7 @@
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
-            "projectReferences": {
-              "C:\\DevOps\\AIGEN\\AIGEN\\aigen\\src\\Aigen.Templates\\Aigen.Templates.csproj": {
-                "projectPath": "C:\\DevOps\\AIGEN\\AIGEN\\aigen\\src\\Aigen.Templates\\Aigen.Templates.csproj"
-              }
-            }
+            "projectReferences": {}
           }
         },
         "warningProperties": {
@@ -273,7 +284,11 @@
         "frameworks": {
           "net8.0": {
             "targetAlias": "net8.0",
-            "projectReferences": {}
+            "projectReferences": {
+              "C:\\DevOps\\AIGEN\\AIGEN\\aigen\\src\\Aigen.Core\\Aigen.Core.csproj": {
+                "projectPath": "C:\\DevOps\\AIGEN\\AIGEN\\aigen\\src\\Aigen.Core\\Aigen.Core.csproj"
+              }
+            }
           }
         },
         "warningProperties": {
@@ -291,6 +306,12 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Scriban": {
+              "target": "Package",
+              "version": "[5.10.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

@@ -147,3 +147,17 @@ C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\obj\Debug\net8.0\ref\Aigen.Tests.d
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Microsoft.Extensions.Logging.Abstractions.dll
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Npgsql.dll
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Backend\controller.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Backend\dto.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Backend\entity.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Backend\irepository.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Backend\repository_dapper.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Backend\service.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Backend\validator.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Frontend\angular_form_component.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Frontend\angular_list_component.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Frontend\angular_model.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Frontend\angular_service.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\appsettings.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\program.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Scriban.dll

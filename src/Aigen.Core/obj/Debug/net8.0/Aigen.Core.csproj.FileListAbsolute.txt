@@ -7,9 +7,6 @@ C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\Aigen.Core.sourcelin
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\bin\Debug\net8.0\Aigen.Core.deps.json
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\bin\Debug\net8.0\Aigen.Core.dll
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\bin\Debug\net8.0\Aigen.Core.pdb
-C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\bin\Debug\net8.0\Aigen.Templates.dll
-C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\bin\Debug\net8.0\Aigen.Templates.pdb
-C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\Aigen.Core.csproj.Up2Date
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\Aigen.Core.dll
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\refint\Aigen.Core.dll
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\Aigen.Core.pdb

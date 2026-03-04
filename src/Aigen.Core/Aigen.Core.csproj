@@ -1,15 +1,20 @@
 <Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>Aigen.Core</RootNamespace>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Description>AIGEN Core - Motor del generador, config y schema readers</Description>
+    <Version>1.0.0</Version>
   </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
-    <PackageReference Include="Npgsql"                   Version="8.0.3" />
+    <PackageReference Include="Npgsql" Version="8.0.3" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Aigen.Templates\Aigen.Templates.csproj" />
-  </ItemGroup>
+
+  <!-- Core NO referencia ningún otro proyecto de AIGEN -->
+  <!-- Es la base de la que dependen todos los demás -->
+
 </Project>
