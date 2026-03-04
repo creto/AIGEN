@@ -162,6 +162,34 @@ public class FileGeneratorService
         var ns  = ctx.ProjectName;
         var orm = config.Backend.Orm;
 
+        // ── Archivos de infraestructura .NET (NUEVOS) ─────────────────────────
+
+        // 1. Solution file (.sln)
+        await Save(ctx, "solution.scriban",
+            Path.Combine(outPath, $"{ns}.sln"), result, ct);
+
+        // 2. Domain.csproj
+        await Save(ctx, "domain_csproj.scriban",
+            Path.Combine(outPath, "src", $"{ns}.Domain",
+                $"{ns}.Domain.csproj"), result, ct);
+
+        // 3. Application.csproj
+        await Save(ctx, "application_csproj.scriban",
+            Path.Combine(outPath, "src", $"{ns}.Application",
+                $"{ns}.Application.csproj"), result, ct);
+
+        // 4. Infrastructure.csproj
+        await Save(ctx, "infrastructure_csproj.scriban",
+            Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                $"{ns}.Infrastructure.csproj"), result, ct);
+
+        // 5. API.csproj
+        await Save(ctx, "api_csproj.scriban",
+            Path.Combine(outPath, "src", $"{ns}.API",
+                $"{ns}.API.csproj"), result, ct);
+
+        // ── Archivos de aplicación (ya existían) ──────────────────────────────
+
         // DbContext (EF Core)
         if (orm != OrmType.Dapper)
             await Save(ctx, "dbcontext.scriban",
@@ -180,6 +208,11 @@ public class FileGeneratorService
         if (orm != OrmType.Dapper)
             await Save(ctx, "efcore_migration_hint.scriban",
                 Path.Combine(outPath, "docs", "EF-MIGRATIONS.md"), result, ct);
+
+
+
+
+        
     }
 
     // ── Helper ────────────────────────────────────────────────
