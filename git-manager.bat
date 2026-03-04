@@ -3,6 +3,7 @@ setlocal enabledelayedexpansion
 
 git remote set-url origin https://github.com/creto/AIGEN.git
 echo git remote set-url origin git@github-creto:creto/AIGEN.git
+echo 
 
 :MENU
 cls
