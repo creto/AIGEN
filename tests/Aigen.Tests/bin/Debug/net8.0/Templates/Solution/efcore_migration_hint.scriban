@@ -1,0 +1,54 @@
+# EF Core - Guia de Migraciones para {{ project_name }}
+
+## Paquetes NuGet requeridos
+
+```bash
+dotnet add {{ project_name }}.Infrastructure package Microsoft.EntityFrameworkCore
+dotnet add {{ project_name }}.Infrastructure package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add {{ project_name }}.Infrastructure package Microsoft.EntityFrameworkCore.Tools
+dotnet add {{ project_name }}.API package Microsoft.EntityFrameworkCore.Design
+```
+
+## Configurar en Program.cs
+
+```csharp
+builder.Services.AddDbContext<{{ project_name }}DbContext>(options =>
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("Default"),
+        sql => sql.MigrationsAssembly("{{ project_name }}.Infrastructure")));
+```
+
+## Comandos de migracion
+
+```bash
+# Crear migracion inicial
+dotnet ef migrations add InitialCreate \
+    --project src/{{ project_name }}.Infrastructure \
+    --startup-project src/{{ project_name }}.API
+
+# Aplicar a la base de datos
+dotnet ef database update \
+    --project src/{{ project_name }}.Infrastructure \
+    --startup-project src/{{ project_name }}.API
+
+# Ver migraciones pendientes
+dotnet ef migrations list \
+    --project src/{{ project_name }}.Infrastructure \
+    --startup-project src/{{ project_name }}.API
+```
+
+## Notas de configuracion
+
+- DbContext: `{{ project_name }}DbContext`
+- Schema por defecto: `{{ db_schema }}`
+- Auditoria automatica: {{ use_auditing }}
+- Soft Delete: {{ use_soft_delete }}
+- Connection String key: `Default`
+
+## Repositorios generados
+
+{{ for table in db.tables }}
+{{~ if table.has_full_crud ~}}
+- `{{ table.repository_name }}` -> `{{ table.table_name }}`
+{{~ end ~}}
+{{ end }}
