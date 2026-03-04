@@ -1,0 +1,12 @@
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.AI\bin\Debug\net8.0\Aigen.AI.deps.json
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.AI\bin\Debug\net8.0\Aigen.AI.dll
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.AI\bin\Debug\net8.0\Aigen.AI.pdb
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.AI\obj\Debug\net8.0\Aigen.AI.GeneratedMSBuildEditorConfig.editorconfig
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.AI\obj\Debug\net8.0\Aigen.AI.AssemblyInfoInputs.cache
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.AI\obj\Debug\net8.0\Aigen.AI.AssemblyInfo.cs
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.AI\obj\Debug\net8.0\Aigen.AI.csproj.CoreCompileInputs.cache
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.AI\obj\Debug\net8.0\Aigen.AI.sourcelink.json
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.AI\obj\Debug\net8.0\Aigen.AI.dll
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.AI\obj\Debug\net8.0\refint\Aigen.AI.dll
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.AI\obj\Debug\net8.0\Aigen.AI.pdb
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.AI\obj\Debug\net8.0\ref\Aigen.AI.dll
