@@ -1,15 +1,14 @@
 using Scriban;
 using Scriban.Runtime;
-using Aigen.Templates.Engine;
+// Alias para evitar conflicto con Scriban.TemplateContext
+using ScribanCtx = Scriban.TemplateContext;
 
-namespace Aigen.Templates;
+namespace Aigen.Templates.Engine;
 
 /// <summary>
 /// Motor de plantillas basado en Scriban.
-/// Convierte archivos .scriban en C#, TypeScript, JSON, YAML, etc.
 /// Las propiedades del TemplateContext se exponen en snake_case:
-///   EntityName -> entity_name
-///   PkType     -> pk_type
+///   EntityName -> entity_name  |  PkType -> pk_type
 /// </summary>
 public class ScribanTemplateEngine : ITemplateEngine
 {
@@ -27,7 +26,7 @@ public class ScribanTemplateEngine : ITemplateEngine
         if (tpl.HasErrors)
         {
             var msgs = string.Join("\n", tpl.Messages.Select(m => m.ToString()));
-            throw new InvalidOperationException($"Error en plantilla:\n{msgs}");
+            throw new InvalidOperationException($"Error en plantilla Scriban:\n{msgs}");
         }
 
         var globals = new ScriptObject();
@@ -36,16 +35,17 @@ public class ScribanTemplateEngine : ITemplateEngine
         globals.Import(ctx, renamer: m => ToSnake(m.Name));
 
         // Funciones utilitarias disponibles en todas las plantillas
-        globals["pascal"]    = new Func<string, string>(ToPascal);
-        globals["camel"]     = new Func<string, string>(ToCamel);
-        globals["kebab"]     = new Func<string, string>(ToKebab);
-        globals["upper"]     = new Func<string, string>(s => s.ToUpper());
-        globals["lower"]     = new Func<string, string>(s => s.ToLower());
+        globals["pascal"]      = new Func<string, string>(ToPascal);
+        globals["camel"]       = new Func<string, string>(ToCamel);
+        globals["kebab"]       = new Func<string, string>(ToKebab);
+        globals["upper"]       = new Func<string, string>(s => s.ToUpper());
+        globals["lower"]       = new Func<string, string>(s => s.ToLower());
         globals["nullable_cs"] = new Func<string, bool, string>(
             (t, n) => n && t != "string" ? t + "?" : t);
-        globals["now"]       = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+        globals["now"]         = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
 
-        var scribanCtx = new Scriban.TemplateContext { StrictVariables = false };
+        // Usar alias ScribanCtx para no colisionar con nuestro TemplateContext
+        var scribanCtx = new ScribanCtx { StrictVariables = false };
         scribanCtx.PushGlobal(globals);
 
         return Task.FromResult(tpl.Render(scribanCtx));
@@ -68,7 +68,8 @@ public class ScribanTemplateEngine : ITemplateEngine
 
     private static string ToCamel(string s)
     {
-        var p = ToPascal(s); return p.Length > 0 ? char.ToLower(p[0]) + p[1..] : p;
+        var p = ToPascal(s);
+        return p.Length > 0 ? char.ToLower(p[0]) + p[1..] : p;
     }
 
     private static string ToKebab(string s) =>

@@ -1,9 +1,5 @@
 namespace Aigen.Templates;
 
-/// <summary>
-/// Resuelve la ruta fisica de cada plantilla .scriban.
-/// Orden de busqueda: carpeta personalizada -> subdirs Backend/Frontend/SQL/Solution.
-/// </summary>
 public class TemplateLocator
 {
     private readonly string _root;
@@ -18,10 +14,10 @@ public class TemplateLocator
 
         foreach (var sub in new[] { "Backend", "Frontend", "SQL", "Solution" })
         {
-            var sub_path = Path.Combine(_root, sub, name);
-            if (File.Exists(sub_path)) return sub_path;
+            var subPath = Path.Combine(_root, sub, name);
+            if (File.Exists(subPath)) return subPath;
         }
-        return direct; // Llamador maneja la ausencia
+        return direct;
     }
 
     public IEnumerable<string> ListAll() =>

@@ -9,6 +9,7 @@
       "Aigen.Tests/1.0.0": {
         "dependencies": {
           "Aigen.Core": "1.0.0",
+          "Aigen.Templates": "1.0.0",
           "FluentAssertions": "6.12.0",
           "Microsoft.NET.Test.Sdk": "17.11.1",
           "Moq": "4.20.72",
@@ -565,6 +566,14 @@
           }
         }
       },
+      "Scriban/5.10.0": {
+        "runtime": {
+          "lib/net7.0/Scriban.dll": {
+            "assemblyVersion": "5.0.0.0",
+            "fileVersion": "5.10.0.0"
+          }
+        }
+      },
       "System.ClientModel/1.0.0": {
         "dependencies": {
           "System.Memory.Data": "1.0.2"
@@ -709,7 +718,6 @@
       },
       "Aigen.Core/1.0.0": {
         "dependencies": {
-          "Aigen.Templates": "1.0.0",
           "Microsoft.Data.SqlClient": "5.2.2",
           "Npgsql": "8.0.3"
         },
@@ -721,6 +729,10 @@
         }
       },
       "Aigen.Templates/1.0.0": {
+        "dependencies": {
+          "Aigen.Core": "1.0.0",
+          "Scriban": "5.10.0"
+        },
         "runtime": {
           "Aigen.Templates.dll": {
             "assemblyVersion": "1.0.0.0",
@@ -910,6 +922,13 @@
       "sha512": "sha512-6WEmzsQJCZAlUG1pThKg/RmeF6V+I0DmBBBE/8YzpRtEzhyZzKcK7ulMANDm5CkxrALBEC8H+5plxHWtIL7xnA==",
       "path": "npgsql/8.0.3",
       "hashPath": "npgsql.8.0.3.nupkg.sha512"
+    },
+    "Scriban/5.10.0": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-qk2W8wQpm7mykWrEi9fhjC7uVapT2bkweMuMqebrF7gaVMt0WjmZzyVVTpom5cUsc3ddMDpo95SkNcTWGo+L6Q==",
+      "path": "scriban/5.10.0",
+      "hashPath": "scriban.5.10.0.nupkg.sha512"
     },
     "System.ClientModel/1.0.0": {
       "type": "package",

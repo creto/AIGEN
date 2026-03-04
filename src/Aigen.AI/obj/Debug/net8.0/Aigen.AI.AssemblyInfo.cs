@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Aigen.AI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+145eb2032a3043aa863103206aa1dd63168b15c8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+391cfee6c3b57b17aca701515bbea2ccda1abc65")]
 [assembly: System.Reflection.AssemblyProductAttribute("Aigen.AI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Aigen.AI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
