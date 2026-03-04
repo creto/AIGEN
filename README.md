@@ -498,8 +498,8 @@ proyectos completos con Clean Architecture, microservicios, Angular 18 y .NET 8.
 ## Roadmap
 
 - [x] Semana 1 - CLI + GeneratorConfig + SqlServerSchemaReader
-- [ ] Semana 2 - Validaciones + tests de integracion
-- [ ] Semana 3 - Plantillas Scriban
+- [x] Semana 2 - Validaciones + tests de integracion
+- [x] Semana 3 - Plantillas Scriban Iniciales
 - [ ] Semana 4 - Frontend Angular 18
 - [ ] Fase 3   - Integracion Claude API y Ollama
 
@@ -513,9 +513,223 @@ Mira lo que logró el generador en Semana 1:
 ✅ Detectó PKs y FKs correctamente
 ✅ Pregunta confirmación antes de generar
 
-## metas pasadsa semana 2
-..
-....
+## metas pasadsa semana 1-4
+
+# AIGEN — Estado del Proyecto
+**Fecha:** Marzo 2026 | **Versión:** 1.0
+
+---
+
+## ✅ SEMANA 2 — Completada
+
+**Objetivo:** Servicios de naming, validación de config y soporte multi-BD.
+
+### Entregables
+
+| Archivo | Ubicación | Descripción |
+|---------|-----------|-------------|
+| `NamingConventionService.cs` | `Aigen.Core/Services/` | Limpia prefijos TM_/TB_/TP_... → PascalCase. Pluralización en español. |
+| `ConfigValidator.cs` | `Aigen.Core/Validation/` | 15+ reglas de validación sobre `GeneratorConfig`. |
+| `SchemaFilterService.cs` | `Aigen.Core/Services/` | Filtra tablas por prefijo, schema y lista de exclusión. |
+| `PostgreSqlSchemaReader.cs` | `Aigen.Core/Schema/` | Lector de schema para PostgreSQL (tablas, columnas, FKs). |
+| `SchemaReaderFactory.cs` | `Aigen.Core/Schema/` | Factory que retorna el reader correcto según `DatabaseEngine`. |
+| `Aigen.Core.csproj` | `Aigen.Core/` | Agrega Npgsql para PostgreSQL. |
+
+### Tests
+
+| Suite | Tests | Estado |
+|-------|-------|--------|
+| `NamingConventionServiceTests` | 11 | ✅ Pasando |
+| `ConfigValidatorTests` | 8 | ✅ Pasando |
+| `SqlServerSchemaReaderTests` | 3 | ⏭ Skip (requieren BD real) |
+| **Total Semana 2** | **19 nuevos / 38 acumulados** | ✅ |
+
+### Capacidades desbloqueadas
+- ✅ Conectar a SQL Server y PostgreSQL
+- ✅ Leer esquema completo (287 tablas probadas en BD real)
+- ✅ Validar `aigen.json` antes de generar
+- ✅ Filtrar tablas por prefijo Incoder (TM_, TB_, TP_...)
+- ✅ Pluralización automática en español (Factura → Facturas, Ciudad → Ciudades)
+
+---
+
+## ✅ SEMANA 3 — Completada
+
+**Objetivo:** Motor de plantillas Scriban + 13 plantillas reales + comando `generate`.
+
+### Entregables — Infraestructura
+
+| Archivo | Ubicación | Descripción |
+|---------|-----------|-------------|
+| `TableType.cs` | `Aigen.Core/Metadata/` | Enum: Movement, Basic, Relational, Audit, System... |
+| `TableMetadataExtensions.cs` | `Aigen.Core/Metadata/` | `HasFullCrud()`, `IsReadOnly()`, `HasEstadoField()`, `GetTableType()` |
+| `ITemplateEngine.cs` | `Aigen.Templates/Engine/` | Contrato del motor de plantillas. |
+| `TemplateContext.cs` | `Aigen.Templates/Engine/` | 40+ propiedades en snake_case para las plantillas. |
+| `ScribanTemplateEngine.cs` | `Aigen.Templates/Engine/` | Motor real. Resuelve conflicto `Scriban.TemplateContext` con alias. |
+| `ScribanFunctions.cs` | `Aigen.Templates/Engine/` | `pascal`, `camel`, `kebab`, `upper`, `lower`, `nullable_cs` (métodos estáticos). |
+| `TemplateLocator.cs` | `Aigen.Templates/` | Resuelve rutas de `.scriban` (custom → embedded). |
+| `FileGeneratorService.cs` | `Aigen.Templates/` | Orquesta tabla por tabla → decide qué plantillas aplicar según `TableType`. |
+| `GenerateCommand.cs` | `Aigen.CLI/Commands/` | Comando `aigen generate` con selector interactivo y barra de progreso. |
+
+### Entregables — Plantillas Scriban
+
+| Plantilla | Carpeta | Genera |
+|-----------|---------|--------|
+| `entity.scriban` | `Backend/` | Entidad C# con anotaciones EF y data annotations |
+| `dto.scriban` | `Backend/` | Records: `{Entity}Dto`, `Create{Entity}Request`, `Update{Entity}Request`, paginación |
+| `irepository.scriban` | `Backend/` | Interface `I{Entity}Repository` adaptada al `TableType` |
+| `service.scriban` | `Backend/` | `{Entity}Service` con lógica de negocio y manejo de errores |
+| `repository_dapper.scriban` | `Backend/` | Repository Dapper con SQL inline, paginación OFFSET/FETCH |
+| `controller.scriban` | `Backend/` | Controller REST con Swagger, paginación, Toggle Estado |
+| `validator.scriban` | `Backend/` | `FluentValidation` para Create y Update |
+| `angular_model.scriban` | `Frontend/` | Interfaces TypeScript: model, request, paged response |
+| `angular_service.scriban` | `Frontend/` | Angular service con `inject()` y Signals |
+| `angular_list_component.scriban` | `Frontend/` | PrimeNG `p-table` con paginación lazy, confirmación de borrado |
+| `angular_form_component.scriban` | `Frontend/` | Formulario reactivo con validación inline |
+| `program.scriban` | `Solution/` | `Program.cs` con Serilog, CORS, DI |
+| `appsettings.scriban` | `Solution/` | `appsettings.json` con connection string y CORS |
+
+### Tests
+
+| Suite | Tests | Estado |
+|-------|-------|--------|
+| `ScribanTemplateEngineTests` | 10 | ✅ Pasando |
+| `TableMetadataExtensionsTests` | 9 | ✅ Pasando |
+| **Total Semana 3** | **19 nuevos / 70 acumulados** | ✅ |
+
+### Capacidades desbloqueadas
+- ✅ `aigen generate --config proyecto.json` funcional end-to-end
+- ✅ `--dry-run` para previsualizar sin escribir archivos
+- ✅ Selector interactivo de tablas (multiselect en terminal)
+- ✅ Generación diferenciada por `TableType`: TA_ solo lectura, TR_ sin formulario, TM_ CRUD completo
+- ✅ Soporte Dapper como ORM
+
+### Bugs resueltos en camino
+| Bug | Causa | Solución |
+|-----|-------|----------|
+| Dependencia circular | `Aigen.Core` → `Aigen.Templates` → `Aigen.Core` | Core no referencia Templates. Solo al revés. |
+| `TemplateContext` ambiguo | Colisión con `Scriban.TemplateContext` | Alias: `using ScribanCtx = Scriban.TemplateContext` |
+| Tests en proyecto equivocado | `TemplateEngineTests` en `Aigen.Templates` | Mover a `Aigen.Tests/Templates/` |
+| `Func<string,string>` inválido | Scriban 5.x no acepta delegates directos | Clase estática `ScribanFunctions` con `Import(typeof(...))` |
+
+---
+
+## 🔄 SEMANA 4 — En progreso
+
+**Objetivo:** EF Core completo — repositorio, Fluent API, DbContext con auditoría automática.
+
+### Entregables pendientes de instalar
+
+| Archivo | Destino | Estado |
+|---------|---------|--------|
+| `repository_ef.scriban` | `Templates/Backend/` | 📥 Listo para copiar |
+| `entity_configuration.scriban` | `Templates/Backend/` | 📥 Listo para copiar |
+| `dbcontext.scriban` | `Templates/Solution/` | 📥 Listo para copiar |
+| `efcore_migration_hint.scriban` | `Templates/Solution/` | 📥 Listo para copiar |
+| `FileGeneratorService.cs` | `Aigen.Templates/` | 📥 Listo para reemplazar |
+| `EfRepositoryTemplateTests.cs` | `Tests/Templates/` | 📥 Listo para copiar |
+| `DbContextTemplateTests.cs` | `Tests/Templates/` | 📥 Listo para copiar |
+
+### Qué genera cada plantilla nueva
+
+```
+repository_ef.scriban
+  ├── BaseQuery() con AsNoTracking() + filtro Eliminado
+  ├── GetByIdAsync()
+  ├── GetPagedAsync() con Skip().Take() (o GetAllAsync())
+  ├── CreateAsync() con auditoría CreadoEn/CreadoPor
+  ├── UpdateAsync() con auditoría ModificadoEn/ModificadoPor
+  ├── SoftDeleteAsync() o DeleteAsync() según config
+  ├── ToggleEstadoAsync() si la tabla tiene columna Estado
+  ├── ExistsAsync()
+  └── MapToDto() método privado
+
+entity_configuration.scriban
+  ├── ToTable("tabla", "schema")
+  ├── HasKey() con PK simple o compuesta
+  ├── Property() por cada columna (HasColumnName, HasMaxLength, IsRequired, HasDefaultValueSql)
+  ├── HasOne().WithMany().HasForeignKey() por cada FK
+  └── HasIndex() por cada índice no-PK
+
+dbcontext.scriban
+  ├── DbSet<T> por cada tabla con HasFullCrud()
+  ├── ApplyConfigurationsFromAssembly() (todas las configuraciones Fluent API)
+  ├── HasDefaultSchema(schema)
+  └── SaveChangesAsync() con ApplyAuditInfo() automático
+
+efcore_migration_hint.scriban
+  └── README.md con comandos dotnet ef migrations
+```
+
+### Lógica de selección de ORM en FileGeneratorService
+
+```
+config.Backend.Orm = Dapper
+  → repository_dapper.scriban
+
+config.Backend.Orm = EntityFrameworkCore
+  → repository_ef.scriban
+  → entity_configuration.scriban
+
+config.Backend.Orm = EFCoreWithDapper  (híbrido)
+  → repository_ef.scriban       (para CRUD)
+  → entity_configuration.scriban
+  (Dapper se usa para queries complejas a mano)
+```
+
+### Tests esperados al finalizar Semana 4
+
+| Suite | Tests nuevos | Total acumulado |
+|-------|-------------|-----------------|
+| `EfRepositoryTemplateTests` | 7 | — |
+| `DbContextTemplateTests` | 4 | — |
+| **Total Semana 4** | **11 nuevos** | **~81 pasando** |
+
+### Pasos para completar Semana 4
+
+```powershell
+# 1. Copiar las 4 plantillas nuevas a sus carpetas
+# 2. Reemplazar FileGeneratorService.cs
+# 3. Copiar los 2 archivos de tests
+# 4. Verificar build y tests
+dotnet build    # 5 proyectos succeeded
+dotnet test     # ~81 passed, 0 failed, 3 skipped
+
+# 5. Commit
+git-manager.bat
+# Mensaje: feat: Semana 4 - EF Core repository + Fluent API + DbContext auditoria
+```
+
+---
+
+## 📊 Resumen Acumulado del Proyecto
+
+| Semana | Archivos generados | Tests | Estado |
+|--------|-------------------|-------|--------|
+| Semana 1 | 32 archivos (solución base, CLI, schema SQL Server) | 38 | ✅ |
+| Semana 2 | 6 archivos (naming, validación, PostgreSQL) | +19 = 57 | ✅ |
+| Semana 3 | 22 archivos (motor Scriban, 13 plantillas, CLI generate) | +13 = 70 | ✅ |
+| Semana 4 | 7 archivos (EF Core, DbContext, Fluent API) | +11 = 81 | 🔄 |
+| **Total** | **~67 archivos** | **~81 tests** | |
+
+---
+
+## 🗺 Roadmap — Próximas semanas
+
+| Semana | Objetivo |
+|--------|----------|
+| **5** | Primer `aigen generate` real contra BD con 287 tablas. Validar output completo. |
+| **6** | Comando `aigen new` — wizard interactivo para crear `aigen.json` desde cero |
+| **7** | Integración AI — Claude enriquece entidades con nombres semánticos, detecta patrones de dominio |
+| **8** | Soporte Oracle / MySQL en SchemaReader |
+| **9** | Plantillas CQRS (MediatR) — Commands y Queries por entidad |
+| **10** | Generación de tests unitarios automáticos por entidad generada |
+
+---
+
+*AIGEN — AI-Powered Software Generator | Proyecto en desarrollo activo*
+
+
 
 
 

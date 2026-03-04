@@ -1,12 +1,74 @@
 ﻿{
   "aigenVersion": "1.0",
-  "project": { "projectName": "SistemaVentas", "rootNamespace": "Com.MiEmpresa.SistemaVentas", "version": "1.0.0", "author": "Oscar Cortes", "year": "2025", "language": "Spanish" },
-  "database": { "engine": "SqlServer", "connectionString": "Server=200.31.22.7,1437;Database=Doc4UsAIGen;User Id=Oscar;Password=Dukakis2701;TrustServerCertificate=True;", "schema": "dbo", "tableSelection": "All", "excludedTables": ["__EFMigrationsHistory","sysdiagrams"], "efStrategy": "DatabaseFirst" },
-  "architecture": { "style": "Microservices", "pattern": "CleanArchitecture", "groupingStrategy": "Manual", "microservices": [{"name":"Clientes","prefix":"MS","port":5001,"tables":["TM_Cliente"]},{"name":"Ventas","prefix":"MS","port":5002,"tables":["TM_Pedido","TM_Factura"]}], "gateway": {"generateGateway":true,"technology":"YARP","port":5000} },
-  "backend": { "orm": "EFCoreWithDapper", "repositoryPattern": "RepositoryUnitOfWork", "useCQRS": false },
-  "frontend": { "framework": "Angular", "generateFrontend": true, "frameworkVersion": "18", "uiLibrary": "PrimeNG", "stateManagement": "Signals" },
-  "security": { "authentication": "Jwt", "authorization": "Roles", "enableCors": true, "corsOrigins": "http://localhost:4200" },
-  "features": { "logging": "Serilog", "apiDoc": "Swagger", "validation": "FluentValidation", "mapping": "AutoMapper", "generatePagination": true, "softDelete": true, "auditing": true, "generateTests": true, "generateDockerfile": true },
+  "project": {
+    "projectName": "SistemaVentas",
+    "rootNamespace": "Com.MiEmpresa.SistemaVentas",
+    "version": "1.0.0",
+    "author": "Oscar Cortes",
+    "year": "2025",
+    "language": "Spanish"
+  },
+  "database": {
+    "engine": "SqlServer",
+    "connectionString": "Server=200.31.22.7,1437;Database=Doc4UsAIGen;User Id=Oscar;Password=Dukakis2701;TrustServerCertificate=True;",
+    "schema": "dbo",
+    "tableSelection": "All",
+    "excludedTables": ["__EFMigrationsHistory", "sysdiagrams"],
+    "efStrategy": "DatabaseFirst"
+  },
+  "architecture": {
+    "style": "Microservices",
+    "pattern": "CleanArchitecture",
+    "groupingStrategy": "Manual",
+    "microservices": [
+      {
+        "name": "Clientes",
+        "prefix": "MS",
+        "port": 5001,
+        "tables": ["TM_Cliente"]
+      },
+      {
+        "name": "Ventas",
+        "prefix": "MS",
+        "port": 5002,
+        "tables": ["TM_Pedido", "TM_Factura"]
+      }
+    ],
+    "gateway": { "generateGateway": true, "technology": "YARP", "port": 5000 }
+  },
+  "backend": {
+    "orm": "EFCoreWithDapper",
+    "repositoryPattern": "RepositoryUnitOfWork",
+    "useCQRS": false
+  },
+  "frontend": {
+    "framework": "Angular",
+    "generateFrontend": true,
+    "frameworkVersion": "18",
+    "uiLibrary": "PrimeNG",
+    "stateManagement": "Signals"
+  },
+  "security": {
+    "authentication": "Jwt",
+    "authorization": "Roles",
+    "enableCors": true,
+    "corsOrigins": "http://localhost:4200"
+  },
+  "features": {
+    "logging": "Serilog",
+    "apiDoc": "Swagger",
+    "validation": "FluentValidation",
+    "mapping": "AutoMapper",
+    "generatePagination": true,
+    "softDelete": true,
+    "auditing": true,
+    "generateTests": true,
+    "generateDockerfile": true
+  },
   "ai": { "provider": "None", "model": "claude-sonnet-4-5", "apiKey": "" },
-  "output": { "type": "LocalPath", "path": "C:\\Proyectos\\Generados\\{ProjectName}", "createGitRepo": true }
+  "output": {
+    "type": "LocalPath",
+    "path": "C:\\Proyectos\\Generados\\{ProjectName}",
+    "createGitRepo": true
+  }
 }

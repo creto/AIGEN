@@ -1,4 +1,5 @@
 using Aigen.Core.Config;
+using Aigen.Core.Config.Enums;
 using Aigen.Core.Metadata;
 using Aigen.Templates.Engine;
 
@@ -42,13 +43,14 @@ public class FileGeneratorService
         {
             var solutionCtx = new TemplateContext
                 { Table = tables[0], Db = db, Config = config };
-            await GenerateSolutionAsync(solutionCtx, outPath, result, ct);
+            await GenerateSolutionAsync(solutionCtx, outPath, db, config, result, ct);
         }
 
         result.IsSuccess = result.Errors.Count == 0;
         return result;
     }
 
+    // ── Backend ───────────────────────────────────────────────
     private async Task GenerateBackendAsync(
         TemplateContext ctx, string outPath,
         GenerationResult result, CancellationToken ct)
@@ -56,52 +58,83 @@ public class FileGeneratorService
         var t  = ctx.Table;
         var ns = ctx.ProjectName;
 
+        // Entity (siempre)
         await Save(ctx, "entity.scriban",
-            Path.Combine(outPath, "src", $"{ns}.Domain", "Entities", $"{t.ClassName}.cs"),
-            result, ct);
+            Path.Combine(outPath, "src", $"{ns}.Domain", "Entities",
+                $"{t.ClassName}.cs"), result, ct);
 
+        // DTO (siempre)
         await Save(ctx, "dto.scriban",
             Path.Combine(outPath, "src", $"{ns}.Application",
-                t.ClassNamePlural, "DTOs", $"{t.ClassName}Dto.cs"),
-            result, ct);
+                t.ClassNamePlural, "DTOs", $"{t.ClassName}Dto.cs"), result, ct);
 
+        // IRepository (siempre)
         await Save(ctx, "irepository.scriban",
             Path.Combine(outPath, "src", $"{ns}.Application",
-                "Interfaces", $"I{t.RepositoryName}.cs"),
-            result, ct);
+                "Interfaces", $"I{t.RepositoryName}.cs"), result, ct);
 
         if (!ctx.HasFullCrud) return;
 
+        // Service
         await Save(ctx, "service.scriban",
             Path.Combine(outPath, "src", $"{ns}.Application",
-                t.ClassNamePlural, $"{t.ServiceName}.cs"),
-            result, ct);
+                t.ClassNamePlural, $"{t.ServiceName}.cs"), result, ct);
 
-        var repoTpl = ctx.UseDapper
-            ? "repository_dapper.scriban" : "repository_ef.scriban";
-        await Save(ctx, repoTpl,
-            Path.Combine(outPath, "src", $"{ns}.Infrastructure",
-                "Persistence", "Repositories", $"{t.RepositoryName}.cs"),
-            result, ct);
+        // Repository: Dapper | EF Core | EFCore+Dapper
+        var orm = ctx.Config.Backend.Orm;
+        if (orm == OrmType.Dapper)
+        {
+            await Save(ctx, "repository_dapper.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Persistence", "Repositories", $"{t.RepositoryName}.cs"),
+                result, ct);
+        }
+        else if (orm == OrmType.EntityFrameworkCore)
+        {
+            await Save(ctx, "repository_ef.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Persistence", "Repositories", $"{t.RepositoryName}.cs"),
+                result, ct);
 
+            // EF Fluent API configuration
+            await Save(ctx, "entity_configuration.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Persistence", "Configurations",
+                    $"{t.ClassName}Configuration.cs"), result, ct);
+        }
+        else // EFCoreWithDapper: EF para CRUD, Dapper para queries
+        {
+            await Save(ctx, "repository_ef.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Persistence", "Repositories", $"{t.RepositoryName}.cs"),
+                result, ct);
+
+            await Save(ctx, "entity_configuration.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Persistence", "Configurations",
+                    $"{t.ClassName}Configuration.cs"), result, ct);
+        }
+
+        // Controller
         await Save(ctx, "controller.scriban",
             Path.Combine(outPath, "src", $"{ns}.API",
-                "Controllers", $"{t.ControllerName}.cs"),
-            result, ct);
+                "Controllers", $"{t.ControllerName}.cs"), result, ct);
 
+        // Validator
         if (ctx.UseFluentValidation)
             await Save(ctx, "validator.scriban",
                 Path.Combine(outPath, "src", $"{ns}.Application",
-                    t.ClassNamePlural, $"{t.ClassName}Validator.cs"),
-                result, ct);
+                    t.ClassNamePlural, $"{t.ClassName}Validator.cs"), result, ct);
     }
 
+    // ── Frontend ──────────────────────────────────────────────
     private async Task GenerateFrontendAsync(
         TemplateContext ctx, string outPath,
         GenerationResult result, CancellationToken ct)
     {
         var kebab  = ctx.AngularFileName;
-        var fePath = Path.Combine(outPath, "frontend", "src", "app", "features", kebab);
+        var fePath = Path.Combine(outPath, "frontend", "src", "app",
+            "features", kebab);
 
         await Save(ctx, "angular_model.scriban",
             Path.Combine(fePath, "models", $"{kebab}.model.ts"), result, ct);
@@ -120,17 +153,36 @@ public class FileGeneratorService
                 $"{kebab}-form.component.ts"), result, ct);
     }
 
+    // ── Solution ──────────────────────────────────────────────
     private async Task GenerateSolutionAsync(
         TemplateContext ctx, string outPath,
+        DatabaseMetadata db, GeneratorConfig config,
         GenerationResult result, CancellationToken ct)
     {
-        var ns = ctx.ProjectName;
+        var ns  = ctx.ProjectName;
+        var orm = config.Backend.Orm;
+
+        // DbContext (EF Core)
+        if (orm != OrmType.Dapper)
+            await Save(ctx, "dbcontext.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Persistence", $"{ns}DbContext.cs"), result, ct);
+
+        // Program.cs
         await Save(ctx, "program.scriban",
             Path.Combine(outPath, "src", $"{ns}.API", "Program.cs"), result, ct);
+
+        // appsettings.json
         await Save(ctx, "appsettings.scriban",
             Path.Combine(outPath, "src", $"{ns}.API", "appsettings.json"), result, ct);
+
+        // EF Migrations README
+        if (orm != OrmType.Dapper)
+            await Save(ctx, "efcore_migration_hint.scriban",
+                Path.Combine(outPath, "docs", "EF-MIGRATIONS.md"), result, ct);
     }
 
+    // ── Helper ────────────────────────────────────────────────
     private async Task Save(
         TemplateContext ctx, string templateName,
         string outputPath, GenerationResult result, CancellationToken ct)

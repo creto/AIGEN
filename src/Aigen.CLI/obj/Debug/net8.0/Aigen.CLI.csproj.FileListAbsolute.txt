@@ -103,3 +103,7 @@ C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Serilog.dll
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Serilog.Extensions.Hosting.dll
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Serilog.Extensions.Logging.dll
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Serilog.Sinks.Console.dll
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Backend\entity_configuration.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Backend\repository_ef.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\dbcontext.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\efcore_migration_hint.scriban
