@@ -96,6 +96,16 @@ public static class ScribanFunctions
 
     public static string Lower(string? s) => (s ?? "").ToLowerInvariant();
 
-    public static string NullableCs(string? type, bool nullable) =>
-        nullable && type != "string" ? (type ?? "") + "?" : type ?? "";
+    public static string NullableCs(string? type, object? nullable)
+    {
+        // Scriban puede pasar bool como bool, int (0/1) o string ("true"/"false")
+        var isNullable = nullable switch
+        {
+            bool b   => b,
+            int  i   => i != 0,
+            string s => s.Equals("true", StringComparison.OrdinalIgnoreCase),
+            _        => false
+        };
+        return isNullable && type != "string" ? (type ?? "") + "?" : type ?? "";
+    }
 }

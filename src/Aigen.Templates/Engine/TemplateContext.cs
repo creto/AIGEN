@@ -78,8 +78,16 @@ public class TemplateContext
     public string NsApi       => $"{RootNamespace}.API.Controllers";
 
     // ── Angular ──────────────────────────────────────────────
-    public string AngularFileName => ToKebab(EntityName);
-    public string AngularSelector => "app-" + ToKebab(EntityName);
+    public string AngularFileName   => ToKebab(EntityName);
+    public string AngularSelector   => "app-" + ToKebab(EntityName);
+    public string AngularVersion    => Config.Frontend.FrameworkVersion;
+    public string UiLibrary         => Config.Frontend.UiLibrary.ToString();
+    public bool   GenerateFrontend  => Config.Frontend.GenerateFrontend;
+
+    // ── Metadatos de generación ───────────────────────────────
+    public string Year              => Config.Project.Year;
+    public string Orm               => Config.Backend.Orm.ToString();
+    public string Description       => Config.Project.Description;
 
     private static string ToKebab(string s) =>
         System.Text.RegularExpressions.Regex
