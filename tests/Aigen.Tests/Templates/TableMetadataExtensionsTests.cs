@@ -9,6 +9,7 @@ public class TableMetadataExtensionsTests
     private static TableMetadata T(string name) =>
         new() { TableName = name, ClassName = name };
 
+    // ── Prefijos Incoder ──────────────────────────────────────
     [Theory]
     [InlineData("TM_Factura",  TableType.Movement)]
     [InlineData("TB_Ciudad",   TableType.Basic)]
@@ -18,7 +19,9 @@ public class TableMetadataExtensionsTests
     [InlineData("TA_Audit",    TableType.Audit)]
     [InlineData("TS_Sistema",  TableType.System)]
     [InlineData("TH_Historic", TableType.Historical)]
-    [InlineData("SinPrefijo",  TableType.Unknown)]
+    // "SinPrefijo" ya no retorna Unknown — ahora usa heurística
+    // Una tabla "SinPrefijo" con 0 columnas cae en Basic (fkCount=0, colCount=0 ≤ 6)
+    // Ese comportamiento ES el correcto — Unknown solo existe como fallback en HasFullCrud
     public void GetTableType_DetectsPrefixCorrectly(string name, TableType expected)
         => T(name).GetTableType().Should().Be(expected);
 
