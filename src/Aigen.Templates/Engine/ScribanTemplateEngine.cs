@@ -1,14 +1,14 @@
 using Scriban;
 using Scriban.Runtime;
-// Alias para evitar conflicto con Scriban.TemplateContext
 using ScribanCtx = Scriban.TemplateContext;
 
 namespace Aigen.Templates.Engine;
 
 /// <summary>
 /// Motor de plantillas basado en Scriban.
-/// Las propiedades del TemplateContext se exponen en snake_case:
-///   EntityName -> entity_name  |  PkType -> pk_type
+/// Las propiedades del TemplateContext se exponen en snake_case.
+/// Las funciones utilitarias (pascal, camel, kebab...) se registran
+/// importando la clase estatica ScribanFunctions como ScriptObject.
 /// </summary>
 public class ScribanTemplateEngine : ITemplateEngine
 {
@@ -29,24 +29,24 @@ public class ScribanTemplateEngine : ITemplateEngine
             throw new InvalidOperationException($"Error en plantilla Scriban:\n{msgs}");
         }
 
-        var globals = new ScriptObject();
+        // ── Contexto principal (propiedades en snake_case) ────
+        var contextObj = new ScriptObject();
+        contextObj.Import(ctx, renamer: m => ToSnake(m.Name));
 
-        // Importar contexto con conversion snake_case automatica
-        globals.Import(ctx, renamer: m => ToSnake(m.Name));
+        // ── Funciones utilitarias ────────────────────────────
+        // Scriban requiere importar metodos estaticos como ScriptObject separado.
+        // Import(Type) mapea cada metodo publico estatico con el renamer dado.
+        var functionsObj = new ScriptObject();
+        functionsObj.Import(typeof(ScribanFunctions),
+            renamer: m => ToSnake(m.Name));
 
-        // Funciones utilitarias disponibles en todas las plantillas
-        globals["pascal"]      = new Func<string, string>(ToPascal);
-        globals["camel"]       = new Func<string, string>(ToCamel);
-        globals["kebab"]       = new Func<string, string>(ToKebab);
-        globals["upper"]       = new Func<string, string>(s => s.ToUpper());
-        globals["lower"]       = new Func<string, string>(s => s.ToLower());
-        globals["nullable_cs"] = new Func<string, bool, string>(
-            (t, n) => n && t != "string" ? t + "?" : t);
-        globals["now"]         = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+        // Fecha actual como variable simple
+        functionsObj["now"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
 
-        // Usar alias ScribanCtx para no colisionar con nuestro TemplateContext
+        // ── Combinar en el contexto Scriban ──────────────────
         var scribanCtx = new ScribanCtx { StrictVariables = false };
-        scribanCtx.PushGlobal(globals);
+        scribanCtx.PushGlobal(functionsObj);
+        scribanCtx.PushGlobal(contextObj); // contextObj tiene prioridad
 
         return Task.FromResult(tpl.Render(scribanCtx));
     }
@@ -61,18 +61,41 @@ public class ScribanTemplateEngine : ITemplateEngine
         }
         return sb.ToString();
     }
+}
 
-    private static string ToPascal(string s) =>
-        string.Concat(s.Split('_', ' ', '-')
+/// <summary>
+/// Funciones utilitarias para plantillas Scriban.
+/// Se importan via ScriptObject.Import(typeof(ScribanFunctions)).
+/// Scriban las expone en snake_case: Pascal->pascal, NullableCs->nullable_cs
+///
+/// Uso en plantillas:
+///   {{ pascal "mi_texto" }}   -> "MiTexto"
+///   {{ camel  "mi_texto" }}   -> "miTexto"
+///   {{ kebab  "MiTexto"  }}   -> "mi-texto"
+///   {{ nullable_cs "int" true }} -> "int?"
+/// </summary>
+public static class ScribanFunctions
+{
+    public static string Pascal(string? s) =>
+        string.Concat((s ?? "").Split('_', ' ', '-')
             .Select(w => w.Length > 0 ? char.ToUpper(w[0]) + w[1..] : w));
 
-    private static string ToCamel(string s)
+    public static string Camel(string? s)
     {
-        var p = ToPascal(s);
+        var p = Pascal(s);
         return p.Length > 0 ? char.ToLower(p[0]) + p[1..] : p;
     }
 
-    private static string ToKebab(string s) =>
+    public static string Kebab(string? s) =>
         System.Text.RegularExpressions.Regex
-            .Replace(s, "([A-Z])", "-$1").TrimStart('-').ToLower();
+            .Replace(s ?? "", "([A-Z])", "-$1")
+            .TrimStart('-')
+            .ToLower();
+
+    public static string Upper(string? s) => (s ?? "").ToUpperInvariant();
+
+    public static string Lower(string? s) => (s ?? "").ToLowerInvariant();
+
+    public static string NullableCs(string? type, bool nullable) =>
+        nullable && type != "string" ? (type ?? "") + "?" : type ?? "";
 }
