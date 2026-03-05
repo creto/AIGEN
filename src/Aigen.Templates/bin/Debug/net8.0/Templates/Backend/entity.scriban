@@ -16,12 +16,9 @@
 //                 perderán en la próxima generación.
 //                 Para extender, usa clases parciales o herencia.
 // ============================================================
-
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 namespace {{ ns_domain }};
-
 /// <summary>
 /// Entidad de dominio generada desde {{ table_name }}.
 /// </summary>
@@ -37,11 +34,33 @@ public class {{ entity_name }}
     {{ if col.has_max_length }}[MaxLength({{ col.max_length }})]{{ end }}
     [Column("{{ col.column_name }}")]
     public {{ col.c_sharp_type_nullable }} {{ col.property_name }} { get; set; }{{ if col.c_sharp_type == "string" }} = string.Empty;{{ else if col.is_nullable }} = null;{{ end }}
-
     {{~ end ~}}
     // ── Navegacion ────────────────────────────────────────────
+    {{~ nav_seen = [] ~}}
     {{~ for fk in table.foreign_keys ~}}
+    {{~
+      # Bug 1 FIX: usar navigation_property_name (CleanClassName ya removió prefijo TB_/TP_/TS_)
+      # NO usar pascal(fk.referenced_table) que conservaba el prefijo completo
+      nav_name = fk.navigation_property_name
+
+      # Bug 2 FIX: nav property con mismo nombre que la clase → CS0542
+      # Ej: clase Estado con nav property Estado → renombrar a EstadoNav
+      if nav_name == entity_name
+        nav_name = nav_name + "Nav"
+      end
+
+      # Bug 3 FIX: dos FKs a la misma tabla generan propiedad duplicada → CS0102
+      # Ej: EstadoDestinatarioInterno tiene FK_Funcionario x2
+      # Usar sufijo numérico para hacer unique
+      if array.contains nav_seen nav_name
+        nav_name = nav_name + "2"
+      end
+      if array.contains nav_seen nav_name
+        nav_name = nav_name + "3"
+      end
+      nav_seen = array.add nav_seen nav_name
+    ~}}
     [ForeignKey("{{ fk.column_name }}")]
-    public virtual {{ pascal fk.referenced_table }}? {{ fk.navigation_property_name }} { get; set; }
+    public virtual {{ fk.navigation_property_name }}? {{ nav_name }} { get; set; }
     {{~ end ~}}
 }

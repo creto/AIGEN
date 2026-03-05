@@ -9,7 +9,7 @@
 //  Tabla origen : {{ table_name }}
 //  Tipo tabla   : {{ table_type }}
 //  Capa         : API - Controllers
-//  Namespace    : {{ ns_api }}.Controllers
+//  Namespace    : {{ ns_api }}
 // ------------------------------------------------------------
 //  ADVERTENCIA  : Archivo generado automáticamente por AIGEN.
 //                 NO editar manualmente — los cambios se
@@ -24,8 +24,8 @@ using {{ ns_application }}.DTOs;
 namespace {{ ns_api }};
 
 /// <summary>
-/// API REST para {{ entity_name }} | Ruta: {{ api_route }}
-/// Tipo de tabla: {{ table_type }}
+/// Controlador REST para la entidad <b>{{ entity_name }}</b>.
+/// Ruta base: <c>{{ api_route }}</c> | Tipo de tabla: {{ table_type }}
 /// </summary>
 [ApiController]
 [Route("{{ api_route }}")]
@@ -41,9 +41,29 @@ public class {{ controller_name }} : ControllerBase
         _logger = logger;
     }
 
+    // ── GET (listado / paginado) ──────────────────────────────────────────────
+
     {{ if use_pagination }}
+    /// <summary>
+    /// Consulta los registros de <b>{{ entity_name }}</b> con paginación.
+    /// </summary>
+    /// <remarks>
+    /// Retorna una página de registros de {{ entity_name }} en {{ project_name }}.
+    /// Use los parámetros <c>page</c> y <c>pageSize</c> para controlar la paginación.
+    /// </remarks>
+    /// <param name="page" example="1">Número de página (inicia en 1)</param>
+    /// <param name="pageSize" example="20">Cantidad de registros por página (máximo 100)</param>
+    /// <response code="200">{{ entity_name }}: registros consultados exitosamente</response>
+    /// <response code="400">{{ entity_name }}: parámetros de paginación inválidos</response>
+    /// <response code="401">{{ entity_name }}: no tiene permisos o el token es inválido/caducó</response>
+    /// <response code="500">{{ entity_name }}: error interno al consultar registros</response>
     [HttpGet]
-    {{ if use_swagger }}[ProducesResponseType(typeof({{ entity_name }}PagedResponse), 200)]{{ end }}
+    {{ if use_swagger }}
+    [ProducesResponseType(typeof({{ entity_name }}PagedResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    {{ end }}
     public async Task<IActionResult> GetPaged(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
@@ -53,14 +73,46 @@ public class {{ controller_name }} : ControllerBase
         return Ok(result);
     }
     {{ else }}
+    /// <summary>
+    /// Consulta todos los registros de <b>{{ entity_name }}</b>.
+    /// </summary>
+    /// <remarks>
+    /// Retorna la lista completa de registros de {{ entity_name }} en {{ project_name }}.
+    /// </remarks>
+    /// <response code="200">{{ entity_name }}: registros consultados exitosamente</response>
+    /// <response code="401">{{ entity_name }}: no tiene permisos o el token es inválido/caducó</response>
+    /// <response code="500">{{ entity_name }}: error interno al consultar registros</response>
     [HttpGet]
+    {{ if use_swagger }}
+    [ProducesResponseType(typeof(IEnumerable<{{ entity_name }}Dto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    {{ end }}
     public async Task<IActionResult> GetAll(CancellationToken ct) =>
         Ok(await _svc.GetAllAsync(ct));
     {{ end }}
 
-    [HttpGet("{id:{{ lower pk_type }}}")]
-    {{ if use_swagger }}[ProducesResponseType(typeof({{ entity_name }}Dto), 200)]
-    [ProducesResponseType(404)]{{ end }}
+    // ── GET por ID ────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Consulta un registro de <b>{{ entity_name }}</b> por su identificador.
+    /// </summary>
+    /// <remarks>
+    /// Retorna el registro de {{ entity_name }} que coincida con el <c>id</c> proporcionado.
+    /// Si no existe, retorna 404.
+    /// </remarks>
+    /// <param name="id" example="1">Identificador único de {{ entity_name }}</param>
+    /// <response code="200">{{ entity_name }}: registro encontrado exitosamente</response>
+    /// <response code="401">{{ entity_name }}: no tiene permisos o el token es inválido/caducó</response>
+    /// <response code="404">{{ entity_name }}: registro no encontrado con el id proporcionado</response>
+    /// <response code="500">{{ entity_name }}: error interno al consultar el registro</response>
+    [HttpGet("{id:{{ pk_type | string.downcase }}}")]
+    {{ if use_swagger }}
+    [ProducesResponseType(typeof({{ entity_name }}Dto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    {{ end }}
     public async Task<IActionResult> GetById({{ pk_type }} id, CancellationToken ct)
     {
         var item = await _svc.GetByIdAsync(id, ct);
@@ -68,9 +120,27 @@ public class {{ controller_name }} : ControllerBase
     }
 
     {{ if has_full_crud }}
+    // ── POST (crear) ──────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Crea un nuevo registro de <b>{{ entity_name }}</b>.
+    /// </summary>
+    /// <remarks>
+    /// Inserta un nuevo registro de {{ entity_name }} en {{ project_name }}.
+    /// Retorna el id del registro creado en la cabecera <c>Location</c>.
+    /// </remarks>
+    /// <param name="request">Datos del nuevo {{ entity_name }} a crear</param>
+    /// <response code="201">{{ entity_name }}: registro creado exitosamente</response>
+    /// <response code="400">{{ entity_name }}: datos inválidos o falta información requerida</response>
+    /// <response code="401">{{ entity_name }}: no tiene permisos o el token es inválido/caducó</response>
+    /// <response code="500">{{ entity_name }}: error interno al crear el registro</response>
     [HttpPost]
-    {{ if use_swagger }}[ProducesResponseType(201)]
-    [ProducesResponseType(400)]{{ end }}
+    {{ if use_swagger }}
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    {{ end }}
     public async Task<IActionResult> Create(
         [FromBody] Create{{ entity_name }}Request request, CancellationToken ct)
     {
@@ -79,21 +149,61 @@ public class {{ controller_name }} : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id }, new { id });
     }
 
-    [HttpPut("{id:{{ lower pk_type }}}")]
-    {{ if use_swagger }}[ProducesResponseType(204)]
-    [ProducesResponseType(404)]{{ end }}
+    // ── PUT (actualizar) ──────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Actualiza un registro existente de <b>{{ entity_name }}</b>.
+    /// </summary>
+    /// <remarks>
+    /// Modifica completamente el registro de {{ entity_name }} con el <c>id</c> indicado.
+    /// Todos los campos editables deben enviarse en el cuerpo de la solicitud.
+    /// </remarks>
+    /// <param name="id" example="1">Identificador único de {{ entity_name }} a actualizar</param>
+    /// <param name="request">Nuevos datos para {{ entity_name }}</param>
+    /// <response code="204">{{ entity_name }}: registro actualizado exitosamente</response>
+    /// <response code="400">{{ entity_name }}: datos inválidos o falta información requerida</response>
+    /// <response code="401">{{ entity_name }}: no tiene permisos o el token es inválido/caducó</response>
+    /// <response code="404">{{ entity_name }}: registro no encontrado con el id proporcionado</response>
+    /// <response code="500">{{ entity_name }}: error interno al actualizar el registro</response>
+    [HttpPut("{id:{{ pk_type | string.downcase }}}")]
+    {{ if use_swagger }}
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    {{ end }}
     public async Task<IActionResult> Update(
         {{ pk_type }} id,
         [FromBody] Update{{ entity_name }}Request request,
         CancellationToken ct)
     {
+        if (!ModelState.IsValid) return BadRequest(ModelState);
         try   { await _svc.UpdateAsync(id, request, ct); return NoContent(); }
         catch (KeyNotFoundException) { return NotFound(); }
     }
 
-    [HttpDelete("{id:{{ lower pk_type }}}")]
-    {{ if use_swagger }}[ProducesResponseType(204)]
-    [ProducesResponseType(404)]{{ end }}
+    // ── DELETE ────────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Elimina un registro de <b>{{ entity_name }}</b>.
+    /// </summary>
+    /// <remarks>
+    /// Elimina permanentemente el registro de {{ entity_name }} con el <c>id</c> indicado.
+    /// Esta operación no se puede deshacer.
+    /// </remarks>
+    /// <param name="id" example="1">Identificador único de {{ entity_name }} a eliminar</param>
+    /// <response code="204">{{ entity_name }}: registro eliminado exitosamente</response>
+    /// <response code="401">{{ entity_name }}: no tiene permisos o el token es inválido/caducó</response>
+    /// <response code="404">{{ entity_name }}: registro no encontrado con el id proporcionado</response>
+    /// <response code="500">{{ entity_name }}: error interno al eliminar el registro</response>
+    [HttpDelete("{id:{{ pk_type | string.downcase }}}")]
+    {{ if use_swagger }}
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    {{ end }}
     public async Task<IActionResult> Delete({{ pk_type }} id, CancellationToken ct)
     {
         try   { await _svc.DeleteAsync(id, ct); return NoContent(); }
@@ -101,7 +211,27 @@ public class {{ controller_name }} : ControllerBase
     }
 
     {{ if has_estado }}
-    [HttpPatch("{id:{{ lower pk_type }}}/estado")]
+    // ── PATCH estado ──────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Cambia el estado activo/inactivo de un registro de <b>{{ entity_name }}</b>.
+    /// </summary>
+    /// <remarks>
+    /// Alterna el campo <c>Estado</c> del registro de {{ entity_name }} indicado.
+    /// Si está activo (1) lo desactiva (0) y viceversa.
+    /// </remarks>
+    /// <param name="id" example="1">Identificador único de {{ entity_name }}</param>
+    /// <response code="204">{{ entity_name }}: estado cambiado exitosamente</response>
+    /// <response code="401">{{ entity_name }}: no tiene permisos o el token es inválido/caducó</response>
+    /// <response code="404">{{ entity_name }}: registro no encontrado con el id proporcionado</response>
+    /// <response code="500">{{ entity_name }}: error interno al cambiar el estado</response>
+    [HttpPatch("{id:{{ pk_type | string.downcase }}}/estado")]
+    {{ if use_swagger }}
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    {{ end }}
     public async Task<IActionResult> ToggleEstado({{ pk_type }} id, CancellationToken ct)
     {
         await _svc.ToggleEstadoAsync(id, ct);

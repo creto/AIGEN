@@ -165,3 +165,8 @@ C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Backend
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Backend\repository_ef.scriban
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\dbcontext.scriban
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\efcore_migration_hint.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\api_csproj.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\application_csproj.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\domain_csproj.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\infrastructure_csproj.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\solution.scriban
