@@ -40,7 +40,7 @@ public class GenerateCommand : AsyncCommand<GenerateCommand.Settings>
         Aigen.CLI.UI.Banner.Show();
 
         // ── 1. Cargar config ──────────────────────────────────
-        Aigen.CLI.UI.Banner.ShowStep("1/7", "Cargando configuracion");
+        Aigen.CLI.UI.Banner.ShowStep("1/8", "Cargando configuracion");
         if (!File.Exists(settings.ConfigPath))
         {
             Aigen.CLI.UI.Banner.ShowError($"Archivo no encontrado: {settings.ConfigPath}");
@@ -68,7 +68,7 @@ public class GenerateCommand : AsyncCommand<GenerateCommand.Settings>
         }
 
         // ── 2. Validar config ─────────────────────────────────
-        Aigen.CLI.UI.Banner.ShowStep("2/7", "Validando configuracion");
+        Aigen.CLI.UI.Banner.ShowStep("2/8", "Validando configuracion");
         var validator  = new ConfigValidator();
         var validation = validator.Validate(config);
 
@@ -83,8 +83,112 @@ public class GenerateCommand : AsyncCommand<GenerateCommand.Settings>
         }
         Aigen.CLI.UI.Banner.ShowSuccess("Configuracion valida");
 
+        //
+        
+        // ── 3. Configuración interactiva (ORM, Frontend, Features) ────────────
+        Aigen.CLI.UI.Banner.ShowStep("3/8", "Configuracion de generacion");
+
+        // ── ORM ───────────────────────────────────────────────────────────────
+        var ormChoice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[bold]¿Qué ORM deseas usar?[/]")
+                .AddChoices(
+                    "[green]EF Core + Dapper (Híbrido recomendado)[/]",
+                    "[blue]Entity Framework Core (solo EF)[/]",
+                    "[yellow]Dapper (solo Dapper)[/]"));
+
+        config.Backend.Orm = ormChoice switch
+        {
+            var s when s.StartsWith("[green]")  => OrmType.EFCoreWithDapper,
+            var s when s.StartsWith("[blue]")   => OrmType.EntityFrameworkCore,
+            _                                    => OrmType.Dapper
+        };
+
+        AnsiConsole.MarkupLine($"[grey]  ORM seleccionado: [bold]{config.Backend.Orm}[/][/]");
+
+        // ── Target Framework ──────────────────────────────────────────────────
+        var tfChoice = AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title("[bold]¿Target framework .NET?[/]")
+                .AddChoices(
+                    "[green]net8.0 (LTS recomendado)[/]",
+                    "[blue]net9.0[/]",
+                    "[grey]net7.0[/]"));
+
+        config.Backend.TargetFramework = tfChoice switch
+        {
+            var s when s.StartsWith("[green]") => "net8.0",
+            var s when s.StartsWith("[blue]")  => "net9.0",
+            _                                   => "net7.0"
+        };
+
+        AnsiConsole.MarkupLine($"[grey]  Framework: [bold]{config.Backend.TargetFramework}[/][/]");
+
+        // ── Frontend ──────────────────────────────────────────────────────────
+        var generateFrontend = AnsiConsole.Confirm(
+            "¿Generar frontend Angular?", config.Frontend.GenerateFrontend);
+        config.Frontend.GenerateFrontend = generateFrontend;
+
+        if (generateFrontend)
+        {
+            var angularVersion = AnsiConsole.Prompt(
+                new SelectionPrompt<string>()
+                    .Title("[bold]¿Versión de Angular?[/]")
+                    .AddChoices(
+                        "[green]18 (recomendado)[/]",
+                        "[blue]17[/]",
+                        "[grey]16[/]"));
+
+            config.Frontend.FrameworkVersion = angularVersion switch
+            {
+                var s when s.StartsWith("[green]") => "18",
+                var s when s.StartsWith("[blue]")  => "17",
+                _                                   => "16"
+            };
+            AnsiConsole.MarkupLine($"[grey]  Angular: [bold]v{config.Frontend.FrameworkVersion}[/][/]");
+        }
+
+        // ── Features ──────────────────────────────────────────────────────────
+        var featureChoices = AnsiConsole.Prompt(
+            new MultiSelectionPrompt<string>()
+                .Title("[bold]¿Qué features habilitar?[/]")
+                .PageSize(10)
+                .InstructionsText("[grey](ESPACIO seleccionar · ENTER confirmar)[/]")
+                .AddChoices(
+                    "Paginación en GET",
+                    "Soft Delete (campo Estado)",
+                    "Auditoría (AudFmod, AudMachine...)",
+                    "FluentValidation",
+                    "Swagger / OpenAPI",
+                    "Generar Dockerfile",
+                    "Generar Docker Compose",
+                    "Generar Tests unitarios")
+                .Select("Paginación en GET")
+                .Select("Soft Delete (campo Estado)")
+                .Select("Auditoría (AudFmod, AudMachine...)")
+                .Select("FluentValidation")
+                .Select("Swagger / OpenAPI"));
+
+        config.Features.GeneratePagination    = featureChoices.Contains("Paginación en GET");
+        config.Features.SoftDelete            = featureChoices.Contains("Soft Delete (campo Estado)");
+        config.Features.Auditing              = featureChoices.Contains("Auditoría (AudFmod, AudMachine...)");
+        config.Features.Validation            = featureChoices.Contains("FluentValidation")
+                                                    ? ValidationProvider.FluentValidation
+                                                    : ValidationProvider.DataAnnotations;
+        config.Features.ApiDoc                = featureChoices.Contains("Swagger / OpenAPI")
+                                                    ? ApiDocProvider.Swagger
+                                                    : ApiDocProvider.None;
+        config.Features.GenerateDockerfile    = featureChoices.Contains("Generar Dockerfile");
+        config.Features.GenerateDockerCompose = featureChoices.Contains("Generar Docker Compose");
+        config.Features.GenerateTests         = featureChoices.Contains("Generar Tests unitarios");
+
+        Aigen.CLI.UI.Banner.ShowSuccess("Configuracion de generacion lista");
+
+
+
+
         // ── 3. Conectar BD ────────────────────────────────────
-        Aigen.CLI.UI.Banner.ShowStep("3/7", "Conectando a la base de datos");
+        Aigen.CLI.UI.Banner.ShowStep("4/8", "Conectando a la base de datos");
         var reader    = SchemaReaderFactory.Create(config.Database.Engine);
         var connected = false;
         var connError = string.Empty;
@@ -119,7 +223,7 @@ public class GenerateCommand : AsyncCommand<GenerateCommand.Settings>
         Aigen.CLI.UI.Banner.ShowSuccess("Conexion exitosa");
 
         // ── 4. Leer schema ────────────────────────────────────
-        Aigen.CLI.UI.Banner.ShowStep("4/7", "Leyendo schema de la base de datos");
+        Aigen.CLI.UI.Banner.ShowStep("5/8", "Leyendo schema de la base de datos");
         Aigen.Core.Metadata.DatabaseMetadata db = null!;
         var readError = string.Empty;
 
@@ -150,7 +254,7 @@ public class GenerateCommand : AsyncCommand<GenerateCommand.Settings>
             $"Columnas: [bold]{db.TotalColumns}[/]");
 
         // ── 5. Seleccionar tablas ─────────────────────────────
-        Aigen.CLI.UI.Banner.ShowStep("5/7", "Seleccionando tablas a generar");
+        Aigen.CLI.UI.Banner.ShowStep("6/8", "Seleccionando tablas a generar");
         var naming   = new NamingConventionService();
         var filter   = new SchemaFilterService(naming);
         var filtered = filter.Filter(db.Tables, config.Database);
@@ -242,7 +346,7 @@ public class GenerateCommand : AsyncCommand<GenerateCommand.Settings>
         }
 
         // ── 6. Confirmar ──────────────────────────────────────
-        Aigen.CLI.UI.Banner.ShowStep("6/7", "Confirmacion");
+        Aigen.CLI.UI.Banner.ShowStep("7/8", "Confirmacion");
         var outPath = config.ResolveOutputPath();
 
         var summaryTable = new Table()
@@ -285,7 +389,7 @@ public class GenerateCommand : AsyncCommand<GenerateCommand.Settings>
             return 0;
 
         // ── 7. Generar ────────────────────────────────────────
-        Aigen.CLI.UI.Banner.ShowStep("7/7", "Generando codigo");
+        Aigen.CLI.UI.Banner.ShowStep("8/8", "Generando codigo");
 
         var engine    = new ScribanTemplateEngine();
         var locator   = new TemplateLocator(settings.TemplatesPath);

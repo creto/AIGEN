@@ -22,7 +22,7 @@ public class TemplateContext
     public string Author        => Config.Project.Author;
     public string GeneratedDate => DateTime.Now.ToString("yyyy-MM-dd");
     public string DotnetVersion  => Config.Backend.TargetFramework;   // "net8.0"
-    public string RootNamespace  => Config.Backend.RootNamespace;      // "Doc4us.SGDEA"
+    public string RootNamespace  => Config.Project.RootNamespace;      // "Doc4us.SGDEA"
     public string Version        => Config.Project.Version;            // "1.0.0"
     public string Orm            => Config.Backend.Orm.ToString();     // "EFCoreWithDapper"
 

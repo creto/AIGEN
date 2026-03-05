@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>{{ dotnet_version }}</TargetFramework>
+    <RootNamespace>{{ root_namespace }}.Infrastructure</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Version>{{ version }}</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\{{ project_name }}.Domain\{{ project_name }}.Domain.csproj" />
+    <ProjectReference Include="..\{{ project_name }}.Application\{{ project_name }}.Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    {{ if orm == "EntityFrameworkCore" || orm == "EFCoreWithDapper" }}
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    {{ end }}
+    <PackageReference Include="Dapper" Version="2.1.35" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+  </ItemGroup>
+</Project>

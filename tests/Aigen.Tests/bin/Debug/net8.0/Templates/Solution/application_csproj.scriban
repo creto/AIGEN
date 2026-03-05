@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>{{ dotnet_version }}</TargetFramework>
+    <RootNamespace>{{ root_namespace }}.Application</RootNamespace>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Version>{{ version }}</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\{{ project_name }}.Domain\{{ project_name }}.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="11.9.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+</Project>
