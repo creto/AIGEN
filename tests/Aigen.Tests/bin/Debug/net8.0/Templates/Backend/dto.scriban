@@ -17,6 +17,7 @@
 //                 Para extender, usa clases parciales o herencia.
 // ============================================================
 
+using System.ComponentModel.DataAnnotations;
 namespace {{ ns_application }}.DTOs;
 
 /// <summary>DTO de lectura para {{ entity_name }}.</summary>

@@ -17,6 +17,7 @@
 //                 Para extender, usa clases parciales o herencia.
 // ============================================================
 
+using Microsoft.Extensions.Logging;
 using {{ ns_domain }};
 using {{ ns_application }}.DTOs;
 using {{ root_namespace }}.Application.Interfaces;
@@ -79,7 +80,7 @@ public class {{ service_name }}
     {
         if (!await _repo.ExistsAsync(id, ct))
             throw new KeyNotFoundException($"{{ entity_name }} {id} no encontrado.");
-        {{ if use_soft_delete }}
+        {{ if has_eliminado_column }}
         await _repo.SoftDeleteAsync(id, ct);
         {{ else }}
         await _repo.DeleteAsync(id, ct);

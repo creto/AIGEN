@@ -9,10 +9,11 @@ public class NamingConventionService
 {
     private static readonly string[] TablePrefixes =
     {
+        "TBR_", "TBM_",                                     // compuestos PRIMERO
         "TM_", "TC_", "TS_", "TR_", "TD_", "TB_", "TG_",
-        "TA_", "TP_", "TV_", "TH_", "TL_", "TN_", "TX_"
+        "TA_", "TP_", "TV_", "TH_", "TL_", "TN_", "TX_",
+        "TI_", "TF_", "TK_"
     };
-
     private static readonly string[] TableSuffixes =
     {
         "_TBL", "_TAB", "_TABLE"

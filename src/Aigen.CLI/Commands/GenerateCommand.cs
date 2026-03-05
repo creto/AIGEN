@@ -232,9 +232,13 @@ public class GenerateCommand : AsyncCommand<GenerateCommand.Settings>
             {
                 try
                 {
-                    db = await reader.ReadAsync(
+                    var schemas = config.Database.Schemas.Any()
+                        ? config.Database.Schemas
+                        : new List<string> { config.Database.Schema };
+
+                    db = await reader.ReadMultiSchemaAsync(
                         config.Database.ConnectionString,
-                        config.Database.Schema);
+                        schemas);
                 }
                 catch (Exception ex)
                 {

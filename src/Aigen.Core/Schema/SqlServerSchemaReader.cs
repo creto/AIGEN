@@ -1,11 +1,15 @@
 using System.Data;
 using Aigen.Core.Metadata;
 using Microsoft.Data.SqlClient;
+using Aigen.Core.Config;
+using Aigen.Core.Services;
+
 
 namespace Aigen.Core.Schema;
 
 public class SqlServerSchemaReader : ISchemaReader
 {
+    private readonly NamingConventionService _naming = new();
     public async Task<bool> TestConnectionAsync(string connectionString, CancellationToken ct = default)
     {
         try
@@ -17,8 +21,24 @@ public class SqlServerSchemaReader : ISchemaReader
         catch { return false; }
     }
 
-    public async Task<DatabaseMetadata> ReadAsync(string connectionString, string schema = "dbo", CancellationToken ct = default)
+    // ============================================================
+    // REEMPLAZAR el método ReadAsync COMPLETO con este código
+    // ============================================================
+
+    public async Task<DatabaseMetadata> ReadAsync(
+        string connectionString,
+        string schema = "dbo",
+        CancellationToken ct = default)
+        => await ReadMultiSchemaAsync(connectionString, new[] { schema }, ct);
+
+    public async Task<DatabaseMetadata> ReadMultiSchemaAsync(
+        string connectionString,
+        IEnumerable<string> schemas,
+        CancellationToken ct = default)
     {
+        var schemaList = schemas.ToList();
+        var firstSchema = schemaList.FirstOrDefault() ?? "dbo";
+
         await using var conn = new SqlConnection(connectionString);
         await conn.OpenAsync(ct);
 
@@ -26,17 +46,26 @@ public class SqlServerSchemaReader : ISchemaReader
         {
             ServerName    = conn.DataSource,
             DatabaseName  = conn.Database,
-            Schema        = schema,
+            Schema        = firstSchema,
             Engine        = "SqlServer",
             ServerVersion = conn.ServerVersion,
             ReadAt        = DateTime.Now
         };
 
-        var tables  = await ReadTablesAsync(conn, schema, ct);
-        var columns = await ReadColumnsAsync(conn, schema, ct);
-        var pks     = await ReadPrimaryKeysAsync(conn, schema, ct);
-        var fks     = await ReadForeignKeysAsync(conn, schema, ct);
-        var idxs    = await ReadIndexesAsync(conn, schema, ct);
+        var tables  = new List<TableMetadata>();
+        var columns = new List<RawColumn>();
+        var pks     = new List<RawKey>();
+        var fks     = new List<RawFK>();
+        var idxs    = new List<RawIdx>();
+
+        foreach (var s in schemaList)
+        {
+            tables .AddRange(await ReadTablesAsync(conn, s, ct));
+            columns.AddRange(await ReadColumnsAsync(conn, s, ct));
+            pks    .AddRange(await ReadPrimaryKeysAsync(conn, s, ct));
+            fks    .AddRange(await ReadForeignKeysAsync(conn, s, ct));
+            idxs   .AddRange(await ReadIndexesAsync(conn, s, ct));
+        }
 
         foreach (var t in tables)
         {
@@ -44,18 +73,14 @@ public class SqlServerSchemaReader : ISchemaReader
                 .Where(c => c.TableName == t.TableName)
                 .OrderBy(c => c.OrdinalPosition)
                 .ToList();
-
             var pk = pks
                 .Where(p => p.TableName == t.TableName)
                 .Select(p => p.ColumnName)
                 .ToList();
-
             foreach (var col in cols) col.IsPrimaryKey = pk.Contains(col.ColumnName);
             MarkAuditFields(cols);
-
             t.Columns     = cols.Cast<ColumnMetadata>().ToList();
             t.PrimaryKeys = pk;
-
             t.ForeignKeys = fks
                 .Where(f => f.TableName == t.TableName)
                 .Select(f => new ForeignKeyMetadata
@@ -64,9 +89,8 @@ public class SqlServerSchemaReader : ISchemaReader
                     ColumnName             = f.ColumnName,
                     ReferencedTable        = f.ReferencedTable,
                     ReferencedColumn       = f.ReferencedColumn,
-                    NavigationPropertyName = CleanClassName(f.ReferencedTable)
+                    NavigationPropertyName = _naming.ToClassName(f.ReferencedTable)
                 }).ToList();
-
             t.Indexes = idxs
                 .Where(i => i.TableName == t.TableName)
                 .GroupBy(i => i.IndexName)
@@ -84,7 +108,7 @@ public class SqlServerSchemaReader : ISchemaReader
     }
 
     // ── Lectura de tablas ────────────────────────────────────────
-    private static async Task<List<TableMetadata>> ReadTablesAsync(
+    private async Task<List<TableMetadata>> ReadTablesAsync(
         SqlConnection conn, string schema, CancellationToken ct)
     {
         const string sql = @"SELECT TABLE_SCHEMA, TABLE_NAME
@@ -224,10 +248,10 @@ public class SqlServerSchemaReader : ISchemaReader
     }
 
     // ── Helpers ──────────────────────────────────────────────────
-    private static TableMetadata BuildTable(string schema, string tableName)
+    private TableMetadata BuildTable(string schema, string tableName)
     {
-        var className      = CleanClassName(tableName);
-        var classNamePlural = Pluralize(className);
+        var className      = _naming.ToClassName(tableName);
+        var classNamePlural= _naming.ToClassNamePlural(className);
         var objectName     = ToCamelCase(className);
         return new TableMetadata
         {
@@ -257,12 +281,21 @@ public class SqlServerSchemaReader : ISchemaReader
 
     private static string CleanClassName(string tableName)
     {
-        var prefixes = new[] { "TM_", "TC_", "TS_", "TR_", "TD_", "TB_", "TG_" };
-        var name = tableName;
-        foreach (var p in prefixes)
-            if (name.StartsWith(p, StringComparison.OrdinalIgnoreCase))
-            { name = name[p.Length..]; break; }
-        return ToPascalCase(name);
+    // Ordenar de MÁS LARGO a MÁS CORTO — evita que "TB_" consuma
+    // el inicio de "TBR_" antes de intentar el prefijo completo
+    var prefixes = new[]
+    {
+        "TBR_", "TBM_",
+        "TM_", "TB_", "TP_", "TS_",
+        "TR_", "TD_", "TG_", "TC_",
+        "TA_", "TI_", "TH_", "TF_",
+        "TK_", "TV_", "TL_"
+    };
+    var name = tableName;
+    foreach (var p in prefixes)
+        if (name.StartsWith(p, StringComparison.OrdinalIgnoreCase))
+        { name = name[p.Length..]; break; }
+    return ToPascalCase(name);
     }
 
     private static string Pluralize(string name)

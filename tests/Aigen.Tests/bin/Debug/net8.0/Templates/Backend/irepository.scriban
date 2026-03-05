@@ -37,7 +37,7 @@ public interface I{{ repo_name }}
     Task<{{ pk_type }}> CreateAsync(Create{{ entity_name }}Request request, CancellationToken ct = default);
     Task UpdateAsync({{ pk_type }} id, Update{{ entity_name }}Request request, CancellationToken ct = default);
 
-    {{ if use_soft_delete }}
+    {{ if has_eliminado_column }}
     Task SoftDeleteAsync({{ pk_type }} id, CancellationToken ct = default);
     {{ else }}
     Task DeleteAsync({{ pk_type }} id, CancellationToken ct = default);
