@@ -58,11 +58,18 @@ public class FileGeneratorService
         var t  = ctx.Table;
         var ns = ctx.ProjectName;
 
-        // Entity (siempre)
+        // Entity (siempre — incluso para TH_/TA_ para que las FKs resuelvan)
         await Save(ctx, "entity.scriban",
             Path.Combine(outPath, "src", $"{ns}.Domain", "Entities",
                 $"{t.ClassName}.cs"), result, ct);
 
+        // TH_ (Historical) y TA_ (Audit) solo generan Entity — no Application/API
+        var isAuditOrHistorical = t.TableName.StartsWith("TH_", StringComparison.OrdinalIgnoreCase)
+                               || t.TableName.StartsWith("TA_", StringComparison.OrdinalIgnoreCase);
+        if (isAuditOrHistorical) return;
+
+        // Tablas sin PK no pueden tener repositorio/service/controller
+        if (t.PrimaryKeyColumn is null) return;
         // DTO (siempre)
         await Save(ctx, "dto.scriban",
             Path.Combine(outPath, "src", $"{ns}.Application",

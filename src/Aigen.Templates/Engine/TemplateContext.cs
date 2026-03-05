@@ -71,6 +71,14 @@ public class TemplateContext
     public bool UsePagination       => Config.Features.GeneratePagination;
     public bool UseSoftDelete       => Config.Features.SoftDelete;
     public bool UseAuditing         => Config.Features.Auditing;
+    public bool HasAuditColumns     => Config.Features.Auditing && Table.Columns.Any(c => c.IsAuditField);
+    
+    // AGREGAR después de HasAuditColumns:
+    public bool HasEliminadoColumn => Table.Columns.Any(c => c.PropertyName == "Eliminado");
+    public bool HasCreadoEn     => Table.Columns.Any(c => c.PropertyName == "CreadoEn");
+    public bool HasCreadoPor    => Table.Columns.Any(c => c.PropertyName == "CreadoPor");
+    public bool HasModificadoEn => Table.Columns.Any(c => c.PropertyName == "ModificadoEn");
+    public bool HasModificadoPor=> Table.Columns.Any(c => c.PropertyName == "ModificadoPor");
     public bool UseFluentValidation =>
         Config.Features.Validation == ValidationProvider.FluentValidation;
     public bool UseAutoMapper =>

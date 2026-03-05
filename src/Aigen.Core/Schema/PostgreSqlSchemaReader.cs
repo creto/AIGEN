@@ -77,7 +77,7 @@ public class PostgreSqlSchemaReader : ISchemaReader
     }
 
     // ── Tablas ────────────────────────────────────────────────────
-    private static async Task<List<TableMetadata>> ReadTablesAsync(
+    private async Task<List<TableMetadata>> ReadTablesAsync(
         NpgsqlConnection conn, string schema, CancellationToken ct)
     {
         const string sql = @"
@@ -286,4 +286,25 @@ public class PostgreSqlSchemaReader : ISchemaReader
     private record RawFK(
         string ConstraintName, string TableName, string ColumnName,
         string ReferencedTable, string ReferencedColumn);
+
+
+    // Agregar ANTES del último } de la clase PostgreSqlSchemaReader:
+
+    public async Task<DatabaseMetadata> ReadMultiSchemaAsync(
+        string connectionString,
+        IEnumerable<string> schemas,
+        CancellationToken ct = default)
+    {
+        DatabaseMetadata? result = null;
+        foreach (var schema in schemas)
+        {
+            var partial = await ReadAsync(connectionString, schema, ct);
+            if (result is null)
+                result = partial;
+            else
+                result.Tables.AddRange(partial.Tables);
+        }
+        return result ?? await ReadAsync(connectionString, "public", ct);
+    }
 }
+

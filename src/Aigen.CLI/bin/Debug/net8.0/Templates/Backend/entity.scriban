@@ -25,7 +25,27 @@ namespace {{ ns_domain }};
 [Table("{{ table_name }}", Schema = "{{ db_schema }}")]
 public class {{ entity_name }}
 {
+    {{~
+      # Pre-computar nombres de propiedades escalares para detección de conflictos
+      # en navegaciones. nav_seen incluye:
+      #   1. El nombre de la clase (CS0542)
+      #   2. Todos los property_name de columnas escalares (CS0102 col+nav)
+      nav_seen = [entity_name]
+      for col in all_columns
+        pname = col.property_name
+        if pname == entity_name
+          pname = pname + "Value"
+        end
+        nav_seen = array.add nav_seen pname
+      end
+    ~}}
     {{~ for col in all_columns ~}}
+    {{~
+      prop_name = col.property_name
+      if prop_name == entity_name
+        prop_name = prop_name + "Value"
+      end
+    ~}}
     {{~ if col.is_primary_key ~}}
     [Key]
     {{ if col.is_identity }}[DatabaseGenerated(DatabaseGeneratedOption.Identity)]{{ end }}
@@ -33,30 +53,20 @@ public class {{ entity_name }}
     {{ if col.is_required && !col.is_primary_key }}[Required]{{ end }}
     {{ if col.has_max_length }}[MaxLength({{ col.max_length }})]{{ end }}
     [Column("{{ col.column_name }}")]
-    public {{ col.c_sharp_type_nullable }} {{ col.property_name }} { get; set; }{{ if col.c_sharp_type == "string" }} = string.Empty;{{ else if col.is_nullable }} = null;{{ end }}
+    public {{ col.c_sharp_type_nullable }} {{ prop_name }} { get; set; }{{ if col.c_sharp_type == "string" }} = string.Empty;{{ else if col.is_nullable }} = null;{{ end }}
     {{~ end ~}}
     // ── Navegacion ────────────────────────────────────────────
-    {{~ nav_seen = [] ~}}
     {{~ for fk in table.foreign_keys ~}}
     {{~
-      # Bug 1 FIX: usar navigation_property_name (CleanClassName ya removió prefijo TB_/TP_/TS_)
-      # NO usar pascal(fk.referenced_table) que conservaba el prefijo completo
       nav_name = fk.navigation_property_name
 
-      # Bug 2 FIX: nav property con mismo nombre que la clase → CS0542
-      # Ej: clase Estado con nav property Estado → renombrar a EstadoNav
-      if nav_name == entity_name
-        nav_name = nav_name + "Nav"
-      end
-
-      # Bug 3 FIX: dos FKs a la misma tabla generan propiedad duplicada → CS0102
-      # Ej: EstadoDestinatarioInterno tiene FK_Funcionario x2
-      # Usar sufijo numérico para hacer unique
-      if array.contains nav_seen nav_name
-        nav_name = nav_name + "2"
-      end
-      if array.contains nav_seen nav_name
-        nav_name = nav_name + "3"
+      # Sufijo incremental hasta encontrar nombre único
+      # nav_seen ya contiene: nombre clase + todas las propiedades escalares
+      base_nav = nav_name
+      suffix = 2
+      while array.contains nav_seen nav_name
+        nav_name = base_nav + suffix
+        suffix = suffix + 1
       end
       nav_seen = array.add nav_seen nav_name
     ~}}

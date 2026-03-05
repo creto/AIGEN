@@ -41,14 +41,18 @@ public class {{ entity_name }}Configuration : IEntityTypeConfiguration<{{ entity
         {{ for fk in table.foreign_keys }}
         builder.HasOne(e => e.{{ fk.navigation_property_name }})
                .WithMany()
-               .HasForeignKey(e => e.{{ fk.column_name }})
+               .HasForeignKey("{{ fk.column_name }}")
                .OnDelete(DeleteBehavior.Restrict);
         {{ end }}
 
         // ── Indices ───────────────────────────────────────────
         {{ for idx in table.indexes }}
         {{~ if !idx.is_primary_key ~}}
-        builder.HasIndex({{ for col in idx.columns }}e => e.{{ col }}{{ if !for.last }}, {{ end }}{{ end }})
+        {{~ if idx.columns.size == 1 ~}}
+        builder.HasIndex(e => e.{{ idx.columns[0] }})
+        {{~ else ~}}
+        builder.HasIndex(e => new { {{ for col in idx.columns }}e.{{ col }}{{ if !for.last }}, {{ end }}{{ end }} })
+        {{~ end ~}}
                .HasDatabaseName("{{ idx.index_name }}")
                {{ if idx.is_unique }}.IsUnique(){{ end }};
         {{ end ~}}

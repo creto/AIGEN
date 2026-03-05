@@ -30,7 +30,7 @@ public class Create{{ entity_name }}Validator : AbstractValidator<Create{{ entit
         {{~ if col.is_required ~}}
         RuleFor(x => x.{{ col.property_name }}).NotEmpty();
         {{ end }}
-        {{~ if col.has_max_length ~}}
+        {{~ if col.has_max_length && col.c_sharp_type == "string" ~}}
         RuleFor(x => x.{{ col.property_name }}).MaximumLength({{ col.max_length }});
         {{ end }}
         {{~ if col.is_numeric && col.is_required ~}}
@@ -45,7 +45,7 @@ public class Update{{ entity_name }}Validator : AbstractValidator<Update{{ entit
     public Update{{ entity_name }}Validator()
     {
         {{ for col in form_columns }}
-        {{~ if col.has_max_length ~}}
+        {{~ if col.has_max_length && col.c_sharp_type == "string" ~}}
         RuleFor(x => x.{{ col.property_name }}).MaximumLength({{ col.max_length }}).When(x => x.{{ col.property_name }} != null);
         {{ end }}
         {{ end }}
