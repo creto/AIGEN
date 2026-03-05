@@ -100,7 +100,6 @@ public class TemplateContext
 
     // ── Metadatos de generación ───────────────────────────────
     public string Year        => Config.Project.Year;
-    public string Orm         => Config.Backend.Orm.ToString();
     public string Description => Config.Project.Description;
 
     // ── Conversión ColumnMetadata → ScriptObject ─────────────

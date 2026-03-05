@@ -6,6 +6,7 @@ public class BackendConfig
     public RepositoryPattern RepositoryPattern       { get; set; } = RepositoryPattern.RepositoryUnitOfWork;
     public bool              UseCQRS                 { get; set; } = false;
     public bool              GenerateStoredProcedures{ get; set; } = true;
+    public string TargetFramework                    { get; set; } = "net8.0";
 }
 public class FrontendConfig
 {
