@@ -281,21 +281,19 @@ public class SqlServerSchemaReader : ISchemaReader
 
     private static string CleanClassName(string tableName)
     {
-    // Ordenar de MÁS LARGO a MÁS CORTO — evita que "TB_" consuma
-    // el inicio de "TBR_" antes de intentar el prefijo completo
-    var prefixes = new[]
-    {
-        "TBR_", "TBM_",
-        "TM_", "TB_", "TP_", "TS_",
-        "TR_", "TD_", "TG_", "TC_",
-        "TA_", "TI_", "TH_", "TF_",
-        "TK_", "TV_", "TL_"
-    };
-    var name = tableName;
-    foreach (var p in prefixes)
-        if (name.StartsWith(p, StringComparison.OrdinalIgnoreCase))
-        { name = name[p.Length..]; break; }
-    return ToPascalCase(name);
+        // Prefijos con sufijo especial para evitar colisiones
+        var historicalPrefixes = new[] { "TH_", "TAR_" };
+        foreach (var p in historicalPrefixes)
+            if (tableName.StartsWith(p, StringComparison.OrdinalIgnoreCase))
+                return ToPascalCase(tableName[p.Length..]) + "Hist";
+
+        // Prefijos normales — eliminar y PascalCase
+        var normalPrefixes = new[] { "TBR_", "TM_", "TB_", "TP_", "TR_", "TC_", "TS_", "TI_", "TX_", "TA_" };
+        foreach (var p in normalPrefixes)
+            if (tableName.StartsWith(p, StringComparison.OrdinalIgnoreCase))
+                return ToPascalCase(tableName[p.Length..]);
+
+        return ToPascalCase(tableName);
     }
 
     private static string Pluralize(string name)
