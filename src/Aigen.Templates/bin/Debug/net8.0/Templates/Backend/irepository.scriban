@@ -17,7 +17,9 @@
 //                 Para extender, usa clases parciales o herencia.
 // ============================================================
 
+#nullable enable
 using {{ ns_domain }};
+#nullable enable
 using {{ ns_application }}.DTOs;
 
 namespace {{ root_namespace }}.Application.Interfaces;
@@ -50,3 +52,8 @@ public interface I{{ repo_name }}
 
     Task<bool> ExistsAsync({{ pk_type }} id, CancellationToken ct = default);
 }
+
+
+
+
+
