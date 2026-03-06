@@ -156,7 +156,7 @@ public class TemplateContext
     private static readonly HashSet<string> ValueTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         "int", "long", "short", "byte", "float", "double", "decimal",
-        "bool", "Guid", "DateTime", "DateTimeOffset", "TimeSpan",
+        "bool", "Guid", "DateTime", "DateTimeOffset", "TimeSpan", "DateOnly", "TimeOnly",
         "int32", "int64", "int16"
     };
 
@@ -215,3 +215,4 @@ public class TemplateContext
         System.Text.RegularExpressions.Regex
             .Replace(s, "([A-Z])", "-$1").TrimStart('-').ToLower();
 }
+
