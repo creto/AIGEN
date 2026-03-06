@@ -20,26 +20,68 @@
 using System.ComponentModel.DataAnnotations;
 namespace {{ ns_application }}.DTOs;
 
+{{~ # ──────────────────────────────────────────────────────────── ~}}
+{{~ # DTO de LECTURA: tipos exactos de la BD (nullable = nullable) ~}}
+{{~ # Excluye audit fields usando lista explícita                  ~}}
+{{~ # ──────────────────────────────────────────────────────────── ~}}
+{{~ audit_names = ["CreadoEn", "CreadoPor", "ModificadoEn", "ModificadoPor", "Eliminado"] ~}}
+
 /// <summary>DTO de lectura para {{ entity_name }}.</summary>
 public record {{ entity_name }}Dto(
+    {{~ first = true ~}}
     {{~ for col in all_columns ~}}
-    {{~ if !col.is_audit_field ~}}
-    {{ col.c_sharp_type_nullable }} {{ col.property_name }}{{ if !for.last }},{{ end }}
+    {{~ skip = false ~}}
+    {{~ for aname in audit_names ~}}{{~ if col.property_name == aname ~}}{{~ skip = true ~}}{{~ end ~}}{{~ end ~}}
+    {{~ if !skip ~}}
+    {{~ if !first ~}},
+    {{ end ~}}
+    {{ col.c_sharp_type_nullable }} {{ col.property_name }}
+    {{~ first = false ~}}
     {{~ end ~}}
     {{~ end ~}}
 );
 
+{{~ # ──────────────────────────────────────────────────────────── ~}}
+{{~ # DTO de CREACIÓN: respeta nullability de la BD               ~}}
+{{~ #   - NOT NULL → tipo requerido con [Required] si es ref type ~}}
+{{~ #   - NULL     → tipo nullable T?                             ~}}
+{{~ # form_columns ya excluye PK, identity y audit fields         ~}}
+{{~ # ──────────────────────────────────────────────────────────── ~}}
 /// <summary>DTO para crear {{ entity_name }}.</summary>
 public record Create{{ entity_name }}Request(
+    {{~ first = true ~}}
     {{~ for col in form_columns ~}}
-    {{ if col.is_required }}[Required] {{ end }}{{ col.c_sharp_type_nullable }} {{ col.property_name }}{{ if !for.last }},{{ end }}
+    {{~ if !first ~}},
+    {{ end ~}}
+    {{~ if col.is_required ~}}[Required] {{ end ~}}{{ col.c_sharp_type_nullable }} {{ col.property_name }}
+    {{~ first = false ~}}
     {{~ end ~}}
 );
 
-/// <summary>DTO para actualizar {{ entity_name }}.</summary>
+{{~ # ──────────────────────────────────────────────────────────── ~}}
+{{~ # DTO de ACTUALIZACIÓN: todos los campos son OPCIONALES        ~}}
+{{~ # REGLA CRÍTICA: value types NOT NULL en BD → deben ser T?    ~}}
+{{~ # en el UpdateRequest para permitir updates parciales.        ~}}
+{{~ # Ejemplo: bool IBPMNLectura NOT NULL → bool? IBPMNLectura    ~}}
+{{~ # El repositorio usa .HasValue para verificar si el campo     ~}}
+{{~ # fue enviado, y .Value para extraer el valor real.           ~}}
+{{~ # Los reference types (string, byte[]) son nullable por def.  ~}}
+{{~ # ──────────────────────────────────────────────────────────── ~}}
+/// <summary>DTO para actualizar {{ entity_name }} (todos los campos opcionales).</summary>
 public record Update{{ entity_name }}Request(
+    {{~ first = true ~}}
     {{~ for col in form_columns ~}}
-    {{ col.c_sharp_type_nullable }} {{ col.property_name }}{{ if !for.last }},{{ end }}
+    {{~ if !first ~}},
+    {{ end ~}}
+    {{~ # Para Update: value types siempre con ? (nullable) para update parcial ~}}
+    {{~ # is_value_type=true → int, bool, Guid, DateTime, etc. → agregar ?      ~}}
+    {{~ # is_value_type=false → string, byte[] → ya son nullable ref types      ~}}
+    {{~ if col.is_value_type ~}}
+    {{ col.c_sharp_type }}? {{ col.property_name }}
+    {{~ else ~}}
+    {{ col.c_sharp_type_nullable }} {{ col.property_name }}
+    {{~ end ~}}
+    {{~ first = false ~}}
     {{~ end ~}}
 );
 
