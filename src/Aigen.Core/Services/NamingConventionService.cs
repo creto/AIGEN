@@ -14,6 +14,7 @@ public class NamingConventionService
         "TA_", "TP_", "TV_", "TH_", "TL_", "TN_", "TX_",
         "TI_", "TF_", "TK_"
     };
+
     private static readonly string[] TableSuffixes =
     {
         "_TBL", "_TAB", "_TABLE"
@@ -30,11 +31,35 @@ public class NamingConventionService
             "usuarioCreacion", "usuarioModificacion"
         };
 
+    // ── Prefijos históricos — generan sufijo "Hist" ───────────────
+    // Evita colisiones de ClassName entre tablas históricas y sus contrapartes:
+    //   TH_Serie  → SerieHist   (no colisiona con TB_Serie  → Serie)
+    //   TH_Fondo  → FondoHist   (no colisiona con TB_Fondo  → Fondo)
+    //   TAR_Trd   → TrdHist     (no colisiona con TB_Trd    → Trd)
+    // TAR_ va primero (más largo) para match correcto antes de TH_
+    private static readonly string[] HistoricalPrefixes = { "TAR_", "TH_" };
+
     // ── Tablas ────────────────────────────────────────────────────
 
-    /// <summary>Clase C# limpia. TM_FacturaVenta -> FacturaVenta</summary>
+    /// <summary>
+    /// Clase C# limpia. TM_FacturaVenta → FacturaVenta
+    /// Tablas históricas reciben sufijo Hist para evitar colisiones:
+    ///   TH_Serie → SerieHist | TAR_Trd → TrdHist
+    /// </summary>
     public string ToClassName(string tableName)
     {
+        // 1. Prefijos históricos primero (TAR_ antes que TH_ por longitud)
+        foreach (var prefix in HistoricalPrefixes)
+        {
+            if (tableName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+            {
+                var nameWithoutPrefix = tableName[prefix.Length..];
+                nameWithoutPrefix = RemoveSuffixes(nameWithoutPrefix);
+                return ToPascalCase(nameWithoutPrefix) + "Hist";
+            }
+        }
+
+        // 2. Prefijos normales — solo eliminar
         var name = RemovePrefixes(tableName);
         name = RemoveSuffixes(name);
         return ToPascalCase(name);

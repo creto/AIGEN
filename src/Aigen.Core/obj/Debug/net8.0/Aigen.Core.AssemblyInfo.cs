@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("AIGEN Core - Motor del generador, config y schema readers")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+72e5536d7077c0da1edac7d651c7aa4b92d36687")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5caa4e1cd1790484cb84efa3a5fcecc2861d3858")]
 [assembly: System.Reflection.AssemblyProductAttribute("Aigen.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Aigen.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
