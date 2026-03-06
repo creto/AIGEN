@@ -55,7 +55,7 @@ public class {{ entity_name }}
     {{ if col.is_required && !col.is_primary_key }}[Required]{{ end }}
     {{ if col.has_max_length }}[MaxLength({{ col.max_length }})]{{ end }}
     [Column("{{ col.column_name }}")]
-    public {{ col.c_sharp_type_nullable }} {{ prop_name }} { get; set; }{{ if col.c_sharp_type == "string" }} = string.Empty;{{ else if col.is_nullable }} = null;{{ end }}
+    public {{ col.c_sharp_type_nullable }} {{ prop_name }} { get; set; }{{ if col.c_sharp_type == "string" }} = string.Empty;{{ else if col.c_sharp_type == "byte[]" }} = Array.Empty<byte>();{{ else if col.is_nullable }} = null;{{ end }}
     {{~ end ~}}
     // ── Navegacion ────────────────────────────────────────────
     {{~ for fk in table.foreign_keys ~}}
@@ -76,3 +76,4 @@ public class {{ entity_name }}
     public virtual {{ fk.navigation_property_name }}? {{ nav_name }} { get; set; }
     {{~ end ~}}
 }
+

@@ -1,0 +1,264 @@
+# Guia de Compilacion y Despliegue — {{ project_name }}
+
+> **Generado automaticamente por AIGEN v{{ version }}**
+> Fecha: {{ now }}
+
+---
+
+## Requisitos Previos
+
+| Herramienta | Version minima | Verificar |
+|-------------|---------------|-----------|
+| .NET SDK | 8.0 | `dotnet --version` |
+| SQL Server | 2016+ | Acceso a `{{ db_name }}` |
+| Node.js | 18+ | `node --version` |
+| Angular CLI | 17+ | `ng version` |
+| Git | cualquiera | `git --version` |
+
+---
+
+## 1. Abrir el Proyecto
+
+### Backend (.NET)
+```powershell
+# Opcion A — Visual Studio 2022
+# Abrir el archivo: src\{{ project_name }}.sln
+
+# Opcion B — VS Code / Rider
+code C:\DevOps\AIGEN\AIGEN\Generated
+
+# Opcion C — Terminal
+cd C:\DevOps\AIGEN\AIGEN\Generated
+```
+
+### Frontend (Angular)
+```powershell
+cd C:\DevOps\AIGEN\AIGEN\Generated\frontend
+code .
+```
+
+---
+
+## 2. Configurar la Cadena de Conexion
+
+Editar `src\{{ project_name }}.API\appsettings.json`:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=TU_SERVIDOR;Database={{ db_name }};User Id=TU_USUARIO;Password=TU_PASSWORD;TrustServerCertificate=True;"
+  }
+}
+```
+
+> **IMPORTANTE:** No commitear credenciales reales. Usar `appsettings.Development.json` para desarrollo local.
+
+---
+
+## 3. Restaurar Dependencias
+
+### Backend
+```powershell
+cd C:\DevOps\AIGEN\AIGEN\Generated
+dotnet restore
+```
+
+### Frontend
+```powershell
+cd C:\DevOps\AIGEN\AIGEN\Generated\frontend
+npm install
+```
+
+---
+
+## 4. Compilar
+
+### Backend
+```powershell
+cd C:\DevOps\AIGEN\AIGEN\Generated
+
+# Debug
+dotnet build Doc4Us.sln
+
+# Release
+dotnet build Doc4Us.sln --configuration Release
+```
+
+**Resultado esperado:**
+```
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+```
+
+### Frontend
+```powershell
+cd C:\DevOps\AIGEN\AIGEN\Generated\frontend
+
+# Desarrollo
+ng build
+
+# Produccion
+ng build --configuration production
+```
+
+---
+
+## 5. Ejecutar en Desarrollo
+
+### Backend API
+```powershell
+cd C:\DevOps\AIGEN\AIGEN\Generated\src\{{ project_name }}.API
+dotnet run
+```
+
+La API estara disponible en:
+- HTTP:  `http://localhost:5000`
+- HTTPS: `https://localhost:5001`
+- Swagger UI: `https://localhost:5001/swagger`
+
+### Frontend Angular
+```powershell
+cd C:\DevOps\AIGEN\AIGEN\Generated\frontend
+ng serve
+```
+
+El frontend estara disponible en: `http://localhost:4200`
+
+---
+
+## 6. Compilar y Regenerar con AIGEN
+
+Para regenerar todo el codigo desde el schema de BD:
+
+```powershell
+# Script automatizado (rebuild completo)
+cd C:\DevOps\AIGEN\AIGEN
+.\rebuild_and_generate.ps1
+```
+
+El script realiza en orden:
+1. Limpia archivos generados previos (`src/`, `frontend/`, `docs/`)
+2. Rebuild de AIGEN
+3. Ejecuta tests de AIGEN
+4. Regenera {{ project_name }} desde schema de `{{ db_name }}`
+5. Compila `{{ project_name }}.sln`
+6. Genera documentacion automatica (este archivo)
+
+---
+
+## 7. Publicar para Produccion
+
+### Backend
+```powershell
+cd C:\DevOps\AIGEN\AIGEN\Generated
+
+dotnet publish src\{{ project_name }}.API\{{ project_name }}.API.csproj `
+  --configuration Release `
+  --output .\publish\api `
+  --self-contained false
+
+# Ejecutar publicado
+cd publish\api
+dotnet {{ project_name }}.API.dll
+```
+
+### Frontend
+```powershell
+cd C:\DevOps\AIGEN\AIGEN\Generated\frontend
+ng build --configuration production
+# Archivos listos en: frontend/dist/
+# Servir con Nginx, IIS, o cualquier servidor estatico
+```
+
+---
+
+## 8. Variables de Entorno (Produccion)
+
+| Variable | Descripcion | Ejemplo |
+|----------|-------------|---------|
+| `ASPNETCORE_ENVIRONMENT` | Entorno de ejecucion | `Production` |
+| `ASPNETCORE_URLS` | URLs de escucha | `https://+:443;http://+:80` |
+| `ConnectionStrings__DefaultConnection` | Cadena de conexion BD | `Server=...` |
+
+```powershell
+# Windows — configurar variable de entorno
+$env:ASPNETCORE_ENVIRONMENT = "Production"
+$env:ConnectionStrings__DefaultConnection = "Server=...;Database={{ db_name }};..."
+dotnet {{ project_name }}.API.dll
+```
+
+---
+
+## 9. Control de Versiones (Git)
+
+```powershell
+# Estado actual del repositorio AIGEN
+cd C:\DevOps\AIGEN\AIGEN
+
+# Ver estado
+git status
+
+# Agregar cambios
+git add .
+git commit -m "feat: {{ project_name }} generado desde {{ db_name }} con AIGEN v{{ version }}"
+
+# Push (requiere credenciales configuradas)
+git push origin main
+```
+
+> **Nota:** El codigo generado en `Generated/` puede excluirse del `.gitignore`
+> si se prefiere regenerar siempre desde AIGEN en lugar de versionar el output.
+
+---
+
+## 10. Dockerizacion
+
+> Estado actual: **NO configurado** — pendiente Semana 8+
+
+Estructura propuesta cuando se implemente:
+
+```
+Generated/
+  +-- docker-compose.yml          <- Orquestacion API + BD
+  +-- src/{{ project_name }}.API/
+  |   +-- Dockerfile              <- Imagen del API
+  +-- frontend/
+      +-- Dockerfile              <- Imagen Angular (nginx)
+      +-- nginx.conf              <- Configuracion nginx
+```
+
+---
+
+## 11. CI/CD
+
+> Estado actual: **NO configurado** — pendiente Semana 12+
+
+Pipeline propuesto (GitHub Actions):
+```yaml
+# .github/workflows/build.yml
+on: [push]
+jobs:
+  build:
+    - dotnet restore
+    - dotnet build --configuration Release
+    - dotnet test
+    - dotnet publish
+```
+
+---
+
+## Solucion de Problemas Comunes
+
+| Problema | Causa probable | Solucion |
+|----------|---------------|----------|
+| `CS1061: does not contain definition` | Nombre de propiedad incorrecto en plantilla | Regenerar con AIGEN actualizado |
+| `MSB3202: project file not found` | Se limpio `src/` sin regenerar | Ejecutar `rebuild_and_generate.ps1` |
+| `Connection timeout` | BD no accesible | Verificar cadena de conexion en `appsettings.json` |
+| `ng: command not found` | Angular CLI no instalado | `npm install -g @angular/cli` |
+| Error 403 en git push | Credenciales incorrectas | Configurar SSH key o PAT en Credential Manager |
+
+---
+
+*Documento generado automaticamente por AIGEN — no editar manualmente.*
+*Para regenerar: ejecutar `rebuild_and_generate.ps1`*

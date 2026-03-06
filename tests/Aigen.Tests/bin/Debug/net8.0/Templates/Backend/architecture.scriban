@@ -1,0 +1,186 @@
+# Arquitectura del Sistema — {{ project_name }}
+
+> **Generado automaticamente por AIGEN v{{ version }}**
+> Fecha: {{ now }} | Base de datos: {{ db_name }} | Framework: .NET {{ dotnet_version }}
+
+---
+
+## Descripcion General
+
+**{{ project_name }}** es un sistema generado automaticamente por AIGEN desde el schema de la base de datos `{{ db_name }}`.
+Implementa una arquitectura **Clean Architecture** de 4 capas con separacion estricta de responsabilidades.
+
+- **Autor:** {{ author }}
+- **Version:** {{ version }}
+- **Namespace raiz:** {{ root_namespace }}
+- **Base de datos origen:** {{ db_name }} ({{ db_engine }})
+- **ORM:** {{ orm }}
+- **Framework backend:** .NET {{ dotnet_version }}
+- **Framework frontend:** Angular 17 con PrimeNG
+
+---
+
+## Estructura de Capas
+
+```
+{{ project_name }}.sln
+|
++-- src/
+|   +-- {{ project_name }}.Domain/          <- Capa de Dominio
+|   +-- {{ project_name }}.Application/     <- Capa de Aplicacion
+|   +-- {{ project_name }}.Infrastructure/  <- Capa de Infraestructura
+|   +-- {{ project_name }}.API/             <- Capa de Presentacion (REST API)
+|
++-- frontend/                               <- Frontend Angular 17
+|   +-- src/app/features/                  <- Modulos por entidad
+|
++-- docs/                                   <- Documentacion adicional
+```
+
+---
+
+## Capa 1 — Domain (`{{ root_namespace }}.Domain`)
+
+Contiene las entidades de negocio puras, sin dependencias de frameworks externos.
+
+**Namespace:** `{{ root_namespace }}.Domain.Entities`
+
+**Contenido:**
+- Entidades C# generadas desde el schema de `{{ db_name }}`
+- Data Annotations (`[Key]`, `[Required]`, `[MaxLength]`, `[Column]`, `[ForeignKey]`)
+- Propiedades de navegacion para relaciones FK
+- Sin logica de negocio — solo estructura de datos
+
+**Dependencias NuGet:**
+- `Microsoft.EntityFrameworkCore.Abstractions` v8.0.0
+
+**Convencion de nombres:**
+- Prefijo `TM_` → clase `{Nombre}` (Movement — CRUD completo)
+- Prefijo `TB_` → clase `{Nombre}` (Basic — catalogo)
+- Prefijo `TBR_` → clase `{Nombre}` (BasicRelated — relacion)
+- Prefijo `TH_` → clase `{Nombre}Hist` (Historical — solo lectura)
+- Prefijo `TA_` → clase `{Nombre}` (Audit — solo lectura)
+
+---
+
+## Capa 2 — Application (`{{ root_namespace }}.Application`)
+
+Contiene los contratos (interfaces), DTOs y servicios de aplicacion.
+
+**Namespaces:**
+- `{{ root_namespace }}.Application.{Entidad}s.DTOs` — DTOs por entidad
+- `{{ root_namespace }}.Application.Interfaces` — contratos IRepository
+
+**Contenido por entidad:**
+- `{Entidad}Dto` — DTO de lectura (campos sin audit fields)
+- `Create{Entidad}Request` — DTO de creacion (campos requeridos)
+- `Update{Entidad}Request` — DTO de actualizacion (todos los campos opcionales `T?`)
+- `{Entidad}PagedResponse` — respuesta paginada
+- `I{Entidad}Repository` — contrato del repositorio
+
+**Dependencias NuGet:** ninguna (capa pura)
+
+---
+
+## Capa 3 — Infrastructure (`{{ root_namespace }}.Infrastructure`)
+
+Implementa los contratos de Application con EF Core y Dapper.
+
+**Namespaces:**
+- `{{ root_namespace }}.Infrastructure.Persistence` — DbContext
+- `{{ root_namespace }}.Infrastructure.Persistence.Repositories` — repositorios EF Core
+- `{{ root_namespace }}.Infrastructure.Persistence.Configurations` — Fluent API
+
+**Contenido:**
+- `{{ project_name }}DbContext` — DbContext con todos los DbSet<T>
+- `{Entidad}Repository` — repositorio EF Core (GetAll, GetById, Create, Update, Delete, ToggleEstado)
+- `{Entidad}Configuration` — mapeo Fluent API (tabla, schema, columnas, PKs, FKs, indices)
+
+**Dependencias NuGet:**
+- `Microsoft.EntityFrameworkCore.SqlServer` v8.0.0
+- `Microsoft.EntityFrameworkCore.Tools` v8.0.0
+- `Dapper` v2.1.35
+- `Microsoft.Data.SqlClient` v5.2.0
+
+**Cadena de conexion:** configurada en `appsettings.json` del proyecto API
+
+---
+
+## Capa 4 — API (`{{ root_namespace }}.API`)
+
+Expone los endpoints REST con documentacion Swagger.
+
+**Namespace:** `{{ root_namespace }}.API.Controllers`
+
+**Contenido:**
+- `{Entidad}sController` — controlador REST con endpoints CRUD
+- `Program.cs` — configuracion de DI, Swagger, CORS, Serilog
+- `appsettings.json` — cadena de conexion y configuracion
+
+**Endpoints por entidad (CRUD completo):**
+```
+GET    /api/{entidad}s           <- Listar con paginacion
+GET    /api/{entidad}s/{id}      <- Obtener por ID
+POST   /api/{entidad}s           <- Crear
+PUT    /api/{entidad}s/{id}      <- Actualizar (parcial)
+DELETE /api/{entidad}s/{id}      <- Eliminar
+PATCH  /api/{entidad}s/{id}/toggle-estado  <- Activar/Desactivar
+```
+
+**Dependencias NuGet:**
+- `Microsoft.AspNetCore.OpenApi` v8.0.0
+- `Swashbuckle.AspNetCore` v6.5.0
+- `Serilog.AspNetCore` v8.0.0
+- `FluentValidation.AspNetCore` v11.3.0
+
+---
+
+## Frontend Angular
+
+**Version:** Angular 17 (Standalone Components)
+**UI Library:** PrimeNG
+**Estructura:** `frontend/src/app/features/{entidad-kebab}/`
+
+**Archivos por entidad:**
+```
+{entidad}/
+  +-- {entidad}.model.ts        <- Interfaces TypeScript
+  +-- {entidad}.service.ts      <- HttpClient service
+  +-- {entidad}-list/
+  |   +-- {entidad}-list.component.ts   <- PrimeNG DataTable
+  +-- {entidad}-form/
+      +-- {entidad}-form.component.ts   <- Reactive Form
+```
+
+---
+
+## Base de Datos
+
+| Parametro | Valor |
+|-----------|-------|
+| Motor | {{ db_engine }} |
+| Base de datos | {{ db_name }} |
+| Schema principal | {{ db_schema }} |
+| Convencion | Incoder (prefijos TM_/TB_/TBR_/TP_/TR_/TA_/TS_/TH_/TI_/TX_) |
+| ORM | {{ orm }} |
+| Migraciones | Database First (schema existente) |
+
+---
+
+## Configuracion de la Aplicacion
+
+**`appsettings.json`** (ubicado en `src/{{ project_name }}.API/`):
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=...;Database={{ db_name }};..."
+  },
+  "Serilog": { ... },
+  "Jwt": { ... }
+}
+```
+
+---
+
+*Documento generado automaticamente por AIGEN — no editar manualmente.*
+*Para regenerar: ejecutar `rebuild_and_generate.ps1`*
