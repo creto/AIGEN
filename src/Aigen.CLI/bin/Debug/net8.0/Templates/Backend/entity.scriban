@@ -16,7 +16,9 @@
 //                 perderán en la próxima generación.
 //                 Para extender, usa clases parciales o herencia.
 // ============================================================
+#nullable enable
 using System.ComponentModel.DataAnnotations;
+#nullable enable
 using System.ComponentModel.DataAnnotations.Schema;
 namespace {{ ns_domain }};
 /// <summary>

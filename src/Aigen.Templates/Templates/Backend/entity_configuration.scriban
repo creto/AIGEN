@@ -14,7 +14,9 @@
 //                 NO editar manualmente — los cambios se
 //                 perderán en la próxima generación.
 // ============================================================
+#nullable enable
 using Microsoft.EntityFrameworkCore;
+#nullable enable
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using {{ ns_domain }};
 
