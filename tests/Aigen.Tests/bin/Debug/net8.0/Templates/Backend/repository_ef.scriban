@@ -88,7 +88,7 @@ public class {{ repo_name }} : I{{ repo_name }}
         var entity = new {{ entity_name }}
         {
             {{ for col in form_columns }}
-            {{ col.property_name }} = r.{{ col.property_name }},
+            {{ col.property_name }} = r.{{ col.property_name }}{{ if col.c_sharp_type != "string" && col.c_sharp_type != "byte[]" }}.Value{{ end }},
             {{ end }}
             {{ if has_creado_en }}CreadoEn    = DateTime.UtcNow,{{ end }}
             {{ if has_creado_por }}CreadoPor   = "system",{{ end }}
@@ -110,7 +110,7 @@ public class {{ repo_name }} : I{{ repo_name }}
 
         {{ for col in form_columns }}
         if (r.{{ col.property_name }} is not null)
-            entity.{{ col.property_name }} = r.{{ col.property_name }}{{ if col.c_sharp_type != "string" }}.Value{{ end }};
+            entity.{{ col.property_name }} = r.{{ col.property_name }}{{ if col.c_sharp_type != "string" && col.c_sharp_type != "byte[]" && col.is_nullable }}.Value{{ end }};
         {{ end }}
         {{ if has_modificado_en }}entity.ModificadoEn  = DateTime.UtcNow;{{ end }}
         {{ if has_modificado_por }}entity.ModificadoPor = "system";{{ end }}
