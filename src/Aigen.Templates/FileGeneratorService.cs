@@ -217,6 +217,14 @@ public class FileGeneratorService
             await Save(ctx, "efcore_migration_hint.scriban",
                 Path.Combine(outPath, "docs", "EF-MIGRATIONS.md"), result, ct);
 
+        // ARCHITECTURE.md
+        await Save(ctx, "architecture.scriban",
+            Path.Combine(outPath, "ARCHITECTURE.md"), result, ct);
+
+        // DEPLOYMENT.md
+        await Save(ctx, "deployment.scriban",
+            Path.Combine(outPath, "DEPLOYMENT.md"), result, ct);
+
 
 
 
@@ -259,3 +267,4 @@ public class GenerationResult
 }
 
 public record GenerationProgress(int Current, int Total, string TableName);
+

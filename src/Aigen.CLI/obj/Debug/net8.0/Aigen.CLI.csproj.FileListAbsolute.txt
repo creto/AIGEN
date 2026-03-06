@@ -114,3 +114,5 @@ C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\in
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\solution.scriban
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Docs\architecture.scriban
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Docs\deployment.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Backend\architecture.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Backend\deployment.scriban
