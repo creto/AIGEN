@@ -20,17 +20,11 @@ public class TemplateContext
     // ── Proyecto ─────────────────────────────────────────────
     public string ProjectName   => Config.Project.ProjectName;
     public string Author        => Config.Project.Author;
-    public string GeneratedDate => DateTime.Now.ToString("yyyy-MM-dd");
-    public string DotnetVersion  => Config.Backend.TargetFramework;   // "net8.0"
-    public string RootNamespace  => Config.Project.RootNamespace;      // "Doc4us.SGDEA"
-    public string Version        => Config.Project.Version;            // "1.0.0"
-    public string Orm            => Config.Backend.Orm.ToString();     // "EFCoreWithDapper"
-
-    // Nota: en Scriban estas se expondrán como:
-    //   {{ dotnet_version }}
-    //   {{ root_namespace }}
-    //   {{ version }}
-    //   {{ orm }}
+    public string GeneratedDate => DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+    public string DotnetVersion  => Config.Backend.TargetFramework;
+    public string RootNamespace  => Config.Project.RootNamespace;
+    public string Version        => Config.Project.Version;
+    public string Orm            => Config.Backend.Orm.ToString();
 
     // ── Base de datos ────────────────────────────────────────
     public string DbName   => Db.DatabaseName;
@@ -48,17 +42,54 @@ public class TemplateContext
     public string TableName        => Table.TableName;
     public string TableType        => Table.GetTableType().ToString();
 
-    // ── PK ───────────────────────────────────────────────────
-    public string PkName      => Table.PrimaryKeyColumn?.PropertyName   ?? "Id";
-    public string PkNameCamel => Table.PrimaryKeyColumn?.TsPropertyName ?? "id";
-    public string PkType      => Table.PrimaryKeyColumn?.CSharpType     ?? "int";
-    public string PkTsType    => Table.PrimaryKeyColumn?.TypeScriptType  ?? "number";
+    // ── PK — resolución robusta ───────────────────────────────
+    // Estrategia:
+    //   1. Usar PrimaryKeyColumn si AIGEN la detectó correctamente
+    //   2. Si es null, buscar la primera columna marcada como PK en Columns
+    //   3. Si tampoco hay, buscar columnas cuyo nombre empiece con "ID" (convención Incoder)
+    //   4. Fallback final: primera columna de la tabla
+    private ColumnMetadata? ResolvePkColumn()
+    {
+        // Opción 1: detección directa de AIGEN
+        if (Table.PrimaryKeyColumn is not null)
+            return Table.PrimaryKeyColumn;
+
+        // Opción 2: buscar IsPrimaryKey = true en la lista de columnas
+        var byFlag = Table.Columns.FirstOrDefault(c => c.IsPrimaryKey);
+        if (byFlag is not null)
+            return byFlag;
+
+        // Opción 3: convención Incoder — primera columna que empiece con "ID"
+        // (ej: IDTmpSerie, ID_TB_Empresa, ID, etc.)
+        var byConvention = Table.Columns.FirstOrDefault(c =>
+            c.PropertyName.StartsWith("ID", StringComparison.Ordinal) ||
+            c.ColumnName.StartsWith("ID", StringComparison.OrdinalIgnoreCase));
+        if (byConvention is not null)
+            return byConvention;
+
+        // Opción 4: primera columna como último recurso
+        return Table.Columns.FirstOrDefault();
+    }
+
+    private ColumnMetadata? _pkColumn; // cache
+    private ColumnMetadata? PkColumn => _pkColumn ??= ResolvePkColumn();
+
+    public string PkName      => PkColumn?.PropertyName   ?? "Id";
+    public string PkNameCamel => PkColumn?.TsPropertyName ?? "id";
+    public string PkType      => PkColumn?.CSharpType     ?? "int";
+    public string PkTsType    => PkColumn?.TypeScriptType  ?? "number";
 
     // ── Columnas — convertidas a ScriptObject para Scriban ───
-    // Scriban no puede leer propiedades de C# POCO en listas via Import.
-    // Se deben convertir a ScriptObject (diccionario) con claves snake_case.
     public IEnumerable<ScriptObject> AllColumns  => ToScriptObjects(Table.Columns);
-    public IEnumerable<ScriptObject> FormColumns => ToScriptObjects(Table.FormColumns);
+
+    // FormColumns: excluye la PK, columnas de auditoría y columnas identity
+    // La PK no se incluye en Create/Update — se maneja por separado
+    public IEnumerable<ScriptObject> FormColumns => ToScriptObjects(
+        Table.FormColumns.Where(c =>
+            !c.IsPrimaryKey &&
+            !c.IsIdentity  &&
+            !c.IsAuditField));
+
     public IEnumerable<ScriptObject> ListColumns => ToScriptObjects(Table.ListColumns);
 
     // ── Tipo de tabla ────────────────────────────────────────
@@ -72,13 +103,16 @@ public class TemplateContext
     public bool UseSoftDelete       => Config.Features.SoftDelete;
     public bool UseAuditing         => Config.Features.Auditing;
     public bool HasAuditColumns     => Config.Features.Auditing && Table.Columns.Any(c => c.IsAuditField);
-    
-    // AGREGAR después de HasAuditColumns:
-    public bool HasEliminadoColumn => Table.Columns.Any(c => c.PropertyName == "Eliminado");
-    public bool HasCreadoEn     => Table.Columns.Any(c => c.PropertyName == "CreadoEn");
-    public bool HasCreadoPor    => Table.Columns.Any(c => c.PropertyName == "CreadoPor");
-    public bool HasModificadoEn => Table.Columns.Any(c => c.PropertyName == "ModificadoEn");
-    public bool HasModificadoPor=> Table.Columns.Any(c => c.PropertyName == "ModificadoPor");
+    public bool HasEliminadoColumn  => Table.Columns.Any(c =>
+        c.PropertyName.Equals("Eliminado", StringComparison.OrdinalIgnoreCase));
+    public bool HasCreadoEn         => Table.Columns.Any(c =>
+        c.PropertyName.Equals("CreadoEn", StringComparison.OrdinalIgnoreCase));
+    public bool HasCreadoPor        => Table.Columns.Any(c =>
+        c.PropertyName.Equals("CreadoPor", StringComparison.OrdinalIgnoreCase));
+    public bool HasModificadoEn     => Table.Columns.Any(c =>
+        c.PropertyName.Equals("ModificadoEn", StringComparison.OrdinalIgnoreCase));
+    public bool HasModificadoPor    => Table.Columns.Any(c =>
+        c.PropertyName.Equals("ModificadoPor", StringComparison.OrdinalIgnoreCase));
     public bool UseFluentValidation =>
         Config.Features.Validation == ValidationProvider.FluentValidation;
     public bool UseAutoMapper =>
@@ -93,10 +127,10 @@ public class TemplateContext
     public bool UseEfDapper => Config.Backend.Orm == OrmType.EFCoreWithDapper;
 
     // ── Namespaces ───────────────────────────────────────────
-    public string NsDomain      => $"{RootNamespace}.Domain.Entities";
-    public string NsApplication => $"{RootNamespace}.Application.{EntityNamePlural}";
-    public string NsInfraRepo   => $"{RootNamespace}.Infrastructure.Persistence.Repositories";
-    public string NsApi         => $"{RootNamespace}.API.Controllers";
+    public string NsDomain         => $"{RootNamespace}.Domain.Entities";
+    public string NsApplication    => $"{RootNamespace}.Application.{EntityNamePlural}";
+    public string NsInfraRepo      => $"{RootNamespace}.Infrastructure.Persistence.Repositories";
+    public string NsApi            => $"{RootNamespace}.API.Controllers";
     public string NsInfrastructure => $"{RootNamespace}.Infrastructure";
 
     // ── Angular ──────────────────────────────────────────────
@@ -108,9 +142,17 @@ public class TemplateContext
 
     // ── Metadatos de generación ───────────────────────────────
     public string Year        => Config.Project.Year;
+    public string Now         => DateTime.Now.ToString("yyyy-MM-dd HH:mm");
     public string Description => Config.Project.Description;
 
     // ── Conversión ColumnMetadata → ScriptObject ─────────────
+    private static readonly HashSet<string> ValueTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "int", "long", "short", "byte", "float", "double", "decimal",
+        "bool", "Guid", "DateTime", "DateTimeOffset", "TimeSpan",
+        "int32", "int64", "int16"
+    };
+
     private static IEnumerable<ScriptObject> ToScriptObjects(
         IEnumerable<ColumnMetadata> cols)
     {
@@ -139,6 +181,16 @@ public class TemplateContext
             obj["has_default_value"]    = col.HasDefaultValue;
             obj["default_value"]        = col.DefaultValue ?? "";
             obj["ordinal_position"]     = col.OrdinalPosition;
+
+            // ── Propiedad nueva: is_value_type ────────────────
+            // True si el tipo C# es un value type (struct).
+            // Usado en repository_ef.scriban para decidir:
+            //   - Update: si is_nullable=true  → usar .HasValue / .Value
+            //   - Update: si is_nullable=false → asignación directa
+            //   - Create: siempre asignación directa (DTO ya tiene el tipo correcto)
+            // Los reference types (string, byte[]) nunca necesitan .Value
+            obj["is_value_type"] = ValueTypes.Contains(col.CSharpType);
+
             yield return obj;
         }
     }

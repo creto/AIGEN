@@ -65,11 +65,12 @@ public class FileGeneratorService
 
         // TH_ (Historical) y TA_ (Audit) solo generan Entity — no Application/API
         var isAuditOrHistorical = t.TableName.StartsWith("TH_", StringComparison.OrdinalIgnoreCase)
-                               || t.TableName.StartsWith("TA_", StringComparison.OrdinalIgnoreCase);
+                               || t.TableName.StartsWith("TA_", StringComparison.OrdinalIgnoreCase)
+                               || t.TableName.StartsWith("TAR_", StringComparison.OrdinalIgnoreCase);
         if (isAuditOrHistorical) return;
 
         // Tablas sin PK no pueden tener repositorio/service/controller
-        if (t.PrimaryKeyColumn is null) return;
+        if (t.PrimaryKeyColumn is null || t.PrimaryKeys.Count == 0) return;
         // DTO (siempre)
         await Save(ctx, "dto.scriban",
             Path.Combine(outPath, "src", $"{ns}.Application",
