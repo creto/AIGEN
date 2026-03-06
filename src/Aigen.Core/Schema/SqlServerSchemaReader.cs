@@ -324,6 +324,7 @@ public class SqlServerSchemaReader : ISchemaReader
             or "text" or "ntext" or "xml"            => "string",
         "uniqueidentifier"                            => "Guid",
         "binary" or "varbinary" or "image"           => "byte[]",
+        "hierarchyid"                                 => "string",
         _                                             => "object"
     };
 
@@ -385,3 +386,4 @@ public class SqlServerSchemaReader : ISchemaReader
         bool   IsUnique,
         bool   IsPrimaryKey);
 }
+
