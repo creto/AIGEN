@@ -38,12 +38,27 @@ public class {{ entity_name }}Configuration : IEntityTypeConfiguration<{{ entity
         {{ end }}
 
         // ── Relaciones FK ─────────────────────────────────────
-        {{ for fk in table.foreign_keys }}
-        builder.HasOne(e => e.{{ fk.navigation_property_name }})
+        {{~ nav_seen = [entity_name] ~}}
+        {{~ for col in all_columns ~}}
+        {{~   pname = col.property_name ~}}
+        {{~   if pname == entity_name; pname = pname + "Value"; end ~}}
+        {{~   nav_seen = array.add nav_seen pname ~}}
+        {{~ end ~}}
+        {{~ for fk in table.foreign_keys ~}}
+        {{~
+          nav_name = fk.navigation_property_name
+          base_nav = nav_name
+          suffix = 2
+          while array.contains nav_seen nav_name
+            nav_name = base_nav + suffix
+            suffix = suffix + 1
+          end
+          nav_seen = array.add nav_seen nav_name  ~}}
+        builder.HasOne(e => e.{{ nav_name }})
                .WithMany()
                .HasForeignKey("{{ fk.column_name }}")
                .OnDelete(DeleteBehavior.Restrict);
-        {{ end }}
+        {{~ end ~}}
 
         // ── Indices ───────────────────────────────────────────
         {{ for idx in table.indexes }}

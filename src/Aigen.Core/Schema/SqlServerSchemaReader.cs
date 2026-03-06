@@ -97,7 +97,7 @@ public class SqlServerSchemaReader : ISchemaReader
                 .Select(g => new IndexMetadata
                 {
                     IndexName    = g.Key,
-                    Columns      = g.Select(i => i.ColumnName).ToList(),
+                    Columns      = g.Select(i => _naming.ToPropertyName(i.ColumnName)).ToList(),
                     IsUnique     = g.First().IsUnique,
                     IsPrimaryKey = g.First().IsPrimaryKey
                 }).ToList();
