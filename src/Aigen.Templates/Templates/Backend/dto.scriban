@@ -17,6 +17,7 @@
 //                 Para extender, usa clases parciales o herencia.
 // ============================================================
 
+#nullable enable
 using System.ComponentModel.DataAnnotations;
 namespace {{ ns_application }}.DTOs;
 

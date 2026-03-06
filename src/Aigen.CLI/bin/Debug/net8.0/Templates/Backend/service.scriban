@@ -17,6 +17,7 @@
 //                 Para extender, usa clases parciales o herencia.
 // ============================================================
 
+#nullable enable
 using Microsoft.Extensions.Logging;
 using {{ ns_domain }};
 using {{ ns_application }}.DTOs;

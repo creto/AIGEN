@@ -17,6 +17,7 @@
 //                 Para extender, usa clases parciales o herencia.
 // ============================================================
 
+#nullable enable
 using Microsoft.EntityFrameworkCore;
 using {{ ns_domain }};
 using {{ ns_application }}.DTOs;
@@ -196,7 +197,7 @@ public class {{ repo_name }} : I{{ repo_name }}
             ?? throw new KeyNotFoundException(
                 $"{{ entity_name }} {id} no encontrado.");
 
-        entity.Estado = entity.Estado == true ? false : true;
+        entity.{{ estado_property_name }} = entity.{{ estado_property_name }} == true ? false : true;
         await _ctx.SaveChangesAsync(ct);
     }
     {{~ end ~}}
@@ -228,3 +229,5 @@ public class {{ repo_name }} : I{{ repo_name }}
         {{~ end ~}}
     );
 }
+
+

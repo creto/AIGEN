@@ -99,9 +99,14 @@ public class TemplateContext
     // La BD puede tener "Estado", "ESTADO", "estado"
     // Solo contar como HasEstado si es tipo bool/BIT (no string)
     // Evita falso positivo en tablas con columna "Estado" de tipo varchar
-    public bool HasEstado => Table.Columns.Any(c =>
-        c.ColumnName.Equals("Estado", StringComparison.OrdinalIgnoreCase) &&
-        (c.CSharpType == "bool"));
+    private ColumnMetadata? EstadoColumn => Table.Columns.FirstOrDefault(c =>
+    c.ColumnName.Equals("Estado", StringComparison.OrdinalIgnoreCase) &&
+    c.CSharpType == "bool");
+
+    public bool HasEstado => EstadoColumn is not null;
+
+    // Nombre REAL de la propiedad — "ESTADO" si la columna es mayúsculas
+    public string EstadoPropertyName => EstadoColumn?.PropertyName ?? "Estado";
 
     // ── Columnas de auditoría ────────────────────────────────
     public bool HasEliminadoColumn  => Table.Columns.Any(c =>
