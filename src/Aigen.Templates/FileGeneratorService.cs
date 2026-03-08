@@ -42,7 +42,7 @@ public class FileGeneratorService
         if (tables.Count > 0)
         {
             var solutionCtx = new TemplateContext
-                { Table = tables[0], Db = db, Config = config };
+                { Table = tables[0], Db = db, Config = config, AllTables = tables };
             await GenerateSolutionAsync(solutionCtx, outPath, db, config, result, ct);
         }
 
@@ -67,6 +67,8 @@ public class FileGeneratorService
         var isAuditOrHistorical = t.TableName.StartsWith("TH_", StringComparison.OrdinalIgnoreCase)
                                || t.TableName.StartsWith("TA_", StringComparison.OrdinalIgnoreCase)
                                || t.TableName.StartsWith("TAR_", StringComparison.OrdinalIgnoreCase);
+        t.HasRepository = false;
+        t.HasService    = false;
         if (isAuditOrHistorical) return;
 
         // Tablas sin PK no pueden tener repositorio/service/controller
@@ -80,8 +82,9 @@ public class FileGeneratorService
         await Save(ctx, "irepository.scriban",
             Path.Combine(outPath, "src", $"{ns}.Application",
                 "Interfaces", $"I{t.RepositoryName}.cs"), result, ct);
-
         if (!ctx.HasFullCrud) return;
+        t.HasRepository = true;
+        t.HasService    = true;
 
         // Service
         await Save(ctx, "service.scriban",
@@ -267,4 +270,9 @@ public class GenerationResult
 }
 
 public record GenerationProgress(int Current, int Total, string TableName);
+
+
+
+
+
 

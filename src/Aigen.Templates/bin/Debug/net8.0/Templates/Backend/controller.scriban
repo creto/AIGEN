@@ -107,7 +107,7 @@ public class {{ controller_name }} : ControllerBase
     /// <response code="401">{{ entity_name }}: no tiene permisos o el token es inválido/caducó</response>
     /// <response code="404">{{ entity_name }}: registro no encontrado con el id proporcionado</response>
     /// <response code="500">{{ entity_name }}: error interno al consultar el registro</response>
-    [HttpGet("{id:{{ pk_type | string.downcase }}}")]
+    [HttpGet("{{~ if pk_type == "string" ~}}{id}{{~ else ~}}{id:{{ pk_type | string.downcase }}}{{~ end ~}}")]
     {{ if use_swagger }}
     [ProducesResponseType(typeof({{ entity_name }}Dto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -166,7 +166,7 @@ public class {{ controller_name }} : ControllerBase
     /// <response code="401">{{ entity_name }}: no tiene permisos o el token es inválido/caducó</response>
     /// <response code="404">{{ entity_name }}: registro no encontrado con el id proporcionado</response>
     /// <response code="500">{{ entity_name }}: error interno al actualizar el registro</response>
-    [HttpPut("{id:{{ pk_type | string.downcase }}}")]
+    [HttpPut("{{~ if pk_type == "string" ~}}{id}{{~ else ~}}{id:{{ pk_type | string.downcase }}}{{~ end ~}}")]
     {{ if use_swagger }}
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -198,7 +198,7 @@ public class {{ controller_name }} : ControllerBase
     /// <response code="401">{{ entity_name }}: no tiene permisos o el token es inválido/caducó</response>
     /// <response code="404">{{ entity_name }}: registro no encontrado con el id proporcionado</response>
     /// <response code="500">{{ entity_name }}: error interno al eliminar el registro</response>
-    [HttpDelete("{id:{{ pk_type | string.downcase }}}")]
+    [HttpDelete("{{~ if pk_type == "string" ~}}{id}{{~ else ~}}{id:{{ pk_type | string.downcase }}}{{~ end ~}}")]
     {{ if use_swagger }}
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -226,7 +226,7 @@ public class {{ controller_name }} : ControllerBase
     /// <response code="401">{{ entity_name }}: no tiene permisos o el token es inválido/caducó</response>
     /// <response code="404">{{ entity_name }}: registro no encontrado con el id proporcionado</response>
     /// <response code="500">{{ entity_name }}: error interno al cambiar el estado</response>
-    [HttpPatch("{id:{{ pk_type | string.downcase }}}/estado")]
+    [HttpPatch("{{~ if pk_type == "string" ~}}{id}{{~ else ~}}{id:{{ pk_type | string.downcase }}}{{~ end ~}}/estado")]
     {{ if use_swagger }}
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

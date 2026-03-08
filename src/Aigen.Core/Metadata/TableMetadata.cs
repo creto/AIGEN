@@ -1,4 +1,4 @@
-﻿namespace Aigen.Core.Metadata;
+namespace Aigen.Core.Metadata;
 public class TableMetadata
 {
     public string SchemaName      { get; set; } = string.Empty;
@@ -18,5 +18,8 @@ public class TableMetadata
     public ColumnMetadata? PrimaryKeyColumn => Columns.FirstOrDefault(c => c.IsPrimaryKey);
     public IEnumerable<ColumnMetadata> FormColumns => Columns.Where(c => !c.IsPrimaryKey && !c.IsAuditField);
     public IEnumerable<ColumnMetadata> ListColumns => Columns.Where(c => !c.IsAuditField).Take(8);
+    public bool HasRepository { get; set; }
+    public bool HasService    { get; set; }
     public bool HasAuditFields => Columns.Any(c => c.IsAuditField);
 }
+

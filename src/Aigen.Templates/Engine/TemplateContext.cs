@@ -13,7 +13,29 @@ public class TemplateContext
 {
     public required TableMetadata    Table  { get; init; }
     public required DatabaseMetadata Db     { get; init; }
-    public required GeneratorConfig  Config { get; init; }
+    public required GeneratorConfig  Config    { get; init; }
+    public List<TableMetadata>?       AllTables { get; init; }
+    // AllTablesScript: convierte AllTables a List<ScriptObject> para Scriban
+    // Necesario porque Scriban no itera List<TableMetadata> directamente.
+    // Usado en program.scriban para registrar repositorios y servicios en DI.
+    public List<ScriptObject> AllTablesScript
+    {
+        get
+        {
+            if (AllTables is null) return new();
+            return AllTables.Select(t =>
+            {
+                var obj = new ScriptObject();
+                obj["RepositoryName"] = t.RepositoryName;
+                obj["ServiceName"]    = t.ServiceName;
+                obj["HasRepository"]  = t.HasRepository;
+                obj["HasService"]     = t.HasService;
+                obj["ClassNamePlural"] = t.ClassNamePlural;
+                obj["ClassName"]      = t.ClassName;
+                return obj;
+            }).ToList();
+        }
+    }
 
     // ── Proyecto ─────────────────────────────────────────────
     public string ProjectName    => Config.Project.ProjectName;
@@ -215,4 +237,7 @@ public class TemplateContext
         System.Text.RegularExpressions.Regex
             .Replace(s, "([A-Z])", "-$1").TrimStart('-').ToLower();
 }
+
+
+
 
