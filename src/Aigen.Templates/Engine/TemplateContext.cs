@@ -31,6 +31,7 @@ public class TemplateContext
                 obj["HasRepository"]  = t.HasRepository;
                 obj["HasService"]     = t.HasService;
                 obj["ClassNamePlural"] = t.ClassNamePlural;
+                obj["KebabName"]      = ToKebab(t.ClassName);
                 obj["ClassName"]      = t.ClassName;
                 return obj;
             }).ToList();
@@ -171,6 +172,8 @@ public class TemplateContext
     public string AngularFileName  => ToKebab(EntityName);
     public string AngularSelector  => "app-" + ToKebab(EntityName);
     public string AngularVersion   => Config.Frontend.FrameworkVersion;
+    public string PrimaryColor     => Config.Frontend.PrimaryColor;
+    public string SecondaryColor   => Config.Frontend.SecondaryColor;
     public string UiLibrary        => Config.Frontend.UiLibrary.ToString();
     public bool   GenerateFrontend => Config.Frontend.GenerateFrontend;
 
@@ -237,6 +240,11 @@ public class TemplateContext
         System.Text.RegularExpressions.Regex
             .Replace(s, "([A-Z])", "-$1").TrimStart('-').ToLower();
 }
+
+
+
+
+
 
 
 

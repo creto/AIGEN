@@ -23,8 +23,8 @@ import { ButtonModule }         from 'primeng/button';
 import { ConfirmDialogModule }  from 'primeng/confirmdialog';
 import { ToastModule }          from 'primeng/toast';
 import { ConfirmationService, MessageService } from 'primeng/api';
-import { {{ entity_name }}Service } from '../services/{{ angular_file_name }}.service';
-import { {{ entity_name }} }        from '../models/{{ angular_file_name }}.model';
+import { {{ entity_name }}Service } from '../../services/{{ angular_file_name }}.service';
+import { {{ entity_name }} }        from '../../models/{{ angular_file_name }}.model';
 
 @Component({
   selector: '{{ angular_selector }}-list',
@@ -116,13 +116,13 @@ export class {{ entity_name }}ListComponent implements OnInit {
     {{ if use_pagination }}
     this.svc.getPaged(page, this.pageSize).subscribe({
       next: r  => { this.items.set(r.items); this.totalRecords.set(r.totalCount); },
-      error: _ => this.msg.add({ severity: 'error', summary: 'Error al cargar' }),
+      error: (_: unknown) => this.msg.add({ severity: 'error', summary: 'Error al cargar' }),
       complete: () => this.loading.set(false)
     });
     {{ else }}
     this.svc.getAll().subscribe({
       next: r  => this.items.set(r),
-      error: _ => this.msg.add({ severity: 'error', summary: 'Error al cargar' }),
+      error: (_: unknown) => this.msg.add({ severity: 'error', summary: 'Error al cargar' }),
       complete: () => this.loading.set(false)
     });
     {{ end }}
@@ -154,3 +154,4 @@ export class {{ entity_name }}ListComponent implements OnInit {
   }
   {{ end }}
 }
+

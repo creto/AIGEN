@@ -1,0 +1,38 @@
+import { Routes } from '@angular/router';
+
+export const routes: Routes = [
+  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  {
+    path: 'dashboard',
+    loadComponent: () =>
+      import('./dashboard/dashboard.component').then(m => m.DashboardComponent)
+  },
+{{~ for table in all_tables_script ~}}
+{{~ if table.HasService ~}}
+  {
+    path: '{{ table.KebabName }}',
+    children: [
+      {
+        path: '',
+        loadComponent: () =>
+          import('./features/{{ table.KebabName }}/components/{{ table.KebabName }}-list/{{ table.KebabName }}-list.component')
+            .then(m => m.{{ table.ClassName }}ListComponent)
+      },
+      {
+        path: 'nuevo',
+        loadComponent: () =>
+          import('./features/{{ table.KebabName }}/components/{{ table.KebabName }}-form/{{ table.KebabName }}-form.component')
+            .then(m => m.{{ table.ClassName }}FormComponent)
+      },
+      {
+        path: ':id/editar',
+        loadComponent: () =>
+          import('./features/{{ table.KebabName }}/components/{{ table.KebabName }}-form/{{ table.KebabName }}-form.component')
+            .then(m => m.{{ table.ClassName }}FormComponent)
+      }
+    ]
+  },
+{{~ end ~}}
+{{~ end ~}}
+  { path: '**', redirectTo: 'dashboard' }
+];

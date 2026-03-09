@@ -228,6 +228,24 @@ public class FileGeneratorService
         await Save(ctx, "deployment.scriban",
             Path.Combine(outPath, "DEPLOYMENT.md"), result, ct);
 
+        // -- Angular scaffolding -------------------------------------------
+        if (config.Frontend.GenerateFrontend)
+        {
+            var fe = Path.Combine(outPath, "frontend");
+            await Save(ctx, "angular_package_json.scriban",  Path.Combine(fe, "package.json"),                          result, ct);
+            await Save(ctx, "angular_json.scriban",          Path.Combine(fe, "angular.json"),                          result, ct);
+            await Save(ctx, "angular_tsconfig.scriban",      Path.Combine(fe, "tsconfig.json"),                         result, ct);
+            await Save(ctx, "angular_tsconfig_app.scriban",  Path.Combine(fe, "tsconfig.app.json"),                     result, ct);
+            await Save(ctx, "angular_proxy_conf.scriban",    Path.Combine(fe, "proxy.conf.json"),                       result, ct);
+            await Save(ctx, "angular_main.scriban",          Path.Combine(fe, "src", "main.ts"),                        result, ct);
+            await Save(ctx, "angular_index_html.scriban",    Path.Combine(fe, "src", "index.html"),                     result, ct);
+            await Save(ctx, "angular_styles.scriban",        Path.Combine(fe, "src", "styles.scss"),                    result, ct);
+            await Save(ctx, "angular_app_config.scriban",    Path.Combine(fe, "src", "app", "app.config.ts"),           result, ct);
+            await Save(ctx, "angular_app_routes.scriban",    Path.Combine(fe, "src", "app", "app.routes.ts"),           result, ct);
+            await Save(ctx, "angular_app_component.scriban", Path.Combine(fe, "src", "app", "app.component.ts"),        result, ct);
+            await Save(ctx, "angular_dashboard.scriban",     Path.Combine(fe, "src", "app", "dashboard", "dashboard.component.ts"), result, ct);
+        }
+
 
 
 
@@ -270,6 +288,7 @@ public class GenerationResult
 }
 
 public record GenerationProgress(int Current, int Total, string TableName);
+
 
 
 

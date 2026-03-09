@@ -23,7 +23,7 @@ import { InputTextModule }         from 'primeng/inputtext';
 import { ButtonModule }            from 'primeng/button';
 import { ToastModule }             from 'primeng/toast';
 import { MessageService }          from 'primeng/api';
-import { {{ entity_name }}Service }from '../services/{{ angular_file_name }}.service';
+import { {{ entity_name }}Service }from '../../services/{{ angular_file_name }}.service';
 
 @Component({
   selector: '{{ angular_selector }}-form',
@@ -92,21 +92,24 @@ export class {{ entity_name }}FormComponent implements OnInit {
     this.saving.set(true);
     const data = this.form.value as any;
 
-    const op = this.isEdit()
-      ? this.svc.update(this.editId!, data)
-      : this.svc.create(data);
+    const success = () => {
+      this.msg.add({ severity: 'success', summary: 'Guardado correctamente' });
+      setTimeout(() => this.router.navigate(['..'], { relativeTo: this.route }), 1000);
+    };
+    const failure = () => {
+      this.msg.add({ severity: 'error', summary: 'Error al guardar' });
+      this.saving.set(false);
+    };
+    if (this.isEdit()) {
+      this.svc.update(this.editId!, data).subscribe({ next: success, error: failure });
+    } else {
+      this.svc.create(data).subscribe({ next: () => success(), error: failure });
+    }
 
-    op.subscribe({
-      next: () => {
-        this.msg.add({ severity: 'success', summary: 'Guardado correctamente' });
-        setTimeout(() => this.router.navigate(['..'], { relativeTo: this.route }), 1000);
-      },
-      error: () => {
-        this.msg.add({ severity: 'error', summary: 'Error al guardar' });
-        this.saving.set(false);
-      }
-    });
+
   }
 
   cancel() { this.router.navigate(['..'], { relativeTo: this.route }); }
 }
+
+

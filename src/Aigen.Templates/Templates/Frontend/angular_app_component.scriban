@@ -1,0 +1,30 @@
+import { Component }      from '@angular/core';
+import { RouterOutlet }   from '@angular/router';
+import { RouterLink }     from '@angular/router';
+import { MenubarModule }  from 'primeng/menubar';
+import { MenuItem }       from 'primeng/api';
+
+@Component({
+  selector:    'app-root',
+  standalone:  true,
+  imports:     [RouterOutlet, RouterLink, MenubarModule],
+  template: `
+    <p-menubar [model]="menuItems">
+      <ng-template pTemplate="start">
+        <span class="font-bold text-xl text-primary ml-2">{{ project_name }}</span>
+      </ng-template>
+    </p-menubar>
+    <div class="p-4">
+      <router-outlet />
+    </div>
+  `
+})
+export class AppComponent {
+  menuItems: MenuItem[] = [
+{{~ for table in all_tables_script ~}}
+{{~ if table.HasService ~}}
+    { label: '{{ table.ClassName }}', routerLink: '/{{ table.KebabName }}' },
+{{~ end ~}}
+{{~ end ~}}
+  ];
+}
