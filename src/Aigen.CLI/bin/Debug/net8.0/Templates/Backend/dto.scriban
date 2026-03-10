@@ -36,7 +36,7 @@ public record {{ entity_name }}Dto(
     {{~ if !skip ~}}
     {{~ if !first ~}},
     {{ end ~}}
-    {{ col.c_sharp_type_nullable }} {{ col.property_name }}
+    {{ if col.c_sharp_type == "string" && col.is_nullable }}string?{{ else }}{{ col.c_sharp_type_nullable }}{{ end }} {{ col.property_name }}
     {{~ first = false ~}}
     {{~ end ~}}
     {{~ end ~}}
@@ -54,7 +54,7 @@ public record Create{{ entity_name }}Request(
     {{~ for col in form_columns ~}}
     {{~ if !first ~}},
     {{ end ~}}
-    {{~ if col.is_required ~}}[Required] {{ end ~}}{{ col.c_sharp_type_nullable }} {{ col.property_name }}
+    {{~ if col.is_required ~}}[Required] {{ end ~}}{{ if col.c_sharp_type == "string" && col.is_nullable }}string?{{ else }}{{ col.c_sharp_type_nullable }}{{ end }} {{ col.property_name }}
     {{~ first = false ~}}
     {{~ end ~}}
 );
@@ -80,7 +80,7 @@ public record Update{{ entity_name }}Request(
     {{~ if col.is_value_type ~}}
     {{ col.c_sharp_type }}? {{ col.property_name }}
     {{~ else ~}}
-    {{ col.c_sharp_type_nullable }} {{ col.property_name }}
+    {{ if col.c_sharp_type == "string" && col.is_nullable }}string?{{ else }}{{ col.c_sharp_type_nullable }}{{ end }} {{ col.property_name }}
     {{~ end ~}}
     {{~ first = false ~}}
     {{~ end ~}}
