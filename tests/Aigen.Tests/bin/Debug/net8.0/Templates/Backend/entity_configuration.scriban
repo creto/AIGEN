@@ -83,28 +83,9 @@ public class {{ entity_name }}Configuration : IEntityTypeConfiguration<{{ entity
         {{~ end ~}}
 
         // ── Relaciones FK ─────────────────────────────────────
-        {{~ nav_seen = [entity_name] ~}}
-        {{~ for col in all_columns ~}}
-        {{~   pname2 = col.property_name ~}}
-        {{~   if pname2 == entity_name; pname2 = pname2 + "Value"; end ~}}
-        {{~   nav_seen = array.add nav_seen pname2 ~}}
-        {{~ end ~}}
-        {{~ for fk in table.foreign_keys ~}}
-        {{~
-          nav_name = fk.navigation_property_name
-          base_nav = nav_name
-          suffix = 2
-          while array.contains nav_seen nav_name
-            nav_name = base_nav + suffix
-            suffix = suffix + 1
-          end
-          nav_seen = array.add nav_seen nav_name
-        ~}}
-        builder.HasOne(e => e.{{ nav_name }})
-               .WithMany()
-               .HasForeignKey("{{ fk.column_name }}")
-               .OnDelete(DeleteBehavior.Restrict);
-        {{~ end ~}}
+        // ── Relaciones FK — definidas via [ForeignKey] en la entidad ──────────
+        // EF Core resuelve las navegaciones desde los atributos de la entidad.
+        // No se genera HasOne() aqui para evitar shadow properties duplicadas.
 
         // ── Indices ───────────────────────────────────────────
         {{~ for idx in table.indexes ~}}

@@ -1,4 +1,4 @@
-﻿namespace Aigen.Core.Metadata;
+namespace Aigen.Core.Metadata;
 public class ColumnMetadata
 {
     public string  ColumnName      { get; set; } = string.Empty;
@@ -24,3 +24,4 @@ public class ColumnMetadata
     public bool    IsNumeric       => CSharpType is "int" or "long" or "decimal" or "double" or "float" or "short";
     public bool    IsDate          => CSharpType is "DateTime" or "DateOnly" or "DateTimeOffset";
 }
+

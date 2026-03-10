@@ -55,15 +55,22 @@ public class {{ entity_name }}
     {{ if col.is_required && !col.is_primary_key }}[Required]{{ end }}
     {{ if col.has_max_length }}[MaxLength({{ col.max_length }})]{{ end }}
     [Column("{{ col.column_name }}")]
-    public {{ col.c_sharp_type_nullable }} {{ prop_name }} { get; set; }{{ if col.c_sharp_type == "string" }} = string.Empty;{{ else if col.c_sharp_type == "byte[]" }} = Array.Empty<byte>();{{ else if col.c_sharp_type == "object" }} = new();{{ else if col.is_nullable }} = null;{{ end }}
+    public {{ if col.c_sharp_type == "string" && col.is_nullable }}string?{{ else }}{{ col.c_sharp_type_nullable }}{{ end }} {{ prop_name }} { get; set; }{{ if col.c_sharp_type == "string" && col.is_nullable }} = null;{{ else if col.c_sharp_type == "string" }} = string.Empty;{{ else if col.c_sharp_type == "byte[]" }} = Array.Empty<byte>();{{ else if col.c_sharp_type == "object" }} = new();{{ else if col.is_nullable }} = null;{{ end }}
     {{~ end ~}}
     // ── Navegacion ────────────────────────────────────────────
+// ── Navegacion ────────────────────────────────────────────────────────────
+    {{~ col_seen = [] ~}}
     {{~ for fk in table.foreign_keys ~}}
     {{~
+      # Deduplicar por column_name — evita navegaciones duplicadas
+      if array.contains col_seen fk.column_name
+        continue
+      end
+      col_seen = array.add col_seen fk.column_name
+
       nav_name = fk.navigation_property_name
 
       # Sufijo incremental hasta encontrar nombre único
-      # nav_seen ya contiene: nombre clase + todas las propiedades escalares
       base_nav = nav_name
       suffix = 2
       while array.contains nav_seen nav_name
@@ -72,7 +79,7 @@ public class {{ entity_name }}
       end
       nav_seen = array.add nav_seen nav_name
     ~}}
-    [ForeignKey("{{ fk.column_name }}")]
+    [ForeignKey("{{ fk.property_name }}")]
     public virtual {{ fk.navigation_property_name }}? {{ nav_name }} { get; set; }
     {{~ end ~}}
 }

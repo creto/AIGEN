@@ -89,7 +89,8 @@ public class SqlServerSchemaReader : ISchemaReader
                     ColumnName             = f.ColumnName,
                     ReferencedTable        = f.ReferencedTable,
                     ReferencedColumn       = f.ReferencedColumn,
-                    NavigationPropertyName = _naming.ToClassName(f.ReferencedTable)
+                    NavigationPropertyName = _naming.ToClassName(f.ReferencedTable),
+                    PropertyName           = _naming.ToPropertyName(f.ColumnName)
                 }).ToList();
             t.Indexes = idxs
                 .Where(i => i.TableName == t.TableName)
@@ -386,4 +387,5 @@ public class SqlServerSchemaReader : ISchemaReader
         bool   IsUnique,
         bool   IsPrimaryKey);
 }
+
 
