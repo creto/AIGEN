@@ -43,6 +43,8 @@ public class {{ repo_name }} : I{{ repo_name }}
         _ctx.Set<{{ entity_name }}>()
             {{~ if has_eliminado_column ~}}
             .Where(e => e.Eliminado == false)
+            {{~ else if has_estado ~}}
+            .Where(e => e.{{ estado_property_name }} == true)
             {{~ end ~}}
             .AsNoTracking();
 
@@ -118,10 +120,9 @@ public class {{ repo_name }} : I{{ repo_name }}
         {{ pk_type }} id, Update{{ entity_name }}Request r, CancellationToken ct = default)
     {
         var entity = await _ctx.Set<{{ entity_name }}>()
-            .FirstOrDefaultAsync(e => e.{{ pk_name }} == id, ct)
+            .FirstOrDefaultAsync(e => e.{{ pk_name }} == id{{~ if has_estado ~}} && e.{{ estado_property_name }} == true{{~ end ~}}, ct)
             ?? throw new KeyNotFoundException(
-                $"{{ entity_name }} {id} no encontrado.");
-
+                $"{{ entity_name }} {id} no encontrado o inactivo.");
         {{~ for col in form_columns ~}}
         {{~ # Lógica de asignación en Update por tipo:                            ~}}
         {{~ #                                                                     ~}}
@@ -171,8 +172,21 @@ public class {{ repo_name }} : I{{ repo_name }}
         {{~ if has_modificado_por ~}}entity.ModificadoPor = "system";{{~ end ~}}
         await _ctx.SaveChangesAsync(ct);
     }
+    {{~ else if has_estado ~}}
+    // ── Delete (soft via Estado) ───────────────────────────────────────────────
+    public async Task DeleteAsync(
+        {{ pk_type }} id, CancellationToken ct = default)
+    {
+        var entity = await _ctx.Set<{{ entity_name }}>()
+            .FirstOrDefaultAsync(e => e.{{ pk_name }} == id, ct)
+            ?? throw new KeyNotFoundException(
+                $"{{ entity_name }} {id} no encontrado.");
+
+        entity.{{ estado_property_name }} = false;
+        await _ctx.SaveChangesAsync(ct);
+    }
     {{~ else ~}}
-    // ── Delete ────────────────────────────────────────────────
+    // ── Delete (físico) ───────────────────────────────────────────────────────
     public async Task DeleteAsync(
         {{ pk_type }} id, CancellationToken ct = default)
     {

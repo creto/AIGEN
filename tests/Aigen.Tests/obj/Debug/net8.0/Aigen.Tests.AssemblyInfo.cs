@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("AIGEN Tests - Tests unitarios e integracion")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b9b8f95cc796c799add7942ca6361624e6e9cef4")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4fe7967f709b3edc88aeee947a70f52668649d0b")]
 [assembly: System.Reflection.AssemblyProductAttribute("Aigen.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Aigen.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
