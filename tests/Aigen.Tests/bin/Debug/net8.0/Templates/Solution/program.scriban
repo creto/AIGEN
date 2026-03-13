@@ -63,10 +63,13 @@ builder.Services.AddScoped<{{ table.ServiceName }}>();
 builder.Services.AddControllers();
 {{~ if use_swagger ~}}
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new() {
         Title   = "{{ project_name }} API",
-        Version = "v{{ version }}" }));
+        Version = "v{{ version }}" });
+    c.UseInlineDefinitionsForEnums();
+    c.SchemaFilter<NullableSchemaFilter>();
+});
 {{~ end ~}}
 
 var app = builder.Build();
@@ -85,6 +88,21 @@ app.UseAuthorization();
 app.MapControllers();
 Log.Information("{{ project_name }} API iniciado");
 app.Run();
+
+// ── Swagger NullableSchemaFilter ─────────────────────────────────────────────
+public class NullableSchemaFilter : Swashbuckle.AspNetCore.SwaggerGen.ISchemaFilter
+{
+    public void Apply(Microsoft.OpenApi.Models.OpenApiSchema schema,
+                      Swashbuckle.AspNetCore.SwaggerGen.SchemaFilterContext context)
+    {
+        if (schema.Properties is null) return;
+        foreach (var prop in schema.Properties.Values)
+        {
+            if (prop.Nullable && prop.Example is null)
+                prop.Example = new Microsoft.OpenApi.Any.OpenApiNull();
+        }
+    }
+}
 
 
 
