@@ -89,6 +89,8 @@ app.MapControllers();
 Log.Information("{{ project_name }} API iniciado");
 app.Run();
 
+
+
 // ── Swagger NullableSchemaFilter ─────────────────────────────────────────────
 
 
