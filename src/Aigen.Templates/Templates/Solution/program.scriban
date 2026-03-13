@@ -90,6 +90,8 @@ Log.Information("{{ project_name }} API iniciado");
 app.Run();
 
 // ── Swagger NullableSchemaFilter ─────────────────────────────────────────────
+
+
 public class NullableSchemaFilter : Swashbuckle.AspNetCore.SwaggerGen.ISchemaFilter
 {
     public void Apply(Microsoft.OpenApi.Models.OpenApiSchema schema,
