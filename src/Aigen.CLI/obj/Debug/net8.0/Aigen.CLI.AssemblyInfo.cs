@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("AIGEN - AI-Powered Software Generator CLI")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e4b52b94f43e13822de7fabdec84cb3d003b19a8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+87e75f2a3d7a4fbd887a332352357f7f9cfd20a5")]
 [assembly: System.Reflection.AssemblyProductAttribute("aigen")]
 [assembly: System.Reflection.AssemblyTitleAttribute("aigen")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

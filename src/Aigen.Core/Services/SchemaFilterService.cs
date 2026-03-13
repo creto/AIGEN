@@ -32,7 +32,9 @@ public class SchemaFilterService
                 .ToList(),
             "Exclude" or _ => allTables
                 .Where(t => !config.ExcludedTables
-                    .Contains(t.TableName, StringComparer.OrdinalIgnoreCase))
+                    .Contains(t.TableName, StringComparer.OrdinalIgnoreCase)
+                 && !config.ExcludedPrefixes
+                    .Any(p => t.TableName.StartsWith(p, StringComparison.OrdinalIgnoreCase)))
                 .ToList()
         };
 

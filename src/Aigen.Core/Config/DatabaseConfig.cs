@@ -8,6 +8,7 @@ public class DatabaseConfig
     public List<string>   Schemas          { get; set; } = new() { "dbo" }; // ← NUEVA
     public string         TableSelection   { get; set; } = "All";
     public List<string>   IncludedTables   { get; set; } = new();
-    public List<string>   ExcludedTables   { get; set; } = new() { "__EFMigrationsHistory", "sysdiagrams" };
+    public List<string>   ExcludedTables    { get; set; } = new() { "__EFMigrationsHistory", "sysdiagrams" };
+    public List<string>   ExcludedPrefixes  { get; set; } = new();
     public EfStrategy     EfStrategy       { get; set; } = EfStrategy.DatabaseFirst;
 }
