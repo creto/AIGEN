@@ -1,4 +1,5 @@
 using Aigen.Core.Metadata;
+using Aigen.Core.Services;
 using Npgsql;
 
 namespace Aigen.Core.Schema;
@@ -9,6 +10,7 @@ namespace Aigen.Core.Schema;
 /// </summary>
 public class PostgreSqlSchemaReader : ISchemaReader
 {
+    private readonly NamingConventionService _naming = new();
     public async Task<bool> TestConnectionAsync(
         string connectionString, CancellationToken ct = default)
     {
@@ -68,7 +70,8 @@ public class PostgreSqlSchemaReader : ISchemaReader
                     ColumnName             = f.ColumnName,
                     ReferencedTable        = f.ReferencedTable,
                     ReferencedColumn       = f.ReferencedColumn,
-                    NavigationPropertyName = ToPascal(f.ReferencedTable)
+                    NavigationPropertyName = _naming.ToClassName(f.ReferencedTable),
+                    PropertyName           = _naming.ToPropertyName(f.ColumnName)
                 }).ToList();
         }
 
@@ -93,26 +96,26 @@ public class PostgreSqlSchemaReader : ISchemaReader
         while (await r.ReadAsync(ct))
         {
             var name    = r.GetString(0);
-            var cls     = ToPascal(name);
-            var plural  = Pluralize(cls);
+            var cls     = _naming.ToClassName(name);
+            var plural  = _naming.ToClassNamePlural(cls);
             list.Add(new TableMetadata
             {
                 SchemaName     = schema,
                 TableName      = name,
                 ClassName      = cls,
                 ClassNamePlural = plural,
-                ObjectName     = ToCamel(cls),
-                ServiceName    = cls + "Service",
-                RepositoryName = cls + "Repository",
-                ControllerName = plural + "Controller",
-                ApiRoute       = "/api/" + plural.ToLower()
+                ObjectName     = _naming.ToObjectName(cls),
+                ServiceName    = _naming.ToServiceName(cls),
+                RepositoryName = _naming.ToRepositoryName(cls),
+                ControllerName = _naming.ToControllerName(plural),
+                ApiRoute       = _naming.ToApiRoute(plural)
             });
         }
         return list;
     }
 
     // ── Columnas ──────────────────────────────────────────────────
-    private static async Task<List<RawColumn>> ReadColumnsAsync(
+    private async Task<List<RawColumn>> ReadColumnsAsync(
         NpgsqlConnection conn, string schema, CancellationToken ct)
     {
         const string sql = @"
@@ -153,9 +156,9 @@ public class PostgreSqlSchemaReader : ISchemaReader
                 IsIdentity      = r.GetInt32(9) == 1,
                 CSharpType      = MapToCSharp(sqlType),
                 TypeScriptType  = MapToTypeScript(sqlType),
-                PropertyName    = ToPascal(colName),
-                TsPropertyName  = ToCamel(colName),
-                DisplayName     = ToDisplay(colName)
+                PropertyName    = _naming.ToPropertyName(colName),
+                TsPropertyName  = _naming.ToTsPropertyName(colName),
+                DisplayName     = _naming.ToDisplayName(colName)
             });
         }
         return list;
