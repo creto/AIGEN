@@ -270,6 +270,10 @@ public class FileGeneratorService
             await Save(ctx, "angular_tsconfig.scriban",      Path.Combine(fe, "tsconfig.json"),                         result, ct);
             await Save(ctx, "angular_tsconfig_app.scriban",  Path.Combine(fe, "tsconfig.app.json"),                     result, ct);
             await Save(ctx, "angular_proxy_conf.scriban",    Path.Combine(fe, "proxy.conf.json"),                       result, ct);
+            await Save(ctx, "angular_environment.scriban",      Path.Combine(fe, "src", "environments", "environment.ts"),      result, ct);
+            await Save(ctx, "angular_environment_prod.scriban", Path.Combine(fe, "src", "environments", "environment.prod.ts"), result, ct);
+            await Save(ctx, "angular_error_interceptor.scriban", Path.Combine(fe, "src", "app", "core", "interceptors", "error.interceptor.ts"), result, ct);
+            await Save(ctx, "angular_auth_interceptor.scriban",  Path.Combine(fe, "src", "app", "core", "interceptors", "auth.interceptor.ts"),  result, ct);
             await Save(ctx, "angular_main.scriban",          Path.Combine(fe, "src", "main.ts"),                        result, ct);
             await Save(ctx, "angular_index_html.scriban",    Path.Combine(fe, "src", "index.html"),                     result, ct);
             await Save(ctx, "angular_styles.scriban",        Path.Combine(fe, "src", "styles.scss"),                    result, ct);
@@ -321,6 +325,8 @@ public class GenerationResult
 }
 
 public record GenerationProgress(int Current, int Total, string TableName);
+
+
 
 
 

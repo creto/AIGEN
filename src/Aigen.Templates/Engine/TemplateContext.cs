@@ -174,6 +174,8 @@ public class TemplateContext
     public string AngularVersion   => Config.Frontend.FrameworkVersion;
     public string PrimaryColor     => Config.Frontend.PrimaryColor;
     public string SecondaryColor   => Config.Frontend.SecondaryColor;
+    public string ApiBaseUrl       => Config.Frontend.ApiBaseUrl;
+    public string ApiBaseProdUrl   => Config.Frontend.ApiBaseProdUrl;
     public string UiLibrary        => Config.Frontend.UiLibrary.ToString();
     public bool   GenerateFrontend => Config.Frontend.GenerateFrontend;
 
@@ -247,6 +249,7 @@ public class TemplateContext
         return r.ToLowerInvariant();
     }
 }
+
 
 
 

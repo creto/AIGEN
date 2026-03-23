@@ -186,3 +186,7 @@ C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Fronten
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Frontend\angular_styles.scriban
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Frontend\angular_tsconfig.scriban
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Frontend\angular_tsconfig_app.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Frontend\angular_auth_interceptor.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Frontend\angular_environment.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Frontend\angular_environment_prod.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Frontend\angular_error_interceptor.scriban

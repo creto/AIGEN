@@ -46,7 +46,7 @@ $cfg = $configs[$Db]
 # ── Header ───────────────────────────────────────────────────────────────────
 Write-Host "================================================"  -ForegroundColor $cfg.Color
 Write-Host "  AIGEN - Rebuild + Generate + Compile + Docs"   -ForegroundColor $cfg.Color
-Write-Host "  Version 3.0 | Semana 10"                        -ForegroundColor $cfg.Color
+Write-Host "  Version 3.0 | Semana 11"                        -ForegroundColor $cfg.Color
 Write-Host "  Base de datos : $($cfg.DbLabel)"               -ForegroundColor $cfg.Color
 Write-Host "  Config        : $($cfg.ConfigFile)"            -ForegroundColor $cfg.Color
 Write-Host "  Output        : $($cfg.OutputPath)"            -ForegroundColor $cfg.Color

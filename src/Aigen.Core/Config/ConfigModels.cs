@@ -1,4 +1,4 @@
-using Aigen.Core.Config.Enums;
+﻿using Aigen.Core.Config.Enums;
 namespace Aigen.Core.Config;
 public class BackendConfig
 {
@@ -19,6 +19,8 @@ public class FrontendConfig
     public string            PrimaryColor     { get; set; } = "2563EB";
     public string            SecondaryColor   { get; set; } = "64748B";
     public string?           LogoPath         { get; set; }
+    public string            ApiBaseUrl       { get; set; } = "http://localhost:5000";
+    public string            ApiBaseProdUrl   { get; set; } = "__API_URL__";
 }
 public class SecurityConfig
 {
@@ -65,4 +67,6 @@ public class OutputConfig
     public bool       PushToRemote  { get; set; } = false;
     public string     RemoteUrl     { get; set; } = string.Empty;
 }
+
+
 
