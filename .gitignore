@@ -3,3 +3,5 @@ samples/proyecto-ejemplo.json
 *.rar
 *.zip
 *.7z
+
+GeneratedPostgres/

@@ -1,0 +1,68 @@
+{
+  "aigenVersion": "1.0",
+  "project": {
+    "projectName": "AigenTest",
+    "rootNamespace": "AigenTest",
+    "version": "1.0.0",
+    "author": "TiGlobal SAS",
+    "year": "2026",
+    "description": "Test PostgreSQL con AIGEN",
+    "language": "Spanish"
+  },
+  "database": {
+    "engine": "PostgreSQL",
+    "connectionString": "Host=localhost;Port=5432;Database=aigen_test;Username=postgres;Password=Dukakis2701;",
+    "schema": "public",
+    "schemas": ["public"],
+    "tableSelection": "All",
+    "includedTables": [],
+    "excludedPrefixes": [],
+    "excludedTables": []
+  },
+  "architecture": {
+    "pattern": "CleanArchitecture",
+    "separateSolutionPerService": false
+  },
+  "backend": {
+    "orm": "EntityFrameworkCore",
+    "repositoryPattern": "RepositoryUnitOfWork",
+    "efStrategy": "DatabaseFirst",
+    "useCQRS": false,
+    "dotnetVersion": "net8.0"
+  },
+  "frontend": {
+    "generateFrontend": false,
+    "framework": "Angular",
+    "angularVersion": "17",
+    "uiLibrary": "PrimeNG",
+    "generateRouting": true,
+    "generateModule": false,
+    "useStandalone": true
+  },
+  "security": {
+    "authenticationType": "JWT",
+    "corsOrigins": "http://localhost:4200",
+    "useHttps": true
+  },
+  "features": {
+    "generatePagination": true,
+    "softDelete": true,
+    "auditing": true,
+    "validation": "FluentValidation",
+    "mapping": "Manual",
+    "logging": "Serilog",
+    "apiDoc": "Swagger",
+    "cache": "None",
+    "generateTests": false
+  },
+  "ai": {
+    "provider": "None",
+    "enrichEntities": false
+  },
+  "output": {
+    "path": "C:\\\\DevOps\\\\AIGEN\\\\AIGEN\\\\GeneratedPostgres",
+    "type": "LocalPath",
+    "overwriteExisting": true,
+    "createSolutionFile": true
+  }
+}
