@@ -1,4 +1,4 @@
-using Aigen.Core.Config;
+﻿using Aigen.Core.Config;
 using Aigen.Core.Config.Enums;
 using Aigen.Core.Metadata;
 using Aigen.Templates.Engine;
@@ -26,6 +26,33 @@ public class FileGeneratorService
         var result  = new GenerationResult();
         var outPath = config.ResolveOutputPath();
 
+        // ── Desambiguar ClassName duplicados ─────────────────────────────────
+        // Si dos tablas generan el mismo ClassName (ej. TB_Serie y TR_Serie -> Serie),
+        // la segunda recibe el prefijo de tabla como sufijo: SerieTr, SerieTb, etc.
+        var classNameSeen = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var t in tables)
+        {
+            if (!classNameSeen.Add(t.ClassName))
+            {
+                // Extraer prefijo: "TR_Serie" -> "Tr", "TBR_Algo" -> "Tbr"
+                var rawPrefix = t.TableName.Split('_')[0]; // "TR", "TBR", "TM"...
+                var suffix    = rawPrefix.Length > 0
+                    ? char.ToUpper(rawPrefix[0]) + rawPrefix[1..].ToLower()
+                    : "Alt";
+                var disambig  = t.ClassName + suffix;        // "SerieTr"
+
+                // Recalcular todos los nombres derivados
+                t.ClassName       = disambig;
+                t.ClassNamePlural = t.ClassNamePlural + suffix;    // "SeriesTr"
+                t.ObjectName      = char.ToLower(disambig[0]) + disambig[1..];
+                t.ServiceName     = disambig + "Service";
+                t.RepositoryName  = disambig + "Repository";
+                t.ControllerName  = disambig + "sController";
+                t.ApiRoute        = "/api/" + disambig.ToLowerInvariant() + "s";
+            }
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         for (int i = 0; i < tables.Count; i++)
         {
             var table = tables[i];
@@ -35,7 +62,13 @@ public class FileGeneratorService
 
             await GenerateBackendAsync(ctx, outPath, result, ct);
 
-            if (config.Frontend.GenerateFrontend)
+            // Frontend solo para tablas no-audit/no-historical
+            // TA_, TH_, TAR_ solo generan Entity en backend — sin frontend
+            var skipFrontend = table.TableName.StartsWith("TA_",  StringComparison.OrdinalIgnoreCase)
+                            || table.TableName.StartsWith("TH_",  StringComparison.OrdinalIgnoreCase)
+                            || table.TableName.StartsWith("TAR_", StringComparison.OrdinalIgnoreCase);
+
+            if (config.Frontend.GenerateFrontend && !skipFrontend)
                 await GenerateFrontendAsync(ctx, outPath, result, ct);
         }
 
@@ -50,7 +83,7 @@ public class FileGeneratorService
         return result;
     }
 
-    // ── Backend ───────────────────────────────────────────────
+    // â”€â”€ Backend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private async Task GenerateBackendAsync(
         TemplateContext ctx, string outPath,
         GenerationResult result, CancellationToken ct)
@@ -58,12 +91,12 @@ public class FileGeneratorService
         var t  = ctx.Table;
         var ns = ctx.ProjectName;
 
-        // Entity (siempre — incluso para TH_/TA_ para que las FKs resuelvan)
+        // Entity (siempre â€” incluso para TH_/TA_ para que las FKs resuelvan)
         await Save(ctx, "entity.scriban",
             Path.Combine(outPath, "src", $"{ns}.Domain", "Entities",
                 $"{t.ClassName}.cs"), result, ct);
 
-        // TH_ (Historical) y TA_ (Audit) solo generan Entity — no Application/API
+        // TH_ (Historical) y TA_ (Audit) solo generan Entity â€” no Application/API
         var isAuditOrHistorical = t.TableName.StartsWith("TH_", StringComparison.OrdinalIgnoreCase)
                                || t.TableName.StartsWith("TA_", StringComparison.OrdinalIgnoreCase)
                                || t.TableName.StartsWith("TAR_", StringComparison.OrdinalIgnoreCase);
@@ -138,7 +171,7 @@ public class FileGeneratorService
                     t.ClassNamePlural, $"{t.ClassName}Validator.cs"), result, ct);
     }
 
-    // ── Frontend ──────────────────────────────────────────────
+    // â”€â”€ Frontend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private async Task GenerateFrontendAsync(
         TemplateContext ctx, string outPath,
         GenerationResult result, CancellationToken ct)
@@ -164,7 +197,7 @@ public class FileGeneratorService
                 $"{kebab}-form.component.ts"), result, ct);
     }
 
-    // ── Solution ──────────────────────────────────────────────
+    // â”€â”€ Solution â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private async Task GenerateSolutionAsync(
         TemplateContext ctx, string outPath,
         DatabaseMetadata db, GeneratorConfig config,
@@ -173,7 +206,7 @@ public class FileGeneratorService
         var ns  = ctx.ProjectName;
         var orm = config.Backend.Orm;
 
-        // ── Archivos de infraestructura .NET (NUEVOS) ─────────────────────────
+        // â”€â”€ Archivos de infraestructura .NET (NUEVOS) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         // 1. Solution file (.sln)
         await Save(ctx, "solution.scriban",
@@ -199,7 +232,7 @@ public class FileGeneratorService
             Path.Combine(outPath, "src", $"{ns}.API",
                 $"{ns}.API.csproj"), result, ct);
 
-        // ── Archivos de aplicación (ya existían) ──────────────────────────────
+        // â”€â”€ Archivos de aplicaciÃ³n (ya existÃ­an) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
         // DbContext (EF Core)
         if (orm != OrmType.Dapper)
@@ -252,7 +285,7 @@ public class FileGeneratorService
         
     }
 
-    // ── Helper ────────────────────────────────────────────────
+    // â”€â”€ Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private async Task Save(
         TemplateContext ctx, string templateName,
         string outputPath, GenerationResult result, CancellationToken ct)
@@ -288,6 +321,8 @@ public class GenerationResult
 }
 
 public record GenerationProgress(int Current, int Total, string TableName);
+
+
 
 
 

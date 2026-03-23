@@ -1,4 +1,4 @@
-using Aigen.Core.Config;
+﻿using Aigen.Core.Config;
 using Aigen.Core.Config.Enums;
 using Aigen.Core.Metadata;
 using Scriban.Runtime;
@@ -38,7 +38,7 @@ public class TemplateContext
         }
     }
 
-    // ── Proyecto ─────────────────────────────────────────────
+    // â”€â”€ Proyecto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public string ProjectName    => Config.Project.ProjectName;
     public string Author         => Config.Project.Author;
     public string GeneratedDate  => DateTime.Now.ToString("yyyy-MM-dd HH:mm");
@@ -50,12 +50,12 @@ public class TemplateContext
     public string Year           => Config.Project.Year;
     public string Description    => Config.Project.Description;
 
-    // ── Base de datos ────────────────────────────────────────
+    // â”€â”€ Base de datos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public string DbName   => Db.DatabaseName;
     public string DbSchema => Config.Database.Schema;
     public string DbEngine => Config.Database.Engine.ToString();
 
-    // ── Entidad ──────────────────────────────────────────────
+    // â”€â”€ Entidad â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public string EntityName       => Table.ClassName;
     public string EntityNamePlural => Table.ClassNamePlural;
     public string EntityNameCamel  => Table.ObjectName;
@@ -66,12 +66,12 @@ public class TemplateContext
     public string TableName        => Table.TableName;
     public string TableType        => Table.GetTableType().ToString();
 
-    // ── PK — resolución robusta ───────────────────────────────
+    // â”€â”€ PK â€” resoluciÃ³n robusta â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // Estrategia de 4 pasos para soportar BDs legacy (Incoder):
     //   1. PrimaryKeyColumn de AIGEN (columna marcada [Key])
     //   2. Primera columna con IsPrimaryKey = true
-    //   3. Convención Incoder: primera columna que empiece con "ID"
-    //   4. Primera columna como último recurso
+    //   3. ConvenciÃ³n Incoder: primera columna que empiece con "ID"
+    //   4. Primera columna como Ãºltimo recurso
     private ColumnMetadata? ResolvePkColumn()
     {
         if (Table.PrimaryKeyColumn is not null)
@@ -96,11 +96,11 @@ public class TemplateContext
     public string PkType      => PkColumn?.CSharpType     ?? "int";
     public string PkTsType    => PkColumn?.TypeScriptType  ?? "number";
 
-    // ── Columnas ─────────────────────────────────────────────
+    // â”€â”€ Columnas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // IMPORTANTE: ToScriptObjects aplica el mismo rename que entity.scriban:
-    //   si PropertyName == EntityName → PropertyName = EntityName + "Value"
+    //   si PropertyName == EntityName â†’ PropertyName = EntityName + "Value"
     // Esto garantiza que repositorio y entidad usen el mismo nombre de propiedad.
-    // Ejemplo: tabla "Aplicacion" tiene columna "Aplicacion" → propiedad "AplicacionValue"
+    // Ejemplo: tabla "Aplicacion" tiene columna "Aplicacion" â†’ propiedad "AplicacionValue"
     public IEnumerable<ScriptObject> AllColumns  => ToScriptObjects(Table.Columns, EntityName);
 
     // FormColumns: excluye PK, identity y audit fields
@@ -113,12 +113,12 @@ public class TemplateContext
 
     public IEnumerable<ScriptObject> ListColumns => ToScriptObjects(Table.ListColumns, EntityName);
 
-    // ── Tipo de tabla ────────────────────────────────────────
+    // â”€â”€ Tipo de tabla â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public bool HasFullCrud  => Table.HasFullCrud();
     public bool IsReadOnly   => Table.IsReadOnly();
     public bool IsRelational => Table.IsRelationalOnly();
 
-    // ── HasEstado — FIX: case-insensitive + verificar tipo bool ──
+    // â”€â”€ HasEstado â€” FIX: case-insensitive + verificar tipo bool â”€â”€
     // La BD puede tener "Estado", "ESTADO", "estado"
     // Solo contar como HasEstado si es tipo bool/BIT (no string)
     // Evita falso positivo en tablas con columna "Estado" de tipo varchar
@@ -128,10 +128,10 @@ public class TemplateContext
 
     public bool HasEstado => EstadoColumn is not null;
 
-    // Nombre REAL de la propiedad — "ESTADO" si la columna es mayúsculas
+    // Nombre REAL de la propiedad â€” "ESTADO" si la columna es mayÃºsculas
     public string EstadoPropertyName => EstadoColumn?.PropertyName ?? "Estado";
 
-    // ── Columnas de auditoría ────────────────────────────────
+    // â”€â”€ Columnas de auditorÃ­a â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public bool HasEliminadoColumn  => Table.Columns.Any(c =>
         c.PropertyName.Equals("Eliminado", StringComparison.OrdinalIgnoreCase));
     public bool HasCreadoEn         => Table.Columns.Any(c =>
@@ -144,7 +144,7 @@ public class TemplateContext
         c.PropertyName.Equals("ModificadoPor", StringComparison.OrdinalIgnoreCase));
     public bool HasAuditColumns     => Config.Features.Auditing && Table.Columns.Any(c => c.IsAuditField);
 
-    // ── Features ─────────────────────────────────────────────
+    // â”€â”€ Features â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public bool UsePagination       => Config.Features.GeneratePagination;
     public bool UseSoftDelete       => Config.Features.SoftDelete;
     public bool UseAuditing         => Config.Features.Auditing;
@@ -156,19 +156,19 @@ public class TemplateContext
     public bool UseSwagger =>
         Config.Features.ApiDoc == ApiDocProvider.Swagger;
 
-    // ── ORM ──────────────────────────────────────────────────
+    // â”€â”€ ORM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public bool UseDapper   => Config.Backend.Orm == OrmType.Dapper;
     public bool UseEfCore   => Config.Backend.Orm == OrmType.EntityFrameworkCore;
     public bool UseEfDapper => Config.Backend.Orm == OrmType.EFCoreWithDapper;
 
-    // ── Namespaces ───────────────────────────────────────────
+    // â”€â”€ Namespaces â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public string NsDomain         => $"{RootNamespace}.Domain.Entities";
     public string NsApplication    => $"{RootNamespace}.Application.{EntityNamePlural}";
     public string NsInfraRepo      => $"{RootNamespace}.Infrastructure.Persistence.Repositories";
     public string NsApi            => $"{RootNamespace}.API.Controllers";
     public string NsInfrastructure => $"{RootNamespace}.Infrastructure";
 
-    // ── Angular ──────────────────────────────────────────────
+    // â”€â”€ Angular â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public string AngularFileName  => ToKebab(EntityName);
     public string AngularSelector  => "app-" + ToKebab(EntityName);
     public string AngularVersion   => Config.Frontend.FrameworkVersion;
@@ -177,7 +177,7 @@ public class TemplateContext
     public string UiLibrary        => Config.Frontend.UiLibrary.ToString();
     public bool   GenerateFrontend => Config.Frontend.GenerateFrontend;
 
-    // ── Conversión ColumnMetadata → ScriptObject ─────────────
+    // â”€â”€ ConversiÃ³n ColumnMetadata â†’ ScriptObject â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private static readonly HashSet<string> ValueTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         "int", "long", "short", "byte", "float", "double", "decimal",
@@ -187,7 +187,7 @@ public class TemplateContext
 
     /// <summary>
     /// Convierte columnas a ScriptObject para Scriban.
-    /// CRÍTICO: aplica el mismo rename que entity.scriban —
+    /// CRÃTICO: aplica el mismo rename que entity.scriban â€”
     /// si PropertyName == entityName (nombre de la clase), se renombra a PropertyName + "Value".
     /// Esto evita CS0542 (propiedad con mismo nombre que la clase) y sincroniza
     /// el nombre entre entidad y repositorio/DTO.
@@ -205,8 +205,8 @@ public class TemplateContext
 
             var obj = new ScriptObject();
             obj["column_name"]           = col.ColumnName;
-            obj["property_name"]         = propertyName;           // ← nombre real en la entidad
-            obj["original_property_name"]= col.PropertyName;       // ← nombre original del metadata
+            obj["property_name"]         = propertyName;           // â† nombre real en la entidad
+            obj["original_property_name"]= col.PropertyName;       // â† nombre original del metadata
             obj["ts_property_name"]      = col.TsPropertyName;
             obj["display_name"]          = col.DisplayName;
             obj["sql_type"]              = col.SqlType;
@@ -236,10 +236,18 @@ public class TemplateContext
         }
     }
 
-    private static string ToKebab(string s) =>
-        System.Text.RegularExpressions.Regex
-            .Replace(s, "([A-Z])", "-$1").TrimStart('-').ToLower();
+    private static string ToKebab(string s)
+    {
+        // Paso 1: acrÃ³nimo + palabra normal  "MCDTAlgo" â†’ "MCDT-Algo"
+        var r = System.Text.RegularExpressions.Regex
+            .Replace(s, @"([A-Z]+)([A-Z][a-z])", "$1-$2");
+        // Paso 2: minÃºscula/dÃ­gito + mayÃºscula  "OrdenCompra" â†’ "Orden-Compra"
+        r = System.Text.RegularExpressions.Regex
+            .Replace(r, @"([a-z\d])([A-Z])", "$1-$2");
+        return r.ToLowerInvariant();
+    }
 }
+
 
 
 

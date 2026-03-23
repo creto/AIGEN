@@ -1,4 +1,4 @@
-namespace Aigen.Core.Services;
+﻿namespace Aigen.Core.Services;
 
 /// <summary>
 /// Servicio centralizado de convencion de nombres.
@@ -37,24 +37,24 @@ public class NamingConventionService
             "usuariocreacion", "usuariomodificacion"
         };
 
-    // ── Prefijos históricos — generan sufijo "Hist" ───────────────
-    // Evita colisiones de ClassName entre tablas históricas y sus contrapartes:
-    //   TH_Serie  → SerieHist   (no colisiona con TB_Serie  → Serie)
-    //   TH_Fondo  → FondoHist   (no colisiona con TB_Fondo  → Fondo)
-    //   TAR_Trd   → TrdHist     (no colisiona con TB_Trd    → Trd)
-    // TAR_ va primero (más largo) para match correcto antes de TH_
+    // â”€â”€ Prefijos histÃ³ricos â€” generan sufijo "Hist" â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    // Evita colisiones de ClassName entre tablas histÃ³ricas y sus contrapartes:
+    //   TH_Serie  â†’ SerieHist   (no colisiona con TB_Serie  â†’ Serie)
+    //   TH_Fondo  â†’ FondoHist   (no colisiona con TB_Fondo  â†’ Fondo)
+    //   TAR_Trd   â†’ TrdHist     (no colisiona con TB_Trd    â†’ Trd)
+    // TAR_ va primero (mÃ¡s largo) para match correcto antes de TH_
     private static readonly string[] HistoricalPrefixes = { "TAR_", "TH_" };
 
-    // ── Tablas ────────────────────────────────────────────────────
+    // â”€â”€ Tablas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /// <summary>
-    /// Clase C# limpia. TM_FacturaVenta → FacturaVenta
-    /// Tablas históricas reciben sufijo Hist para evitar colisiones:
-    ///   TH_Serie → SerieHist | TAR_Trd → TrdHist
+    /// Clase C# limpia. TM_FacturaVenta â†’ FacturaVenta
+    /// Tablas histÃ³ricas reciben sufijo Hist para evitar colisiones:
+    ///   TH_Serie â†’ SerieHist | TAR_Trd â†’ TrdHist
     /// </summary>
     public string ToClassName(string tableName)
     {
-        // 1. Prefijos históricos primero (TAR_ antes que TH_ por longitud)
+        // 1. Prefijos histÃ³ricos primero (TAR_ antes que TH_ por longitud)
         foreach (var prefix in HistoricalPrefixes)
         {
             if (tableName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
@@ -65,10 +65,20 @@ public class NamingConventionService
             }
         }
 
-        // 2. Prefijos normales — solo eliminar
+        // 2. Prefijos normales â€” solo eliminar
         var name = RemovePrefixes(tableName);
         name = RemoveSuffixes(name);
-        return ToPascalCase(name);
+        var pascal = ToPascalCase(name);
+
+        // Normalizar doble mayuscula inicial seguida de minuscula:
+        // "EXpedientes" -> "Expedientes" (error de capitalizacion en BD)
+        // Solo aplica al inicio: ^[A-Z][A-Z][a-z]
+        pascal = System.Text.RegularExpressions.Regex.Replace(
+            pascal,
+            @"^([A-Z])([A-Z])([a-z])",
+            m => m.Groups[1].Value + m.Groups[2].Value.ToLower() + m.Groups[3].Value);
+
+        return pascal;
     }
 
     /// <summary>
@@ -107,14 +117,14 @@ public class NamingConventionService
     public string ToControllerName(string plural)     => plural + "Controller";
     public string ToApiRoute(string plural)           => "/api/" + plural.ToLowerInvariant();
 
-    // ── Columnas ──────────────────────────────────────────────────
+    // â”€â”€ Columnas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public string ToPropertyName(string colName)   => ToPascalCase(NormalizePostgresName(colName));
 
     /// <summary>
     /// Normaliza nombres de columnas PostgreSQL (lowercase sin separadores)
     /// reintroduciendo separadores para que ToPascalCase los procese correctamente.
-    /// Ejemplo: "creadoen" → "creado_en" → "CreadoEn"
+    /// Ejemplo: "creadoen" â†’ "creado_en" â†’ "CreadoEn"
     /// </summary>
     private static string NormalizePostgresName(string name)
     {
@@ -159,22 +169,24 @@ public class NamingConventionService
         return result.Length > 0 ? char.ToUpper(result[0]) + result[1..] : result;
     }
 
-    // ── Angular ───────────────────────────────────────────────────
+    // â”€â”€ Angular â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     /// <summary>FacturaVenta -> factura-venta</summary>
     public string ToAngularFileName(string className)
     {
-        var result = System.Text.RegularExpressions.Regex
-            .Replace(className, "([A-Z])", "-$1")
-            .TrimStart('-')
-            .ToLowerInvariant();
-        return result;
+        // Paso 1: acrónimo seguido de palabra normal  → "MCDTAlgo" → "MCDT-Algo"
+        var s = System.Text.RegularExpressions.Regex
+            .Replace(className, @"([A-Z]+)([A-Z][a-z])", "$1-$2");
+        // Paso 2: minúscula/dígito seguido de mayúscula → "OrdenCompra" → "Orden-Compra"
+        s = System.Text.RegularExpressions.Regex
+            .Replace(s, @"([a-z\d])([A-Z])", "$1-$2");
+        return s.ToLowerInvariant();
     }
 
     public string ToAngularModuleName(string name)                        => name + "Module";
     public string ToAngularComponentName(string name, string suffix = "") => name + suffix + "Component";
 
-    // ── Helpers estaticos ─────────────────────────────────────────
+    // â”€â”€ Helpers estaticos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
     public static string ToPascalCase(string name)
     {
@@ -192,9 +204,18 @@ public class NamingConventionService
 
     private static string RemovePrefixes(string name)
     {
-        foreach (var prefix in TablePrefixes)
-            if (name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
-                return name[prefix.Length..];
+        string prev;
+        do {
+            prev = name;
+            foreach (var prefix in TablePrefixes)
+            {
+                if (name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    name = name[prefix.Length..];
+                    break;
+                }
+            }
+        } while (name != prev); // continuar mientras se eliminen prefijos
         return name;
     }
 
@@ -206,3 +227,8 @@ public class NamingConventionService
         return name;
     }
 }
+
+
+
+
+
