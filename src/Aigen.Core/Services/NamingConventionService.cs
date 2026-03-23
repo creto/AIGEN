@@ -28,7 +28,13 @@ public class NamingConventionService
             "createdAt", "createdBy", "updatedAt", "updatedBy",
             "eliminado", "deletedAt", "deletedBy",
             "fechaCreacion", "fechaModificacion",
-            "usuarioCreacion", "usuarioModificacion"
+            "usuarioCreacion", "usuarioModificacion",
+            // PostgreSQL lowercase aliases
+            "creadoen", "creadopor",
+            "modificadoen", "modificadopor",
+            "eliminadoen", "eliminadopor",
+            "fechacreacion", "fechamodificacion",
+            "usuariocreacion", "usuariomodificacion"
         };
 
     // ── Prefijos históricos — generan sufijo "Hist" ───────────────
@@ -103,7 +109,40 @@ public class NamingConventionService
 
     // ── Columnas ──────────────────────────────────────────────────
 
-    public string ToPropertyName(string colName)   => ToPascalCase(colName);
+    public string ToPropertyName(string colName)   => ToPascalCase(NormalizePostgresName(colName));
+
+    /// <summary>
+    /// Normaliza nombres de columnas PostgreSQL (lowercase sin separadores)
+    /// reintroduciendo separadores para que ToPascalCase los procese correctamente.
+    /// Ejemplo: "creadoen" → "creado_en" → "CreadoEn"
+    /// </summary>
+    private static string NormalizePostgresName(string name)
+    {
+        if (name.Contains('_') || name.Contains(' ')) return name; // ya tiene separadores
+        return name.ToLower() switch
+        {
+            "creadoen"       => "creado_en",
+            "creadopor"      => "creado_por",
+            "modificadoen"   => "modificado_en",
+            "modificadopor"  => "modificado_por",
+            "eliminadoen"    => "eliminado_en",
+            "eliminadopor"   => "eliminado_por",
+            "fechacreacion"  => "fecha_creacion",
+            "fechamodificacion" => "fecha_modificacion",
+            "usuariocreacion"   => "usuario_creacion",
+            "usuariomodificacion" => "usuario_modificacion",
+            "estadoactivo"   => "estado_activo",
+            "tipodocumento"  => "tipo_documento",
+            "numerodocumento" => "numero_documento",
+            "razonsocial"    => "razon_social",
+            "nombrecompleto" => "nombre_completo",
+            "primernombre"   => "primer_nombre",
+            "segundonombre"  => "segundo_nombre",
+            "primerapellido" => "primer_apellido",
+            "segundoapellido" => "segundo_apellido",
+            _                => name
+        };
+    }
     public string ToTsPropertyName(string colName) => ToCamelCase(ToPascalCase(colName));
     public bool   IsAuditField(string colName)     => AuditColumns.Contains(colName);
 
