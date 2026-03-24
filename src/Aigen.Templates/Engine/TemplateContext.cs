@@ -176,6 +176,17 @@ public class TemplateContext
     public string SecondaryColor   => Config.Frontend.SecondaryColor;
     public string ApiBaseUrl       => Config.Frontend.ApiBaseUrl;
     public string ApiBaseProdUrl   => Config.Frontend.ApiBaseProdUrl;
+    // JWT / Security
+    public string JwtSource          => Config.Security.JwtSource;
+    public string UserTable          => Config.Security.UserTable;
+    public string JwtKey             => Config.Security.JwtKey;
+    public string JwtIssuer          => Config.Security.JwtIssuer;
+    public string JwtAudience        => Config.Security.JwtAudience;
+    public int    JwtExpiresMinutes  => Config.Security.JwtExpiresMinutes;
+    public int    RefreshExpiresDays => Config.Security.RefreshExpiresDays;
+    public bool   UseRefreshToken    => Config.Security.UseRefreshToken;
+    public string OidcProvider       => Config.Security.OidcProvider;
+    public bool   UseJwt            => Config.Security.Authentication == Aigen.Core.Config.Enums.AuthenticationType.Jwt;
     public string UiLibrary        => Config.Frontend.UiLibrary.ToString();
     public bool   GenerateFrontend => Config.Frontend.GenerateFrontend;
 

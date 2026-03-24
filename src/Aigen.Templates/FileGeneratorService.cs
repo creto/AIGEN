@@ -240,6 +240,12 @@ public class FileGeneratorService
                 Path.Combine(outPath, "src", $"{ns}.Infrastructure",
                     "Persistence", $"{ns}DbContext.cs"), result, ct);
 
+        // Auth Controller (JWT)
+        if (config.Security.Authentication == Aigen.Core.Config.Enums.AuthenticationType.Jwt)
+            await Save(ctx, "auth_controller.scriban",
+                Path.Combine(outPath, "src", $"{ns}.API", "Controllers", "AuthController.cs"),
+                result, ct);
+
         // Program.cs
         await Save(ctx, "program.scriban",
             Path.Combine(outPath, "src", $"{ns}.API", "Program.cs"), result, ct);
@@ -272,8 +278,11 @@ public class FileGeneratorService
             await Save(ctx, "angular_proxy_conf.scriban",    Path.Combine(fe, "proxy.conf.json"),                       result, ct);
             await Save(ctx, "angular_environment.scriban",      Path.Combine(fe, "src", "environments", "environment.ts"),      result, ct);
             await Save(ctx, "angular_environment_prod.scriban", Path.Combine(fe, "src", "environments", "environment.prod.ts"), result, ct);
-            await Save(ctx, "angular_error_interceptor.scriban", Path.Combine(fe, "src", "app", "core", "interceptors", "error.interceptor.ts"), result, ct);
-            await Save(ctx, "angular_auth_interceptor.scriban",  Path.Combine(fe, "src", "app", "core", "interceptors", "auth.interceptor.ts"),  result, ct);
+            await Save(ctx, "angular_error_interceptor.scriban", Path.Combine(fe, "src", "app", "core", "interceptors", "error.interceptor.ts"),  result, ct);
+            await Save(ctx, "angular_auth_interceptor.scriban",  Path.Combine(fe, "src", "app", "core", "interceptors", "auth.interceptor.ts"),   result, ct);
+            await Save(ctx, "angular_auth_service.scriban",      Path.Combine(fe, "src", "app", "core", "services",      "auth.service.ts"),       result, ct);
+            await Save(ctx, "angular_auth_guard.scriban",        Path.Combine(fe, "src", "app", "core", "guards",        "auth.guard.ts"),          result, ct);
+            await Save(ctx, "angular_login_component.scriban",   Path.Combine(fe, "src", "app", "features",  "login",   "login.component.ts"),     result, ct);
             await Save(ctx, "angular_main.scriban",          Path.Combine(fe, "src", "main.ts"),                        result, ct);
             await Save(ctx, "angular_index_html.scriban",    Path.Combine(fe, "src", "index.html"),                     result, ct);
             await Save(ctx, "angular_styles.scriban",        Path.Combine(fe, "src", "styles.scss"),                    result, ct);
@@ -325,6 +334,8 @@ public class GenerationResult
 }
 
 public record GenerationProgress(int Current, int Total, string TableName);
+
+
 
 
 

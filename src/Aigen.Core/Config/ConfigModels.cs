@@ -32,6 +32,19 @@ public class SecurityConfig
     public string             CorsOrigins    { get; set; } = "http://localhost:4200";
     public string?            KeycloakUrl    { get; set; }
     public string?            KeycloakRealm  { get; set; }
+    // JWT settings
+    public string  JwtSource            { get; set; } = "DatabaseTable"; // DatabaseTable | Hardcoded | OIDC
+    public string  UserTable            { get; set; } = "TB_Funcionario";
+    public string  JwtKey               { get; set; } = "AIGEN_SECRET_KEY_CHANGE_IN_PRODUCTION_MIN32CHARS";
+    public string  JwtIssuer            { get; set; } = "AigenApi";
+    public string  JwtAudience          { get; set; } = "AigenClient";
+    public int     JwtExpiresMinutes    { get; set; } = 60;
+    public int     RefreshExpiresDays   { get; set; } = 7;
+    public bool    UseRefreshToken      { get; set; } = true;
+    public string  OidcProvider         { get; set; } = "None"; // None | Keycloak | AzureAD | Auth0
+    public string? OidcAuthority        { get; set; }
+    public string? OidcClientId         { get; set; }
+    public string? OidcClientSecret     { get; set; }
 }
 public class FeaturesConfig
 {

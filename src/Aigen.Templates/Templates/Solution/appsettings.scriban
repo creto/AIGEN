@@ -1,4 +1,4 @@
-{
+﻿{
   "ConnectionStrings": {
     "Default": "{{ config.database.connection_string }}"
   },
@@ -11,5 +11,12 @@
   "AllowedHosts": "*",
   "Cors": {
     "Origins": "{{ config.security.cors_origins }}"
-  }
+  }{{ if use_jwt }},
+  "Jwt": {
+    "Key":            "{{ jwt_key }}",
+    "Issuer":         "{{ jwt_issuer }}",
+    "Audience":       "{{ jwt_audience }}",
+    "ExpiresMinutes": {{ jwt_expires_minutes }},
+    "RefreshExpiresDays": {{ refresh_expires_days }}
+  }{{ end }}
 }
