@@ -1,4 +1,4 @@
-# 🗺️ AIGEN — Derrotero de Desarrollo v4.1
+# 🗺️ AIGEN — Derrotero de Desarrollo v5
 **Proyecto:** AI-Powered Software Generator (AIGEN)  
 **Stack:** .NET Core 8 · Scriban · EF Core · Dapper · Angular 18 · PrimeNG  
 **BD Objetivo:** SQL Server · PostgreSQL · Oracle (roadmap)  

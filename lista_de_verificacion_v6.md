@@ -1,4 +1,4 @@
-# 🗺️ AIGEN — Derrotero de Desarrollo v4.2
+# 🗺️ AIGEN — Derrotero de Desarrollo v6
 **Proyecto:** AI-Powered Software Generator (AIGEN)  
 **Stack:** .NET Core 8 · Scriban · EF Core · Dapper · Angular 18 · PrimeNG  
 **BD Objetivo:** SQL Server · PostgreSQL · Oracle (roadmap)  
@@ -731,7 +731,17 @@ TS_Modulo        — id, nombre, icono, orden, activo
 
 | # | Feature | Semana | Impacto | Estado |
 |---|---------|--------|---------|--------|
-| 1-11 | Semanas 1-11 completadas | S1-S11 | — | ✅ |
+| 1 | Multi-schema + schemas de BD | S10 | Alto | ✅ Completado |
+| 2 | Soporte PostgreSQL completo | S10 | Alto | ✅ Completado |
+| 3 | excludedPrefixes en aigen.json | S10 | Medio | ✅ Completado |
+| 4 | Soft-delete via Estado / Eliminado | S10 | Alto | ✅ Completado |
+| 5 | Swagger nullables (int? → null) | S10 | Bajo | ✅ Completado |
+| 6 | KebabName con acrónimos | S11 | Bajo | ✅ Completado |
+| 7 | Servicios duplicados ClassNamePlural | S11 | Bajo | ✅ Completado |
+| 8 | Frontend Angular conectado al API real | S11 | Alto | ✅ Completado |
+| 9 | JWT end-to-end (DatabaseTable mode) | S11 | Alto | ✅ Completado |
+| 10 | SecurityConfig parametrizable JWT/OIDC | S11 | Alto | ✅ Completado |
+| 11 | Launcher interactivo aigen.ps1 | S11 | Medio | ✅ Completado |
 | 12 | Microservicios + YARP Gateway | S12 | Alto | ⏳ |
 | 13 | Auditoría negocio por campo/tabla (EF + SP) | S13 | Alto | ⏳ |
 | 14 | Caché InMemory + Redis por tabla | S13 | Alto | ⏳ |
@@ -767,18 +777,59 @@ TS_Modulo        — id, nombre, icono, orden, activo
 
 | # | Archivo | Descripción | Impacto | Estado |
 |---|---------|-------------|---------|--------|
-| 1-9 | Varios | Resueltos en S1-S10 | — | ✅ |
-| 10 | `NamingConventionService` | KebabName acrónimos | Bajo | ✅ S11 |
-| 11 | `FileGeneratorService` | Duplicados ClassNamePlural | Bajo | ✅ S11 |
-| 12 | `FileGeneratorService` | TA_* generaban frontend | Medio | ✅ S11 |
-| 13 | `NamingConventionService` | EXpedientes → e-xpedientes | Bajo | ✅ S11 |
-| 14 | `program.scriban` | Swagger solo Development | Bajo | ✅ S11 |
-| 15 | `api_csproj.scriban` | Faltaban paquetes JWT | Alto | ✅ S11 |
+| 1 | `controller.scriban` | Constraint `{id:string}` inválido | Bajo | ✅ Resuelto S8 |
+| 2 | `repository_ef.scriban` | `ToggleEstado` con `EstadoPropertyName` | Bajo | ✅ Resuelto S7 |
+| 3 | `aigen.json` | No soporta `excludedPrefixes` | Medio | ✅ Resuelto S10 |
+| 4 | `entity.scriban` | FK duplicadas sin `col_seen` | Medio | ✅ Resuelto S9 |
+| 5 | `entity_configuration.scriban` | Shadow properties por `HasOne()` | Alto | ✅ Resuelto S9 |
+| 6 | `dto.scriban` | `string` no-nullable causa 400 Bad Request | Alto | ✅ Resuelto S9 |
+| 7 | `repository_ef.scriban` | Delete físico en tablas con Estado | Alto | ✅ Resuelto S10 |
+| 8 | `PostgreSqlSchemaReader` | No usaba `NamingConventionService` | Alto | ✅ Resuelto S10 |
+| 9 | `NamingConventionService` | Columnas PostgreSQL lowercase sin separadores | Medio | ✅ Resuelto S10 |
+| 10 | `NamingConventionService` | KebabName con acrónimos (MCDT → m-c-d-t) | Bajo | ✅ Resuelto S11 |
+| 11 | `FileGeneratorService` | Servicios duplicados cuando `ClassNamePlural` coincide | Bajo | ✅ Resuelto S11 |
+| 12 | `FileGeneratorService` | Tablas TA_* generaban frontend incorrectamente | Medio | ✅ Resuelto S11 |
+| 13 | `NamingConventionService` | Doble mayúscula inicial (EXpedientes → e-xpedientes) | Bajo | ✅ Resuelto S11 |
+| 14 | `program.scriban` | Swagger solo en Development | Bajo | ✅ Resuelto S11 |
+| 15 | `api_csproj.scriban` | Faltaban paquetes NuGet JWT | Alto | ✅ Resuelto S11 |
 | 16 | `FeaturesConfig` | Cache solo como flag, sin implementación | Alto | ⏳ S13 |
 | 17 | `program.scriban` | Sin middleware de auditoría de negocio | Alto | ⏳ S13 |
 | 18 | `app.routes.ts` | Rutas estáticas — no dinámicas por rol | Alto | ⏳ S15 |
 | 19 | `SecurityConfig` | TwoFactor definido pero no implementado | Medio | ⏳ S16 |
 | 20 | `angular_app_config.scriban` | Sin registro de SignalR | Medio | ⏳ S16 |
+
+---
+
+
+## 🔐 Modelo de Autenticación AIGEN — Arquitectura Parametrizable
+
+### Modos soportados (`security.jwtSource`)
+| Modo | Descripción | Generado |
+|------|-------------|----------|
+| `DatabaseTable` | JWT propio contra tabla de usuarios en BD | AuthController completo |
+| `Hardcoded` | Credenciales en appsettings — solo demo/dev | AuthController simplificado |
+| `OIDC` | Token externo validado + perfil local en BD | Middleware OIDC + claim mapping |
+
+### Claims JWT generados
+| Claim | Descripción | Fuente |
+|-------|-------------|--------|
+| `sub` | ID único del usuario | BD |
+| `email` | Correo electrónico | BD / OIDC |
+| `name` | Nombre completo | BD / OIDC |
+| `preferred_username` | Login / username | BD / OIDC |
+| `given_name` / `family_name` | Nombre y apellido | BD / OIDC |
+| `roles[]` | Array de roles del sistema | BD / OIDC scopes |
+| `jti` | ID único del token (blacklist) | Generado |
+
+### Proveedores OIDC soportados
+| Valor | Proveedor | Claims mapeados |
+|-------|-----------|-----------------|
+| `None` | JWT propio (default) | — |
+| `Keycloak` | Keycloak / Red Hat SSO | `preferred_username`, `realm_access.roles` |
+| `AzureAD` | Microsoft Entra ID | `upn`, `roles`, `groups` |
+| `Auth0` | Auth0 | `nickname`, `https://ns/roles` |
+| `Google` | Google Identity | `email`, `name`, `given_name`, `family_name` |
+| `ServiciosCiudadanos` | Servicios Ciudadanos Digitales Colombia | `documento`, `tipoDocumento`, UID |
 
 ---
 
@@ -808,6 +859,8 @@ TS_Modulo        — id, nombre, icono, orden, activo
 │  OWASP LLM Top 10 · Guardrails · Audit log · No PII       │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+
 
 ### OWASP Top 10 × Semana de implementación
 | OWASP | Vulnerabilidad | Semana | Mitigación generada |
