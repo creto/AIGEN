@@ -136,3 +136,9 @@ C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\au
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Frontend\angular_auth_guard.scriban
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Frontend\angular_auth_service.scriban
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Frontend\angular_login_component.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\dockerfile.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\docker_compose.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\gateway_csproj.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\gateway_program.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\gateway_yarp.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\solution_microservice.scriban

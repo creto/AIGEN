@@ -176,10 +176,20 @@ public class TemplateContext
     public string SecondaryColor   => Config.Frontend.SecondaryColor;
     public string ApiBaseUrl       => Config.Frontend.ApiBaseUrl;
     public string ApiBaseProdUrl   => Config.Frontend.ApiBaseProdUrl;
-    // JWT / Security
-    public string JwtSource          => Config.Security.JwtSource;
-    public string UserTable          => Config.Security.UserTable;
-    public string JwtKey             => Config.Security.JwtKey;
+    // Architecture / Microservices
+    public string  ArchStyle             => Config.Architecture.Style.ToString();
+    public bool    IsMicroservices        => Config.Architecture.Style == Aigen.Core.Config.Enums.OutputStyle.Microservices;
+    public bool    SeparateSolution       => Config.Architecture.SeparateSolutionPerService;
+    public string  GatewayTechnology      => Config.Architecture.Gateway.Technology;
+    public int     GatewayPort            => Config.Architecture.Gateway.Port;
+    public bool    GenerateGateway        => Config.Architecture.Gateway.GenerateGateway;
+    // Lista de ClassNames del microservicio actual — usado en entity.scriban
+    // para filtrar navigation properties hacia entidades externas al servicio
+    public List<string> MicroserviceClassNames { get; init; } = new();
+    public bool IsMicroserviceMode => MicroserviceClassNames.Count > 0;
+    // ScriptArray para que Scriban pueda usar array.contains
+    public Scriban.Runtime.ScriptArray MicroserviceClassNamesArray =>
+        new Scriban.Runtime.ScriptArray(MicroserviceClassNames);
     public string JwtIssuer          => Config.Security.JwtIssuer;
     public string JwtAudience        => Config.Security.JwtAudience;
     public int    JwtExpiresMinutes  => Config.Security.JwtExpiresMinutes;

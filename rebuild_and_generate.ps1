@@ -1,7 +1,7 @@
-# ============================================================
+﻿# ============================================================
 #  AIGEN - Rebuild completo y regeneracion
-#  Version: 3.0 — Semana 10
-#  Uso: .\rebuild_and_generate.ps1 [-Db SqlServer|Postgres] [-SkipTests] [-SkipFrontend] [-RunApi]
+#  Version: 3.0 â€” Semana 10
+#  Uso: .\rebuild_and_generate.ps1 [-Db SqlServer|Postgres|Microservices] [-SkipTests] [-SkipFrontend] [-RunApi]
 #
 #  Ejemplos:
 #  .\rebuild_and_generate.ps1                              # SqlServer (default) + completo
@@ -10,7 +10,7 @@
 #  .\rebuild_and_generate.ps1 -Db Postgres  -SkipTests -SkipFrontend
 # ============================================================
 param(
-    [ValidateSet("SqlServer", "Postgres")]
+    [ValidateSet("SqlServer", "Postgres", "Microservices")]
     [string]$Db = "SqlServer",
     [switch]$SkipTests,
     [switch]$SkipFrontend,
@@ -19,7 +19,7 @@ param(
 
 cls
 
-# ── Configuracion por BD ─────────────────────────────────────────────────────
+# â”€â”€ Configuracion por BD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $configs = @{
     SqlServer = @{
         ConfigFile   = "C:\DevOps\AIGEN\AIGEN\Generated\aigen.json"
@@ -39,11 +39,20 @@ $configs = @{
         DbLabel      = "aigen_test (PostgreSQL 18)"
         Color        = "Magenta"
     }
+    Microservices = @{
+        ConfigFile   = "C:\DevOps\AIGEN\AIGEN\aigen\configs\aigen_microservices.json"
+        OutputPath   = "C:\DevOps\AIGEN\AIGEN\GeneratedMicroservices"
+        SolutionName = ""
+        ProjectName  = "Doc4Us.Microservices"
+        ApiFolder    = ""
+        DbLabel      = "Doc4UsAIGen (Microservicios)"
+        Color        = "Green"
+    }
 }
 
 $cfg = $configs[$Db]
 
-# ── Header ───────────────────────────────────────────────────────────────────
+# â”€â”€ Header â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host "================================================"  -ForegroundColor $cfg.Color
 Write-Host "  AIGEN - Rebuild + Generate + Compile + Docs"   -ForegroundColor $cfg.Color
 Write-Host "  Version 3.0 | Semana 11"                        -ForegroundColor $cfg.Color
@@ -55,7 +64,7 @@ Write-Host "================================================"  -ForegroundColor 
 $ErrorCount   = 0
 $WarningCount = 0
 
-# ── 1. Limpiar generados previos ─────────────────────────────────────────────
+# â”€â”€ 1. Limpiar generados previos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host ""
 Write-Host "[1/8] Limpiando archivos generados previos..." -ForegroundColor Yellow
 Remove-Item "$($cfg.OutputPath)\src"      -Recurse -Force -ErrorAction SilentlyContinue
@@ -63,7 +72,7 @@ Remove-Item "$($cfg.OutputPath)\frontend" -Recurse -Force -ErrorAction SilentlyC
 Remove-Item "$($cfg.OutputPath)\docs"     -Recurse -Force -ErrorAction SilentlyContinue
 Write-Host "  OK - Carpetas limpiadas" -ForegroundColor Green
 
-# ── 2. Rebuild AIGEN ─────────────────────────────────────────────────────────
+# â”€â”€ 2. Rebuild AIGEN â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host ""
 Write-Host "[2/8] Rebuilding AIGEN..." -ForegroundColor Yellow
 Set-Location "C:\DevOps\AIGEN\AIGEN\aigen"
@@ -77,7 +86,7 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host "  OK - AIGEN compilado" -ForegroundColor Green
 
-# ── 3. Tests ─────────────────────────────────────────────────────────────────
+# â”€â”€ 3. Tests â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host ""
 if ($SkipTests) {
     Write-Host "[3/8] Tests omitidos (flag -SkipTests)" -ForegroundColor DarkGray
@@ -92,7 +101,7 @@ if ($SkipTests) {
     }
 }
 
-# ── 4. Regenerar proyecto ─────────────────────────────────────────────────────
+# â”€â”€ 4. Regenerar proyecto â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host ""
 Write-Host "[4/8] Generando $($cfg.ProjectName) desde $Db..." -ForegroundColor Yellow
 Set-Location "C:\DevOps\AIGEN\AIGEN\aigen"
@@ -103,31 +112,66 @@ if ($LASTEXITCODE -ne 0) {
 }
 Write-Host "  OK - Generacion completada" -ForegroundColor Green
 
-# ── 5. Compilar solucion Backend ─────────────────────────────────────────────
+# â”€â”€ 5. Compilar solucion Backend â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host ""
-Write-Host "[5/8] Compilando $($cfg.SolutionName) (Backend)..." -ForegroundColor Yellow
+Write-Host "[5/8] Compilando Backend..." -ForegroundColor Yellow
 Set-Location $cfg.OutputPath
 
-if (-not (Test-Path $cfg.SolutionName)) {
-    Write-Host "  ERROR: No se encontro $($cfg.SolutionName) en $($cfg.OutputPath)" -ForegroundColor Red
-    exit 1
-}
-
-$slnResult    = dotnet build $cfg.SolutionName 2>&1
-$slnResult | Select-Object -Last 5
-
-$errLine      = $slnResult | Select-String "Error\(s\)"   | Select-Object -Last 1
-$warnLine     = $slnResult | Select-String "Warning\(s\)" | Select-Object -Last 1
-$ErrorCount   = if ($errLine  -match "(\d+) Error")   { $Matches[1] } else { "?" }
-$WarningCount = if ($warnLine -match "(\d+) Warning") { $Matches[1] } else { "?" }
-
-if ($ErrorCount -ne "0") {
-    Write-Host "  ERROR: $ErrorCount errores de compilacion backend. Abortando." -ForegroundColor Red
-    exit 1
+if ($Db -eq "Microservices") {
+    $slns = Get-ChildItem $cfg.OutputPath -Filter "*.sln" -Recurse
+    if ($slns.Count -eq 0) {
+        Write-Host "  ERROR: No se encontraron .sln en $($cfg.OutputPath)" -ForegroundColor Red
+        exit 1
+    }
+    $totalErrors = 0
+    foreach ($sln in $slns) {
+        Write-Host "  Compilando $($sln.Name)..." -ForegroundColor DarkCyan
+        $slnResult = dotnet build $sln.FullName 2>&1
+        $errLine   = $slnResult | Select-String "Error\(s\)" | Select-Object -Last 1
+        $ec        = if ($errLine -match "(\d+) Error") { [int]$Matches[1] } else { 0 }
+        if ($ec -gt 0) {
+            Write-Host "  ERROR en $($sln.Name): $ec errores" -ForegroundColor Red
+            $slnResult | Select-Object -Last 5
+            $totalErrors += $ec
+        } else {
+            Write-Host "  OK - $($sln.Name)" -ForegroundColor Green
+        }
+    }
+    $gwCsproj = Get-ChildItem "$($cfg.OutputPath)\Gateway" -Filter "*.csproj" -ErrorAction SilentlyContinue | Select-Object -First 1
+    if ($gwCsproj) {
+        Write-Host "  Compilando Gateway..." -ForegroundColor DarkCyan
+        $gwResult = dotnet build $gwCsproj.FullName 2>&1
+        $gwErr    = $gwResult | Select-String "Error\(s\)" | Select-Object -Last 1
+        $gwEc     = if ($gwErr -match "(\d+) Error") { [int]$Matches[1] } else { 0 }
+        if ($gwEc -gt 0) { $totalErrors += $gwEc }
+        else { Write-Host "  OK - Gateway" -ForegroundColor Green }
+    }
+    $ErrorCount   = $totalErrors.ToString()
+    $WarningCount = "0"
+    if ($totalErrors -gt 0) {
+        Write-Host "  ERROR: $totalErrors errores en microservicios. Abortando." -ForegroundColor Red
+        exit 1
+    }
+} else {
+    if (-not (Test-Path $cfg.SolutionName)) {
+        Write-Host "  ERROR: No se encontro $($cfg.SolutionName)" -ForegroundColor Red
+        exit 1
+    }
+    $slnResult    = dotnet build $cfg.SolutionName 2>&1
+    $slnResult | Select-Object -Last 5
+    $errLine      = $slnResult | Select-String "Error\(s\)"   | Select-Object -Last 1
+    $warnLine     = $slnResult | Select-String "Warning\(s\)" | Select-Object -Last 1
+    $ErrorCount   = if ($errLine  -match "(\d+) Error")   { $Matches[1] } else { "?" }
+    $WarningCount = if ($warnLine -match "(\d+) Warning") { $Matches[1] } else { "?" }
+    if ($ErrorCount -ne "0") {
+        Write-Host "  ERROR: $ErrorCount errores backend. Abortando." -ForegroundColor Red
+        exit 1
+    }
 }
 Write-Host "  OK - Backend: $ErrorCount errores | $WarningCount warnings" -ForegroundColor Green
+Write-Host "  OK - Backend: $ErrorCount errores | $WarningCount warnings" -ForegroundColor Green
 
-# ── 6. Build Frontend Angular ────────────────────────────────────────────────
+# â”€â”€ 6. Build Frontend Angular â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host ""
 if ($SkipFrontend) {
     Write-Host "[6/8] Frontend omitido (flag -SkipFrontend)" -ForegroundColor DarkGray
@@ -161,7 +205,7 @@ if ($SkipFrontend) {
     }
 }
 
-# ── 7. Generar CODE_SUMMARY.md ───────────────────────────────────────────────
+# â”€â”€ 7. Generar CODE_SUMMARY.md â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host ""
 Write-Host "[7/8] Generando CODE_SUMMARY.md..." -ForegroundColor Yellow
 
@@ -248,7 +292,7 @@ $summaryLines | Out-File $outputFile -Encoding UTF8
 Write-Host "  OK - CODE_SUMMARY.md generado" -ForegroundColor Green
 Write-Host "       $totalFiles archivos | $("{0:N0}" -f $totalLines) lineas totales" -ForegroundColor $cfg.Color
 
-# ── 8. Levantar API (opcional) ───────────────────────────────────────────────
+# â”€â”€ 8. Levantar API (opcional) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host ""
 if ($RunApi) {
     $apiPath = "$($cfg.OutputPath)\src\$($cfg.ApiFolder)"
@@ -274,7 +318,7 @@ if ($RunApi) {
     dotnet run
 }
 
-# ── Resumen final ─────────────────────────────────────────────────────────────
+# â”€â”€ Resumen final â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host ""
 Write-Host "================================================" -ForegroundColor $cfg.Color
 Write-Host "  RESULTADO FINAL:" -ForegroundColor $cfg.Color

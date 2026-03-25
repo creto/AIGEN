@@ -3,6 +3,8 @@ namespace Aigen.Core.Config;
 public class ArchitectureConfig
 {
     public OutputStyle                  Style            { get; set; } = OutputStyle.Microservices;
+    public bool                         SeparateSolutionPerService { get; set; } = false;
+    public string                        TablePrefixGrouping        { get; set; } = "auto"; // auto | manual
     public ArchitecturePattern          Pattern          { get; set; } = ArchitecturePattern.CleanArchitecture;
     public GroupingStrategy             GroupingStrategy { get; set; } = GroupingStrategy.Manual;
     public List<MicroserviceDefinition> Microservices    { get; set; } = new();

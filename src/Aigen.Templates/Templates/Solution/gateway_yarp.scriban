@@ -1,0 +1,38 @@
+﻿{
+  "ReverseProxy": {
+    "Routes": {
+{{~ for ms in config.architecture.microservices ~}}
+{{~ ms_lower = ms.name | string.downcase ~}}
+      "route-{{ ms_lower }}": {
+        "ClusterId": "cluster-{{ ms_lower }}",
+        "Match": { "Path": "/{{ ms_lower }}/{**catch-all}" },
+        "Transforms": [{ "PathRemovePrefix": "/{{ ms_lower }}" }]
+      }{{ if !for.last }},{{ end }}
+{{~ end ~}}
+    },
+    "Clusters": {
+{{~ for ms in config.architecture.microservices ~}}
+{{~ ms_lower = ms.name | string.downcase ~}}
+      "cluster-{{ ms_lower }}": {
+        "Destinations": {
+          "destination1": {
+            "Address": "http://{{ ms_lower }}:8080"
+          }
+        },
+        "HealthCheck": {
+          "Active": {
+            "Enabled": true,
+            "Interval": "00:00:10",
+            "Timeout": "00:00:10",
+            "Policy": "ConsecutiveFailures",
+            "Path": "/health"
+          }
+        }
+      }{{ if !for.last }},{{ end }}
+{{~ end ~}}
+    }
+  },
+  "Cors": {
+    "Origins": "http://localhost:4200"
+  }
+}

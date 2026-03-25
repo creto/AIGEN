@@ -1,4 +1,4 @@
-using Scriban;
+﻿using Scriban;
 using Scriban.Runtime;
 using ScribanCtx = Scriban.TemplateContext;
 
@@ -29,11 +29,11 @@ public class ScribanTemplateEngine : ITemplateEngine
             throw new InvalidOperationException($"Error en plantilla Scriban:\n{msgs}");
         }
 
-        // ── Contexto principal (propiedades en snake_case) ────
+        // â”€â”€ Contexto principal (propiedades en snake_case) â”€â”€â”€â”€
         var contextObj = new ScriptObject();
         contextObj.Import(ctx, renamer: m => ToSnake(m.Name));
 
-        // ── Funciones utilitarias ────────────────────────────
+        // â”€â”€ Funciones utilitarias â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         // Scriban requiere importar metodos estaticos como ScriptObject separado.
         // Import(Type) mapea cada metodo publico estatico con el renamer dado.
         var functionsObj = new ScriptObject();
@@ -43,7 +43,7 @@ public class ScribanTemplateEngine : ITemplateEngine
         // Fecha actual como variable simple
         functionsObj["now"] = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
 
-        // ── Combinar en el contexto Scriban ──────────────────
+        // â”€â”€ Combinar en el contexto Scriban â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         var scribanCtx = new ScribanCtx { StrictVariables = false };
         scribanCtx.PushGlobal(functionsObj);
         scribanCtx.PushGlobal(contextObj); // contextObj tiene prioridad
@@ -109,3 +109,4 @@ public static class ScribanFunctions
         return isNullable && type != "string" ? (type ?? "") + "?" : type ?? "";
     }
 }
+

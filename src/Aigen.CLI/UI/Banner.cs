@@ -1,4 +1,4 @@
-using Spectre.Console;
+﻿using Spectre.Console;
 
 namespace Aigen.CLI.UI;
 
@@ -15,16 +15,16 @@ public static class Banner
     }
 
     public static void ShowStep(string step, string message) =>
-        AnsiConsole.MarkupLine($"[bold green] v [/][bold]{step}[/] {message}");
+        AnsiConsole.MarkupLine($"[bold green] v [/][bold]{Markup.Escape(step)}[/] {Markup.Escape(message)}");
 
     public static void ShowInfo(string message) =>
-        AnsiConsole.MarkupLine($"[bold dodgerblue1] > [/]{message}");
+        AnsiConsole.MarkupLine($"[bold dodgerblue1] > [/]{Markup.Escape(message)}");
 
     public static void ShowWarning(string message) =>
-        AnsiConsole.MarkupLine($"[bold yellow] ! [/]{message}");
+        AnsiConsole.MarkupLine($"[bold yellow] ! [/]{Markup.Escape(message)}");
 
     public static void ShowError(string message) =>
-        AnsiConsole.MarkupLine($"[bold red] x [/]{message}");
+        AnsiConsole.MarkupLine($"[bold red] x [/]{Markup.Escape(message)}");
 
     public static void ShowSuccess(string message) =>
         AnsiConsole.MarkupLine($"[bold green] v [/][green]{message}[/]");

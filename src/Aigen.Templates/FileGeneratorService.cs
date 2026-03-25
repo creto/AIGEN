@@ -74,9 +74,17 @@ public class FileGeneratorService
 
         if (tables.Count > 0)
         {
-            var solutionCtx = new TemplateContext
-                { Table = tables[0], Db = db, Config = config, AllTables = tables };
-            await GenerateSolutionAsync(solutionCtx, outPath, db, config, result, ct);
+            var isMicroservices = config.Architecture.Style == OutputStyle.Microservices
+                               && config.Architecture.Microservices.Count > 0;
+
+            if (isMicroservices)
+                await GenerateMicroservicesAsync(tables, outPath, db, config, result, ct);
+            else
+            {
+                var solutionCtx = new TemplateContext
+                    { Table = tables[0], Db = db, Config = config, AllTables = tables };
+                await GenerateSolutionAsync(solutionCtx, outPath, db, config, result, ct);
+            }
         }
 
         result.IsSuccess = result.Errors.Count == 0;
@@ -298,6 +306,129 @@ public class FileGeneratorService
         
     }
 
+
+    // ── Microservicios ───────────────────────────────────────────────────────────
+    private async Task GenerateMicroservicesAsync(
+        List<TableMetadata> allTables,
+        string outPath,
+        DatabaseMetadata db,
+        GeneratorConfig config,
+        GenerationResult result,
+        CancellationToken ct)
+    {
+        var ns = config.Project.ProjectName;
+
+        // 1. Generar un .sln por microservicio
+        foreach (var ms in config.Architecture.Microservices)
+        {
+            // Filtrar tablas por prefijo o lista explícita
+            var msTables = ms.Tables.Count > 0
+                ? allTables.Where(t => ms.Tables.Contains(t.TableName, StringComparer.OrdinalIgnoreCase)).ToList()
+                : allTables.Where(t => t.TableName.StartsWith(ms.Prefix + "_", StringComparison.OrdinalIgnoreCase)).ToList();
+
+            if (msTables.Count == 0) continue;
+
+            var msOutPath = config.Architecture.SeparateSolutionPerService
+                ? Path.Combine(outPath, ms.Name)
+                : outPath;
+
+            // Config parcial para este microservicio
+            var msProject = new Aigen.Core.Config.ProjectConfig
+            {
+                ProjectName   = ms.Name,
+                RootNamespace = ms.Name,
+                Author        = config.Project.Author,
+                Version       = config.Project.Version,
+                Year          = config.Project.Year,
+                Description   = config.Project.Description,
+                Language      = config.Project.Language
+            };
+            var msConfig = new GeneratorConfig
+            {
+                Project      = msProject,
+                Database     = config.Database,
+                Architecture = config.Architecture,
+                Backend      = config.Backend,
+                Frontend     = config.Frontend,
+                Security     = config.Security,
+                Features     = config.Features,
+                AI           = config.AI,
+                Output       = config.Output
+            };
+            var msClassNames = msTables.Select(t => t.ClassName).ToList();
+
+
+            var solutionCtx = new TemplateContext
+            {
+                Table     = msTables[0],
+                Db                     = db,
+                Config                 = msConfig,
+                AllTables              = msTables,
+                MicroserviceClassNames = msClassNames
+            };
+
+            // .sln del microservicio
+            await Save(solutionCtx, "solution_microservice.scriban",
+                Path.Combine(msOutPath, $"{ms.Name}.sln"), result, ct);
+
+            // .csproj por capa
+            await Save(solutionCtx, "domain_csproj.scriban",
+                Path.Combine(msOutPath, "src", $"{ms.Name}.Domain",         $"{ms.Name}.Domain.csproj"),         result, ct);
+            await Save(solutionCtx, "application_csproj.scriban",
+                Path.Combine(msOutPath, "src", $"{ms.Name}.Application",    $"{ms.Name}.Application.csproj"),    result, ct);
+            await Save(solutionCtx, "infrastructure_csproj.scriban",
+                Path.Combine(msOutPath, "src", $"{ms.Name}.Infrastructure", $"{ms.Name}.Infrastructure.csproj"), result, ct);
+            await Save(solutionCtx, "api_csproj.scriban",
+                Path.Combine(msOutPath, "src", $"{ms.Name}.API",            $"{ms.Name}.API.csproj"),            result, ct);
+
+            // Program.cs, appsettings, DbContext
+            await Save(solutionCtx, "program.scriban",
+                Path.Combine(msOutPath, "src", $"{ms.Name}.API", "Program.cs"),        result, ct);
+            await Save(solutionCtx, "appsettings.scriban",
+                Path.Combine(msOutPath, "src", $"{ms.Name}.API", "appsettings.json"),  result, ct);
+            await Save(solutionCtx, "dbcontext.scriban",
+                Path.Combine(msOutPath, "src", $"{ms.Name}.Infrastructure", "Persistence",
+                    $"{ms.Name}DbContext.cs"), result, ct);
+
+            // Dockerfile por microservicio
+            await Save(solutionCtx, "dockerfile.scriban",
+                Path.Combine(msOutPath, "Dockerfile"), result, ct);
+
+            // Entidades y CRUD de las tablas del microservicio
+            foreach (var table in msTables)
+            {
+                var ctx = new TemplateContext { Table = table, Db = db, Config = msConfig, MicroserviceClassNames = msClassNames };
+                await GenerateBackendAsync(ctx, msOutPath, result, ct);
+            }
+        }
+
+        // 2. docker-compose global
+        if (allTables.Count > 0)
+        {
+            var gatewayCtx = new TemplateContext
+            {
+                Table     = allTables[0],
+                Db        = db,
+                Config    = config,
+                AllTables = allTables
+            };
+
+            await Save(gatewayCtx, "docker_compose.scriban",
+                Path.Combine(outPath, "docker-compose.yml"), result, ct);
+
+            // 3. API Gateway YARP
+            if (config.Architecture.Gateway.GenerateGateway)
+            {
+                var gwPath = Path.Combine(outPath, "Gateway");
+                await Save(gatewayCtx, "gateway_csproj.scriban",
+                    Path.Combine(gwPath, $"{ns}.Gateway.csproj"),  result, ct);
+                await Save(gatewayCtx, "gateway_program.scriban",
+                    Path.Combine(gwPath, "Program.cs"),             result, ct);
+                await Save(gatewayCtx, "gateway_yarp.scriban",
+                    Path.Combine(gwPath, "yarp.json"),              result, ct);
+            }
+        }
+    }
     // â”€â”€ Helper â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private async Task Save(
         TemplateContext ctx, string templateName,
@@ -334,6 +465,10 @@ public class GenerationResult
 }
 
 public record GenerationProgress(int Current, int Total, string TableName);
+
+
+
+
 
 
 
