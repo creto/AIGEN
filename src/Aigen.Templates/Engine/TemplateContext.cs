@@ -169,6 +169,9 @@ public class TemplateContext
 
     // â”€â”€ ORM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     public bool UseDapper   => Config.Backend.Orm == OrmType.Dapper;
+    public string CrudStrategy      => Config.Backend.CrudStrategy;
+    public bool   UseStoredProcs    => Config.Backend.CrudStrategy != "direct";
+    public string SpPrefix          => Config.Backend.SpPrefix;
     public bool UseEfCore   => Config.Backend.Orm == OrmType.EntityFrameworkCore;
     public bool UseEfDapper => Config.Backend.Orm == OrmType.EFCoreWithDapper;
 

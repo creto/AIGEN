@@ -201,8 +201,8 @@ public class SqlServerSchemaReader : ISchemaReader
               AND tc.TABLE_SCHEMA    = @s
             ORDER BY ku.TABLE_NAME, ku.ORDINAL_POSITION";
 
-        var list = new List<RawKey>();
         await using var cmd = new SqlCommand(sql, conn);
+        var list = new List<RawKey>();
         cmd.Parameters.AddWithValue("@s", schema);
         await using var r = await cmd.ExecuteReaderAsync(ct);
         while (await r.ReadAsync(ct))
@@ -404,6 +404,105 @@ public class SqlServerSchemaReader : ISchemaReader
         string ColumnName,
         bool   IsUnique,
         bool   IsPrimaryKey);
+
+
+    // ── Stored Procedures ─────────────────────────────────────────────────────
+    public async Task<List<StoredProcedureMetadata>> ReadStoredProceduresAsync(
+        string connectionString, string schema = "dbo", CancellationToken ct = default)
+    {
+        using var conn = new SqlConnection(connectionString);
+        await conn.OpenAsync(ct);
+
+        // Leer SPs
+        var spRows    = new List<(string Name, string ReturnType)>();
+        var paramRows = new List<(string SpName, string ParamName, string DataType, string Mode, string IsNullable, int MaxLen, int Ordinal)>();
+
+        const string sqlSps = @"SELECT ROUTINE_NAME, ISNULL(DATA_TYPE,'') FROM INFORMATION_SCHEMA.ROUTINES WHERE ROUTINE_SCHEMA=@s AND ROUTINE_TYPE='PROCEDURE' ORDER BY ROUTINE_NAME";
+        await using (var cmd = new SqlCommand(sqlSps, conn))
+        {
+            cmd.Parameters.AddWithValue("@s", schema);
+            await using var r = await cmd.ExecuteReaderAsync(ct);
+            while (await r.ReadAsync(ct))
+                spRows.Add((r.GetString(0), r.GetString(1)));
+        }
+
+        const string sqlParams = @"SELECT SPECIFIC_NAME, ISNULL(PARAMETER_NAME,''), ISNULL(DATA_TYPE,''), ISNULL(PARAMETER_MODE,'IN'), ISNULL(IS_NULLABLE,'NO'), ISNULL(CHARACTER_MAXIMUM_LENGTH,0), ORDINAL_POSITION FROM INFORMATION_SCHEMA.PARAMETERS WHERE SPECIFIC_SCHEMA=@s ORDER BY SPECIFIC_NAME, ORDINAL_POSITION";
+        await using (var cmd2 = new SqlCommand(sqlParams, conn))
+        {
+            cmd2.Parameters.AddWithValue("@s", schema);
+            await using var r2 = await cmd2.ExecuteReaderAsync(ct);
+            while (await r2.ReadAsync(ct))
+                paramRows.Add((r2.GetString(0), r2.GetString(1), r2.GetString(2),
+                               r2.GetString(3), r2.GetString(4),
+                               r2.IsDBNull(5) ? 0 : r2.GetInt32(5), r2.GetInt32(6)));
+        }
+
+        var result = new List<StoredProcedureMetadata>();
+        foreach (var sp in spRows)
+        {
+            var spMeta = new StoredProcedureMetadata
+            {
+                Schema        = schema,
+                Name          = sp.Name,
+                Type          = SpType.StoredProcedure,
+                ReturnTypeSql = sp.ReturnType,
+                CrudType      = DetectCrudType(sp.Name),
+                RelatedTable  = ExtractTableFromSpName(sp.Name)
+            };
+            spMeta.Parameters = paramRows
+                .Where(p => p.SpName == sp.Name && !string.IsNullOrEmpty(p.ParamName))
+                .Select(p => new SpParameter
+                {
+                    Name            = p.ParamName,
+                    SqlType         = p.DataType,
+                    CSharpType      = SqlTypeToCSharp(p.DataType),
+                    IsOutput        = p.Mode.Contains("OUT"),
+                    IsNullable      = p.IsNullable == "YES",
+                    MaxLength       = p.MaxLen,
+                    OrdinalPosition = p.Ordinal
+                }).ToList();
+            result.Add(spMeta);
+        }
+        return result;
+    }
+    private static SpCrudType DetectCrudType(string name)
+    {
+        var n = name.ToLowerInvariant();
+        if (n.StartsWith("sp_insert_"))   return SpCrudType.Insert;
+        if (n.StartsWith("sp_update_"))   return SpCrudType.Update;
+        if (n.StartsWith("sp_delete_"))   return SpCrudType.Delete;
+        if (n.StartsWith("sp_getbyid_"))  return SpCrudType.GetById;
+        if (n.StartsWith("sp_getpaged_")) return SpCrudType.GetPaged;
+        if (n.StartsWith("sp_getall_"))   return SpCrudType.GetAll;
+        return SpCrudType.Custom;
+    }
+
+    private static string ExtractTableFromSpName(string name)
+    {
+        var prefixes = new[] { "sp_Insert_","sp_Update_","sp_Delete_",
+                               "sp_GetById_","sp_GetPaged_","sp_GetAll_" };
+        foreach (var p in prefixes)
+            if (name.StartsWith(p, StringComparison.OrdinalIgnoreCase))
+                return name[p.Length..];
+        return string.Empty;
+    }
+
+    private static string SqlTypeToCSharp(string sqlType) => sqlType.ToLower() switch
+    {
+        "int" or "integer"    => "int",
+        "bigint"              => "long",
+        "smallint"            => "short",
+        "tinyint"             => "byte",
+        "bit"                 => "bool",
+        "decimal" or "numeric"=> "decimal",
+        "float"               => "double",
+        "real"                => "float",
+        "money" or "smallmoney" => "decimal",
+        "datetime" or "datetime2" or "date" => "DateTime",
+        "time"                => "TimeSpan",
+        "uniqueidentifier"    => "Guid",
+        _                     => "string"
+    };
 }
 
 

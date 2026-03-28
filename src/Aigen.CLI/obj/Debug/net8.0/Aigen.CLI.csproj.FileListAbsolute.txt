@@ -144,3 +144,5 @@ C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\ga
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\solution_microservice.scriban
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Backend\audit_interceptor.scriban
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Backend\cache_service.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Backend\repository_sp.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Backend\sp_crud.scriban

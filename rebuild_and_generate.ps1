@@ -10,7 +10,7 @@
 #  .\rebuild_and_generate.ps1 -Db Postgres  -SkipTests -SkipFrontend
 # ============================================================
 param(
-    [ValidateSet("SqlServer", "Postgres", "Microservices")]
+    [ValidateSet("SqlServer", "Postgres", "Microservices", "SP")]
     [string]$Db = "SqlServer",
     [switch]$SkipTests,
     [switch]$SkipFrontend,
@@ -38,6 +38,15 @@ $configs = @{
         ApiFolder    = "AigenTest.API"
         DbLabel      = "aigen_test (PostgreSQL 18)"
         Color        = "Magenta"
+    }
+    SP = @{
+        ConfigFile   = "C:\DevOps\AIGEN\AIGEN\aigen\configs\aigen_sp.json"
+        OutputPath   = "C:\DevOps\AIGEN\AIGEN\GeneratedSP"
+        SolutionName = "Doc4Us.sln"
+        ProjectName  = "Doc4Us"
+        ApiFolder    = "Doc4Us.API"
+        DbLabel      = "Doc4UsAIGen (StoredProcedures)"
+        Color        = "Yellow"
     }
     Microservices = @{
         ConfigFile   = "C:\DevOps\AIGEN\AIGEN\aigen\configs\aigen_microservices.json"

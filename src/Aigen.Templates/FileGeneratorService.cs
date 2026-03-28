@@ -106,6 +106,8 @@ public class FileGeneratorService
         GenerationResult result, CancellationToken ct)
     {
         var t  = ctx.Table;
+        var config = ctx.Config;
+        var orm    = config.Backend.Orm;
         var ns = ctx.ProjectName;
 
         // Entity (siempre â€” incluso para TH_/TA_ para que las FKs resuelvan)
@@ -140,10 +142,21 @@ public class FileGeneratorService
         await Save(ctx, "service.scriban",
             Path.Combine(outPath, "src", $"{ns}.Application",
                 t.ClassNamePlural, $"{t.ServiceName}.cs"), result, ct);
-
         // Repository: Dapper | EF Core | EFCore+Dapper
-        var orm = ctx.Config.Backend.Orm;
-        if (orm == OrmType.Dapper)
+        // Repository: estrategia segun CrudStrategy + ORM
+        var crudStrategy = config.Backend.CrudStrategy;
+        if (crudStrategy == "storedProcedures")
+        {
+            await Save(ctx, "repository_sp.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Persistence", "Repositories", $"{t.RepositoryName}.cs"),
+                result, ct);
+            // SP script SQL
+            await Save(ctx, "sp_crud.scriban",
+                Path.Combine(outPath, "sql", $"sp_{t.TableName}.sql"),
+                result, ct);
+        }
+        else if (orm == OrmType.Dapper)
         {
             await Save(ctx, "repository_dapper.scriban",
                 Path.Combine(outPath, "src", $"{ns}.Infrastructure",
@@ -156,20 +169,37 @@ public class FileGeneratorService
                 Path.Combine(outPath, "src", $"{ns}.Infrastructure",
                     "Persistence", "Repositories", $"{t.RepositoryName}.cs"),
                 result, ct);
-
-            // EF Fluent API configuration
             await Save(ctx, "entity_configuration.scriban",
                 Path.Combine(outPath, "src", $"{ns}.Infrastructure",
                     "Persistence", "Configurations",
                     $"{t.ClassName}Configuration.cs"), result, ct);
         }
-        else // EFCoreWithDapper: EF para CRUD, Dapper para queries
+        else // EFCoreWithDapper
         {
             await Save(ctx, "repository_ef.scriban",
                 Path.Combine(outPath, "src", $"{ns}.Infrastructure",
                     "Persistence", "Repositories", $"{t.RepositoryName}.cs"),
                 result, ct);
-
+            await Save(ctx, "entity_configuration.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Persistence", "Configurations",
+                    $"{t.ClassName}Configuration.cs"), result, ct);
+        }
+        {
+            await Save(ctx, "repository_ef.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Persistence", "Repositories", $"{t.RepositoryName}.cs"),
+                result, ct);
+            await Save(ctx, "entity_configuration.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Persistence", "Configurations",
+                    $"{t.ClassName}Configuration.cs"), result, ct);
+        }
+        {
+            await Save(ctx, "repository_ef.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Persistence", "Repositories", $"{t.RepositoryName}.cs"),
+                result, ct);
             await Save(ctx, "entity_configuration.scriban",
                 Path.Combine(outPath, "src", $"{ns}.Infrastructure",
                     "Persistence", "Configurations",

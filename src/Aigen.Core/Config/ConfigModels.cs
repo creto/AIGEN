@@ -6,6 +6,9 @@ public class BackendConfig
     public RepositoryPattern RepositoryPattern       { get; set; } = RepositoryPattern.RepositoryUnitOfWork;
     public bool              UseCQRS                 { get; set; } = false;
     public bool              GenerateStoredProcedures{ get; set; } = true;
+    // direct: EF+Dapper sin SPs | storedProcedures: todo via SPs | mixed: SPs solo en tablas marcadas
+    public string CrudStrategy { get; set; } = "direct";
+    public string SpPrefix     { get; set; } = "sp_";  // prefijo para SPs generados
     public string TargetFramework                    { get; set; } = "net8.0";
 }
 public class FrontendConfig
