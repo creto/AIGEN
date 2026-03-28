@@ -42,6 +42,8 @@ public class FileGeneratorService
                 var disambig  = t.ClassName + suffix;        // "SerieTr"
 
                 // Recalcular todos los nombres derivados
+                var originalClassName = t.ClassName; // guardar antes de renombrar
+
                 t.ClassName       = disambig;
                 t.ClassNamePlural = t.ClassNamePlural + suffix;    // "SeriesTr"
                 t.ObjectName      = char.ToLower(disambig[0]) + disambig[1..];
@@ -49,6 +51,13 @@ public class FileGeneratorService
                 t.RepositoryName  = disambig + "Repository";
                 t.ControllerName  = disambig + "sController";
                 t.ApiRoute        = "/api/" + disambig.ToLowerInvariant() + "s";
+
+                // Sync: actualizar NavigationPropertyName en FKs de otras tablas
+                // que apuntaban al nombre original antes de la desambiguacion
+                foreach (var other in tables)
+                    foreach (var fk in other.ForeignKeys)
+                        if (fk.NavigationPropertyName == originalClassName)
+                            fk.NavigationPropertyName = disambig;
             }
         }
         // ─────────────────────────────────────────────────────────────────────

@@ -190,6 +190,7 @@ public class TemplateContext
     // ScriptArray para que Scriban pueda usar array.contains
     public Scriban.Runtime.ScriptArray MicroserviceClassNamesArray =>
         new Scriban.Runtime.ScriptArray(MicroserviceClassNames);
+    public string JwtKey             => Config.Security.JwtKey;
     public string JwtIssuer          => Config.Security.JwtIssuer;
     public string JwtAudience        => Config.Security.JwtAudience;
     public int    JwtExpiresMinutes  => Config.Security.JwtExpiresMinutes;
@@ -215,6 +216,30 @@ public class TemplateContext
     /// Esto evita CS0542 (propiedad con mismo nombre que la clase) y sincroniza
     /// el nombre entre entidad y repositorio/DTO.
     /// </summary>
+    // FKs como ScriptObject con snake_case explícito — ScriptObject.Import no renombra objetos anidados
+    public List<ScriptObject> ForeignKeysScript
+    {
+        get
+        {
+            var result = new List<ScriptObject>();
+            foreach (var fk in Table.ForeignKeys)
+            {
+                var obj = new ScriptObject();
+                obj["constraint_name"]              = fk.ConstraintName;
+                obj["column_name"]                  = fk.ColumnName;
+                obj["referenced_table"]             = fk.ReferencedTable;
+                obj["referenced_column"]            = fk.ReferencedColumn;
+                obj["referenced_schema"]            = fk.ReferencedSchema;
+                obj["navigation_property_name"]     = fk.NavigationPropertyName;
+                obj["property_name"]                = fk.PropertyName;
+                obj["local_fk_c_sharp_type"]        = fk.LocalFkCSharpType;
+                obj["referenced_pk_c_sharp_type"]   = fk.ReferencedPkCSharpType;
+                result.Add(obj);
+            }
+            return result;
+        }
+    }
+
     private static IEnumerable<ScriptObject> ToScriptObjects(
         IEnumerable<ColumnMetadata> cols,
         string entityName)

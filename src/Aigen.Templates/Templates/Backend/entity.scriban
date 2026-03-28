@@ -60,7 +60,7 @@ public class {{ entity_name }}
     // â”€â”€ Navegacion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 // â”€â”€ Navegacion â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     {{~ col_seen = [] ~}}
-    {{~ for fk in table.foreign_keys ~}}
+    {{~ for fk in foreign_keys_script ~}}
     {{~
       # Deduplicar por column_name â€” evita navegaciones duplicadas
       if array.contains col_seen fk.column_name
@@ -80,10 +80,16 @@ public class {{ entity_name }}
       nav_seen = array.add nav_seen nav_name
     ~}}
     {{~
-      # En modo microservicios, omitir navigation properties hacia entidades externas
-      # Solo generar si la entidad referenciada pertenece al mismo microservicio
+      # Filtro 1: En modo microservicios, omitir FKs hacia entidades externas
       if is_microservice_mode
         if !array.contains microservice_class_names_array fk.navigation_property_name
+          continue
+        end
+      end
+
+      # Filtro 2: Omitir navigation properties con tipos FK/PK incompatibles
+      if fk.local_fk_c_sharp_type != "" && fk.referenced_pk_c_sharp_type != ""
+        if fk.local_fk_c_sharp_type != fk.referenced_pk_c_sharp_type
           continue
         end
       end
@@ -92,6 +98,7 @@ public class {{ entity_name }}
     public virtual {{ fk.navigation_property_name }}? {{ nav_name }} { get; set; }
     {{~ end ~}}
 }
+
 
 
 

@@ -44,7 +44,10 @@ builder.Services.AddScoped<IDbConnection>(_ =>
 // -- JWT Authentication ---------------------------------------
 {{ if use_jwt }}
 var jwtSection = builder.Configuration.GetSection("Jwt");
-var jwtKey     = jwtSection["Key"] ?? throw new InvalidOperationException("Jwt:Key no configurado");
+var jwtKey     = jwtSection["Key"];
+if (string.IsNullOrWhiteSpace(jwtKey))
+    throw new InvalidOperationException(
+        "Jwt:Key no configurado o vacio. Agregue una clave de al menos 32 caracteres en appsettings.json");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -156,3 +159,4 @@ public class NullableSchemaFilter : Swashbuckle.AspNetCore.SwaggerGen.ISchemaFil
         }
     }
 }
+

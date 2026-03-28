@@ -1,4 +1,4 @@
-using System.Data;
+﻿using System.Data;
 using Aigen.Core.Metadata;
 using Microsoft.Data.SqlClient;
 using Aigen.Core.Config;
@@ -22,7 +22,7 @@ public class SqlServerSchemaReader : ISchemaReader
     }
 
     // ============================================================
-    // REEMPLAZAR el método ReadAsync COMPLETO con este código
+    // REEMPLAZAR el mÃ©todo ReadAsync COMPLETO con este cÃ³digo
     // ============================================================
 
     public async Task<DatabaseMetadata> ReadAsync(
@@ -83,14 +83,32 @@ public class SqlServerSchemaReader : ISchemaReader
             t.PrimaryKeys = pk;
             t.ForeignKeys = fks
                 .Where(f => f.TableName == t.TableName)
-                .Select(f => new ForeignKeyMetadata
+                .Select(f =>
                 {
-                    ConstraintName         = f.ConstraintName,
-                    ColumnName             = f.ColumnName,
-                    ReferencedTable        = f.ReferencedTable,
-                    ReferencedColumn       = f.ReferencedColumn,
-                    NavigationPropertyName = _naming.ToClassName(f.ReferencedTable),
-                    PropertyName           = _naming.ToPropertyName(f.ColumnName)
+                    // Tipo C# de la columna FK local
+                    var fkCol  = t.Columns.FirstOrDefault(c =>
+                        c.ColumnName.Equals(f.ColumnName, StringComparison.OrdinalIgnoreCase));
+                    var fkType = fkCol?.CSharpType ?? string.Empty;
+
+                    // Tipo C# de la PK de la tabla referenciada
+                    // Usar lista "columns" raw (ya completa) en lugar de refTable.Columns
+                    // porque refTable.Columns puede estar vacío si aún no fue procesada
+                    var refPkColRaw = columns.FirstOrDefault(c =>
+                        c.TableName.Equals(f.ReferencedTable, StringComparison.OrdinalIgnoreCase)
+                        && c.ColumnName.Equals(f.ReferencedColumn, StringComparison.OrdinalIgnoreCase));
+                    var refPkType   = refPkColRaw?.CSharpType ?? string.Empty;
+
+                    return new ForeignKeyMetadata
+                    {
+                        ConstraintName            = f.ConstraintName,
+                        ColumnName                = f.ColumnName,
+                        ReferencedTable           = f.ReferencedTable,
+                        ReferencedColumn          = f.ReferencedColumn,
+                        NavigationPropertyName    = _naming.ToClassName(f.ReferencedTable),
+                        PropertyName              = _naming.ToPropertyName(f.ColumnName),
+                        LocalFkCSharpType         = fkType,
+                        ReferencedPkCSharpType    = refPkType
+                    };
                 }).ToList();
             t.Indexes = idxs
                 .Where(i => i.TableName == t.TableName)
@@ -108,7 +126,7 @@ public class SqlServerSchemaReader : ISchemaReader
         return meta;
     }
 
-    // ── Lectura de tablas ────────────────────────────────────────
+    // â”€â”€ Lectura de tablas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private async Task<List<TableMetadata>> ReadTablesAsync(
         SqlConnection conn, string schema, CancellationToken ct)
     {
@@ -126,7 +144,7 @@ public class SqlServerSchemaReader : ISchemaReader
         return list;
     }
 
-    // ── Lectura de columnas ──────────────────────────────────────
+    // â”€â”€ Lectura de columnas â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private static async Task<List<RawColumn>> ReadColumnsAsync(
         SqlConnection conn, string schema, CancellationToken ct)
     {
@@ -170,7 +188,7 @@ public class SqlServerSchemaReader : ISchemaReader
         return list;
     }
 
-    // ── Lectura de primary keys ──────────────────────────────────
+    // â”€â”€ Lectura de primary keys â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private static async Task<List<RawKey>> ReadPrimaryKeysAsync(
         SqlConnection conn, string schema, CancellationToken ct)
     {
@@ -192,7 +210,7 @@ public class SqlServerSchemaReader : ISchemaReader
         return list;
     }
 
-    // ── Lectura de foreign keys ──────────────────────────────────
+    // â”€â”€ Lectura de foreign keys â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private static async Task<List<RawFK>> ReadForeignKeysAsync(
         SqlConnection conn, string schema, CancellationToken ct)
     {
@@ -221,7 +239,7 @@ public class SqlServerSchemaReader : ISchemaReader
         return list;
     }
 
-    // ── Lectura de indexes ───────────────────────────────────────
+    // â”€â”€ Lectura de indexes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private static async Task<List<RawIdx>> ReadIndexesAsync(
         SqlConnection conn, string schema, CancellationToken ct)
     {
@@ -248,7 +266,7 @@ public class SqlServerSchemaReader : ISchemaReader
         return list;
     }
 
-    // ── Helpers ──────────────────────────────────────────────────
+    // â”€â”€ Helpers â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     private TableMetadata BuildTable(string schema, string tableName)
     {
         var className      = _naming.ToClassName(tableName);
@@ -288,7 +306,7 @@ public class SqlServerSchemaReader : ISchemaReader
             if (tableName.StartsWith(p, StringComparison.OrdinalIgnoreCase))
                 return ToPascalCase(tableName[p.Length..]) + "Hist";
 
-        // Prefijos normales — eliminar y PascalCase
+        // Prefijos normales â€” eliminar y PascalCase
         var normalPrefixes = new[] { "TBR_", "TM_", "TB_", "TP_", "TR_", "TC_", "TS_", "TI_", "TX_", "TA_" };
         foreach (var p in normalPrefixes)
             if (tableName.StartsWith(p, StringComparison.OrdinalIgnoreCase))
@@ -366,7 +384,7 @@ public class SqlServerSchemaReader : ISchemaReader
             : result;
     }
 
-    // ── Tipos internos ───────────────────────────────────────────
+    // â”€â”€ Tipos internos â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     // RawColumn es class (no record) para poder heredar de ColumnMetadata
     private class RawColumn : ColumnMetadata
     {
@@ -387,5 +405,7 @@ public class SqlServerSchemaReader : ISchemaReader
         bool   IsUnique,
         bool   IsPrimaryKey);
 }
+
+
 
 
