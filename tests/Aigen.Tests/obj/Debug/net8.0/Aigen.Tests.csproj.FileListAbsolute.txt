@@ -200,3 +200,5 @@ C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solutio
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\gateway_program.scriban
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\gateway_yarp.scriban
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\solution_microservice.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Backend\audit_interceptor.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Backend\cache_service.scriban

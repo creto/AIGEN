@@ -148,6 +148,17 @@ public class TemplateContext
     public bool UsePagination       => Config.Features.GeneratePagination;
     public bool UseSoftDelete       => Config.Features.SoftDelete;
     public bool UseAuditing         => Config.Features.Auditing;
+    // Audit
+    public string AuditProvider   => Config.Audit.Provider;
+    public bool   AuditEnabled    => Config.Features.Auditing && Config.Audit.GlobalEnabled;
+    public string AuditTable      => Config.Audit.AuditTable;
+    public bool   UseEfInterceptor => Config.Audit.Provider is "EFInterceptor" or "Both";
+    public bool   UseAuditSp       => Config.Audit.Provider is "StoredProcedure" or "Both";
+    // Cache
+    public string CacheProvider   => Config.Features.Cache.ToString();
+    public bool   UseCache        => Config.Features.Cache != Aigen.Core.Config.Enums.CacheProvider.None;
+    public bool   UseRedis        => Config.Features.Cache == Aigen.Core.Config.Enums.CacheProvider.Redis;
+    public bool   UseMemoryCache  => Config.Features.Cache == Aigen.Core.Config.Enums.CacheProvider.MemoryCache;
     public bool UseFluentValidation =>
         Config.Features.Validation == ValidationProvider.FluentValidation;
     public bool UseAutoMapper =>

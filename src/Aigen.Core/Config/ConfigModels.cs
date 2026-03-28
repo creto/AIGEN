@@ -62,6 +62,21 @@ public class FeaturesConfig
     public bool               GenerateDockerfile    { get; set; } = true;
     public bool               GenerateDockerCompose { get; set; } = true;
 }
+public class AuditConfig
+{
+    // EFInterceptor: captura via SaveChanges | StoredProcedure: SP por tabla | Both: ambos
+    public string Provider       { get; set; } = "EFInterceptor";
+    public bool   GlobalEnabled  { get; set; } = true;
+    public string AuditTable     { get; set; } = "TA_AuditoriaTransacciones";
+    // Configuracion por tabla: clave=nombre tabla, valor=campos a auditar (* = todos)
+    public Dictionary<string, AuditTableConfig> Tables { get; set; } = new();
+}
+public class AuditTableConfig
+{
+    public bool         Enabled { get; set; } = true;
+    public List<string> Fields  { get; set; } = new() { "*" }; // * = todos los campos
+}
+
 public class AIConfig
 {
     public AIProviderType Provider           { get; set; } = AIProviderType.None;

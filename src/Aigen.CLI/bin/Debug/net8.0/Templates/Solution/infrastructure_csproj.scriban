@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>{{ dotnet_version }}</TargetFramework>
     <RootNamespace>{{ root_namespace }}.Infrastructure</RootNamespace>
@@ -20,5 +20,9 @@
     {{ end }}
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+
+    {{ if use_redis }}
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.0" />
+    {{ end }}
   </ItemGroup>
 </Project>

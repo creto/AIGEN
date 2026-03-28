@@ -251,6 +251,21 @@ public class FileGeneratorService
 
         // â”€â”€ Archivos de aplicaciÃ³n (ya existÃ­an) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
+        // Audit Interceptor (EF Core)
+        if (config.Features.Auditing &&
+            (config.Audit.Provider == "EFInterceptor" || config.Audit.Provider == "Both"))
+            await Save(ctx, "audit_interceptor.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Persistence", "Interceptors", "AuditSaveChangesInterceptor.cs"),
+                result, ct);
+
+        // Cache Service
+        if (config.Features.Cache != Aigen.Core.Config.Enums.CacheProvider.None)
+            await Save(ctx, "cache_service.scriban",
+                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
+                    "Cache", "CacheService.cs"),
+                result, ct);
+
         // DbContext (EF Core)
         if (orm != OrmType.Dapper)
             await Save(ctx, "dbcontext.scriban",

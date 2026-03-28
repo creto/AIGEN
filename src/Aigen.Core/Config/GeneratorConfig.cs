@@ -9,6 +9,7 @@ public class GeneratorConfig
     public FrontendConfig     Frontend     { get; set; } = new();
     public SecurityConfig     Security     { get; set; } = new();
     public FeaturesConfig     Features     { get; set; } = new();
+    public AuditConfig        Audit        { get; set; } = new();
     public AIConfig           AI           { get; set; } = new();
     public OutputConfig       Output       { get; set; } = new();
     public string ResolveOutputPath() => Output.Path.Replace("{ProjectName}", Project.ProjectName);

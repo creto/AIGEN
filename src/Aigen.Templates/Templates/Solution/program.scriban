@@ -33,9 +33,24 @@ Log.Logger = new LoggerConfiguration()
 builder.Host.UseSerilog();
 
 // -- Base de datos --------------------------------------------
-builder.Services.AddDbContext<{{ project_name }}DbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("Default")));
+{{ if audit_enabled && use_ef_interceptor }}
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<{{ root_namespace }}.Infrastructure.Persistence.Interceptors.ICurrentUserContext>(sp =>
+{
+    var http = sp.GetService<IHttpContextAccessor>();
+    var user = http?.HttpContext?.User?.Identity?.Name ?? "system";
+    var ip   = http?.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "127.0.0.1";
+    return new {{ root_namespace }}.Infrastructure.Persistence.Interceptors.SystemUserContext();
+});
+builder.Services.AddScoped<{{ root_namespace }}.Infrastructure.Persistence.Interceptors.AuditSaveChangesInterceptor>();
+{{ end }}
+builder.Services.AddDbContext<{{ project_name }}DbContext>((sp, options) =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
+    {{ if audit_enabled && use_ef_interceptor }}
+    options.AddInterceptors(sp.GetRequiredService<{{ root_namespace }}.Infrastructure.Persistence.Interceptors.AuditSaveChangesInterceptor>());
+    {{ end }}
+});
 
 builder.Services.AddScoped<IDbConnection>(_ =>
     new SqlConnection(
@@ -78,6 +93,19 @@ builder.Services.AddCors(o => o.AddPolicy("Default", p =>
      .AllowAnyMethod()
      .AllowAnyHeader()
      .AllowCredentials()));
+
+// -- Cache --------------------------------------------------
+{{ if use_memory_cache }}
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<{{ root_namespace }}.Infrastructure.Cache.ICacheService,
+    {{ root_namespace }}.Infrastructure.Cache.MemoryCacheService>();
+{{ end }}
+{{ if use_redis }}
+builder.Services.AddStackExchangeRedisCache(options =>
+    options.Configuration = builder.Configuration.GetConnectionString("Redis"));
+builder.Services.AddScoped<{{ root_namespace }}.Infrastructure.Cache.ICacheService,
+    {{ root_namespace }}.Infrastructure.Cache.RedisCacheService>();
+{{ end }}
 
 // -- Repositorios (auto-generado por AIGEN) -------------------
 {{~ for table in all_tables_script ~}}
