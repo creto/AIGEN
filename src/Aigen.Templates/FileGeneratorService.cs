@@ -69,6 +69,7 @@ public class FileGeneratorService
 
             var ctx = new TemplateContext { Table = table, Db = db, Config = config };
 
+            File.AppendAllText("C:\\debug_aigen.txt", "BACKEND:" + table.TableName + "|" + table.HasFullCrud() + Environment.NewLine);
             await GenerateBackendAsync(ctx, outPath, result, ct);
 
             // Frontend solo para tablas no-audit/no-historical
@@ -145,7 +146,7 @@ public class FileGeneratorService
         // Repository: Dapper | EF Core | EFCore+Dapper
         // Repository: estrategia segun CrudStrategy + ORM
         var crudStrategy = config.Backend.CrudStrategy;
-        if (crudStrategy == "storedProcedures")
+                if (crudStrategy == "storedProcedures")
         {
             await Save(ctx, "repository_sp.scriban",
                 Path.Combine(outPath, "src", $"{ns}.Infrastructure",
@@ -175,26 +176,6 @@ public class FileGeneratorService
                     $"{t.ClassName}Configuration.cs"), result, ct);
         }
         else // EFCoreWithDapper
-        {
-            await Save(ctx, "repository_ef.scriban",
-                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
-                    "Persistence", "Repositories", $"{t.RepositoryName}.cs"),
-                result, ct);
-            await Save(ctx, "entity_configuration.scriban",
-                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
-                    "Persistence", "Configurations",
-                    $"{t.ClassName}Configuration.cs"), result, ct);
-        }
-        {
-            await Save(ctx, "repository_ef.scriban",
-                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
-                    "Persistence", "Repositories", $"{t.RepositoryName}.cs"),
-                result, ct);
-            await Save(ctx, "entity_configuration.scriban",
-                Path.Combine(outPath, "src", $"{ns}.Infrastructure",
-                    "Persistence", "Configurations",
-                    $"{t.ClassName}Configuration.cs"), result, ct);
-        }
         {
             await Save(ctx, "repository_ef.scriban",
                 Path.Combine(outPath, "src", $"{ns}.Infrastructure",

@@ -126,6 +126,8 @@ public class TemplateContext
     c.ColumnName.Equals("Estado", StringComparison.OrdinalIgnoreCase) &&
     c.CSharpType == "bool");
 
+    public bool HasAuditoriaColumn => Table.Columns.Any(c =>
+        c.ColumnName.Equals("auditoria", StringComparison.OrdinalIgnoreCase));
     public bool HasEstado => EstadoColumn is not null;
 
     // Nombre REAL de la propiedad â€” "ESTADO" si la columna es mayÃºsculas
@@ -172,6 +174,7 @@ public class TemplateContext
     public string CrudStrategy      => Config.Backend.CrudStrategy;
     public bool   UseStoredProcs    => Config.Backend.CrudStrategy != "direct";
     public string SpPrefix          => Config.Backend.SpPrefix;
+    public string SpSchema          => Config.Backend.SpSchema;
     public bool UseEfCore   => Config.Backend.Orm == OrmType.EntityFrameworkCore;
     public bool UseEfDapper => Config.Backend.Orm == OrmType.EFCoreWithDapper;
 
@@ -293,6 +296,7 @@ public class TemplateContext
             // is_value_type: true para structs (int, bool, Guid, DateTime...)
             // Usado en repository_ef.scriban para decidir .HasValue / .Value
             obj["is_value_type"] = ValueTypes.Contains(col.CSharpType);
+            obj["is_blob"]       = col.CSharpType == "byte[]";
 
             yield return obj;
         }

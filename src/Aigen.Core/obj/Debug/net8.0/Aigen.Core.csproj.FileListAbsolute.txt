@@ -1,12 +1,12 @@
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\bin\Debug\net8.0\Aigen.Core.deps.json
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\bin\Debug\net8.0\Aigen.Core.dll
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\bin\Debug\net8.0\Aigen.Core.pdb
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\Aigen.Core.csproj.AssemblyReference.cache
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\Aigen.Core.GeneratedMSBuildEditorConfig.editorconfig
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\Aigen.Core.AssemblyInfoInputs.cache
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\Aigen.Core.AssemblyInfo.cs
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\Aigen.Core.csproj.CoreCompileInputs.cache
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\Aigen.Core.sourcelink.json
-C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\bin\Debug\net8.0\Aigen.Core.deps.json
-C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\bin\Debug\net8.0\Aigen.Core.dll
-C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\bin\Debug\net8.0\Aigen.Core.pdb
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\Aigen.Core.dll
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\refint\Aigen.Core.dll
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Core\obj\Debug\net8.0\Aigen.Core.pdb

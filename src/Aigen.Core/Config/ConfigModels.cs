@@ -8,7 +8,8 @@ public class BackendConfig
     public bool              GenerateStoredProcedures{ get; set; } = true;
     // direct: EF+Dapper sin SPs | storedProcedures: todo via SPs | mixed: SPs solo en tablas marcadas
     public string CrudStrategy { get; set; } = "direct";
-    public string SpPrefix     { get; set; } = "sp_";  // prefijo para SPs generados
+    public string SpPrefix     { get; set; } = "PA_";  // prefijo para SPs — ej: PA_, sp_
+    public string SpSchema     { get; set; } = "API";  // schema donde se crean los SPs
     public string TargetFramework                    { get; set; } = "net8.0";
 }
 public class FrontendConfig

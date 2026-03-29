@@ -59,12 +59,14 @@
                          "separateSolutionPerService":  false
                      },
     "backend":  {
-                    "orm":  "EntityFrameworkCore",
+                    "orm":  "EFCoreWithDapper",
                     "repositoryPattern":  "RepositoryUnitOfWork",
                     "efStrategy":  "DatabaseFirst",
                     "useCQRS":  false,
                     "dotnetVersion":  "net8.0",
-                    "crudStrategy":  "storedProcedures"
+                    "crudStrategy":  "storedProcedures",
+                    "spPrefix":  "PA_",
+                    "spSchema":  "API"
                 },
     "frontend":  {
                      "generateFrontend":  true,
@@ -113,7 +115,7 @@
                "enrichEntities":  false
            },
     "output":  {
-                   "path":  "C:\\\\DevOps\\\\AIGEN\\\\AIGEN\\\\GeneratedSP",
+                   "path":  "C:\\DevOps\\AIGEN\\AIGEN\\GeneratedSP",
                    "type":  "LocalPath",
                    "overwriteExisting":  true,
                    "createSolutionFile":  true
