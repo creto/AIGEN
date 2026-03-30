@@ -35,13 +35,9 @@ builder.Host.UseSerilog();
 // -- Base de datos --------------------------------------------
 {{ if audit_enabled && use_ef_interceptor }}
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<{{ root_namespace }}.Infrastructure.Persistence.Interceptors.ICurrentUserContext>(sp =>
-{
-    var http = sp.GetService<IHttpContextAccessor>();
-    var user = http?.HttpContext?.User?.Identity?.Name ?? "system";
-    var ip   = http?.HttpContext?.Connection?.RemoteIpAddress?.ToString() ?? "127.0.0.1";
-    return new {{ root_namespace }}.Infrastructure.Persistence.Interceptors.SystemUserContext();
-});
+// HttpCurrentUserContext lee claims JWT reales: preferred_username -> name -> Identity.Name
+builder.Services.AddScoped<{{ root_namespace }}.Infrastructure.Persistence.Interceptors.ICurrentUserContext,
+    {{ root_namespace }}.Infrastructure.Persistence.Interceptors.HttpCurrentUserContext>();
 builder.Services.AddScoped<{{ root_namespace }}.Infrastructure.Persistence.Interceptors.AuditSaveChangesInterceptor>();
 {{ end }}
 builder.Services.AddDbContext<{{ project_name }}DbContext>((sp, options) =>

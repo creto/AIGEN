@@ -28,6 +28,28 @@ public class SystemUserContext : ICurrentUserContext
 }
 
 /// <summary>
+/// Implementación HTTP — lee usuario del claim JWT y la IP del HttpContext.
+/// Se registra en Program.cs via AddScoped ICurrentUserContext, HttpCurrentUserContext.
+/// Requiere AddHttpContextAccessor() en DI.
+/// </summary>
+public class HttpCurrentUserContext : ICurrentUserContext
+{
+    private readonly IHttpContextAccessor _http;
+
+    public HttpCurrentUserContext(IHttpContextAccessor http) => _http = http;
+
+    public string Username =>
+        _http.HttpContext?.User?.FindFirst("preferred_username")?.Value
+        ?? _http.HttpContext?.User?.FindFirst("name")?.Value
+        ?? _http.HttpContext?.User?.Identity?.Name
+        ?? "system";
+
+    public string IpAddress =>
+        _http.HttpContext?.Connection?.RemoteIpAddress?.ToString()
+        ?? "127.0.0.1";
+}
+
+/// <summary>
 /// Interceptor EF Core que audita cambios en entidades configuradas.
 /// Escribe en {{ audit_table }}.
 /// </summary>

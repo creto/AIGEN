@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("AIGEN Templates - Plantillas Scriban para generacion de codigo")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2a44442cf0ce5d2a280d42a59d77d8e5bd0c4142")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+899f90ec34e4cf449f6c20714cb187e34226bbca")]
 [assembly: System.Reflection.AssemblyProductAttribute("Aigen.Templates")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Aigen.Templates")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
