@@ -20,6 +20,9 @@
     {{ end }}
     <PackageReference Include="Dapper" Version="2.1.35" />
     <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+    {{ if audit_enabled && use_ef_interceptor }}
+    <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
+    {{ end }}
 
     {{ if use_redis }}
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.0" />

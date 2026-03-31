@@ -355,11 +355,11 @@ public class GenerateCommand : AsyncCommand<GenerateCommand.Settings>
         }
         else
         {
-            // --no-interactive: CRUD completo por defecto
-            tablesToGenerate = filtered
-                .Where(t => Aigen.Core.Metadata.TableMetadataExtensions.HasFullCrud(t))
-                .ToList();
-            Aigen.CLI.UI.Banner.ShowInfo($"Tablas CRUD completo: {tablesToGenerate.Count} (--no-interactive)");
+            // --no-interactive: usar todas las tablas filtradas por el config JSON
+            // (tableSelection: All|Include|Exclude ya aplicado en "filtered")
+            // Para modo SP se recomienda pasar --no-interactive con tableSelection=Include
+            tablesToGenerate = filtered;
+            Aigen.CLI.UI.Banner.ShowInfo($"Tablas seleccionadas: {tablesToGenerate.Count} (--no-interactive, todas)");
         }
 
         // â”€â”€ 6. Confirmar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
