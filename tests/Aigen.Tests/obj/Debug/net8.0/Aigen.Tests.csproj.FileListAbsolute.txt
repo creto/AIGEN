@@ -204,3 +204,7 @@ C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\obj\Debug\net8.0\refint\Aigen.Test
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\obj\Debug\net8.0\Aigen.Tests.pdb
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\obj\Debug\net8.0\Aigen.Tests.genruntimeconfig.cache
 C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\obj\Debug\net8.0\ref\Aigen.Tests.dll
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\menu_controller.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\menu_seed.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\angular_menu_service.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\tests\Aigen.Tests\bin\Debug\net8.0\Templates\Solution\app_component.scriban

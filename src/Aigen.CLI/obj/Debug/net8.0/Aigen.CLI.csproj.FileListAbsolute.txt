@@ -146,3 +146,7 @@ C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\obj\Debug\net8.0\refint\aigen.dll
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\obj\Debug\net8.0\aigen.pdb
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\obj\Debug\net8.0\Aigen.CLI.genruntimeconfig.cache
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\obj\Debug\net8.0\ref\aigen.dll
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\menu_controller.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\menu_seed.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\angular_menu_service.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.CLI\bin\Debug\net8.0\Templates\Solution\app_component.scriban

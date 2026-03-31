@@ -1,70 +1,94 @@
 ﻿{
-  "aigenVersion": "1.0",
-  "project": {
-    "projectName": "Doc4Us",
-    "rootNamespace": "Doc4Us",
-    "version": "1.0.0",
-    "author": "TiGlobal SAS",
-    "year": "2026",
-    "description": "Doc4Us SGDEA — Arquitectura Microservicios",
-    "language": "Spanish"
-  },
-  "database": {
-    "engine": "SqlServer",
-    "connectionString": "Server=200.31.22.7,1437;Database=Doc4UsAIGen;User Id=Oscar;Password=Dukakis2701;TrustServerCertificate=True;",
-    "schema": "dbo",
-    "schemas": ["dbo"],
-    "tableSelection": "All",
-    "excludedPrefixes": ["TH_", "TA_"],
-    "excludedTables": []
-  },
-  "architecture": {
-    "style": "Microservices",
-    "pattern": "CleanArchitecture",
-    "separateSolutionPerService": true,
-    "microservices": [
-      {
-        "name": "DocumentService",
-        "prefix": "TM",
-        "port": 5001,
-        "tables": []
-      },
-      {
-        "name": "ParameterService",
-        "prefix": "TP",
-        "port": 5002,
-        "tables": []
-      },
-      {
-        "name": "BasicService",
-        "prefix": "TB",
-        "port": 5003,
-        "tables": []
-      },
-      {
-        "name": "RelationalService",
-        "prefix": "TBR",
-        "port": 5004,
-        "tables": []
-      }
-    ],
-    "gateway": {
-      "generateGateway": true,
-      "technology": "YARP",
-      "port": 5000
-    }
-  },
-  "backend": {
-    "orm": "EntityFrameworkCore",
-    "repositoryPattern": "RepositoryUnitOfWork",
-    "useCQRS": false,
-    "dotnetVersion": "net8.0"
-  },
-  "frontend": { "generateFrontend": false },
-  "security": { "authenticationType": "JWT", "jwtSource": "DatabaseTable" },
-  "features": { "generatePagination": true, "softDelete": true, "auditing": true },
-  "output": {
-    "path": "C:\\DevOps\\AIGEN\\AIGEN\\GeneratedMicroservices",
-    "overwriteExisting": true
-  }
+    "aigenVersion":  "1.0",
+    "project":  {
+                    "projectName":  "Doc4Us",
+                    "rootNamespace":  "Doc4Us",
+                    "version":  "1.0.0",
+                    "author":  "TiGlobal SAS",
+                    "year":  "2026",
+                    "description":  "Doc4Us SGDEA — Arquitectura Microservicios",
+                    "language":  "Spanish"
+                },
+    "database":  {
+                     "engine":  "SqlServer",
+                     "connectionString":  "Server=200.31.22.7,1437;Database=Doc4UsAIGen;User Id=Oscar;Password=Dukakis2701;TrustServerCertificate=True;",
+                     "schema":  "dbo",
+                     "schemas":  [
+                                     "dbo"
+                                 ],
+                     "tableSelection":  "All",
+                     "excludedPrefixes":  [
+                                              "TH_",
+                                              "TA_"
+                                          ],
+                     "excludedTables":  [
+
+                                        ]
+                 },
+    "architecture":  {
+                         "style":  "Microservices",
+                         "pattern":  "CleanArchitecture",
+                         "separateSolutionPerService":  true,
+                         "microservices":  [
+                                               {
+                                                   "name":  "DocumentService",
+                                                   "prefix":  "TM",
+                                                   "port":  5001,
+                                                   "tables":  [
+
+                                                              ]
+                                               },
+                                               {
+                                                   "name":  "ParameterService",
+                                                   "prefix":  "TP",
+                                                   "port":  5002,
+                                                   "tables":  [
+
+                                                              ]
+                                               },
+                                               {
+                                                   "name":  "BasicService",
+                                                   "prefix":  "TB",
+                                                   "port":  5003,
+                                                   "tables":  [
+
+                                                              ]
+                                               },
+                                               {
+                                                   "name":  "RelationalService",
+                                                   "prefix":  "TBR",
+                                                   "port":  5004,
+                                                   "tables":  [
+
+                                                              ]
+                                               }
+                                           ],
+                         "gateway":  {
+                                         "generateGateway":  true,
+                                         "technology":  "YARP",
+                                         "port":  5000
+                                     }
+                     },
+    "backend":  {
+                    "orm":  "EntityFrameworkCore",
+                    "repositoryPattern":  "RepositoryUnitOfWork",
+                    "useCQRS":  false,
+                    "dotnetVersion":  "net8.0"
+                },
+    "frontend":  {
+                     "generateFrontend":  false
+                 },
+    "security":  {
+                     "authenticationType":  "JWT",
+                     "jwtSource":  "DatabaseTable"
+                 },
+    "features":  {
+                     "generatePagination":  true,
+                     "softDelete":  true,
+                     "auditing":  false
+                 },
+    "output":  {
+                   "path":  "C:\\DevOps\\AIGEN\\AIGEN\\GeneratedMicroservices",
+                   "overwriteExisting":  true
+               }
 }

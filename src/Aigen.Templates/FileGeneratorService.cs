@@ -309,6 +309,14 @@ public class FileGeneratorService
         await Save(ctx, "deployment.scriban",
             Path.Combine(outPath, "DEPLOYMENT.md"), result, ct);
 
+        // Menu Seed SQL + MenuController
+        await Save(ctx, "menu_seed.scriban",
+            Path.Combine(outPath, "sql", "menu_seed.sql"), result, ct);
+
+        await Save(ctx, "menu_controller.scriban",
+            Path.Combine(outPath, "src", $"{ns}.API", "Controllers", "MenuController.cs"),
+            result, ct);
+
         // -- Angular scaffolding -------------------------------------------
         if (config.Frontend.GenerateFrontend)
         {
@@ -330,7 +338,11 @@ public class FileGeneratorService
             await Save(ctx, "angular_styles.scriban",        Path.Combine(fe, "src", "styles.scss"),                    result, ct);
             await Save(ctx, "angular_app_config.scriban",    Path.Combine(fe, "src", "app", "app.config.ts"),           result, ct);
             await Save(ctx, "angular_app_routes.scriban",    Path.Combine(fe, "src", "app", "app.routes.ts"),           result, ct);
-            await Save(ctx, "angular_app_component.scriban", Path.Combine(fe, "src", "app", "app.component.ts"),        result, ct);
+            // Menu Service Angular — consume GET /api/menu
+            await Save(ctx, "angular_menu_service.scriban",
+                Path.Combine(fe, "src", "app", "core", "services", "menu.service.ts"),
+                result, ct);
+            await Save(ctx, "app_component.scriban", Path.Combine(fe, "src", "app", "app.component.ts"), result, ct);
             await Save(ctx, "angular_dashboard.scriban",     Path.Combine(fe, "src", "app", "dashboard", "dashboard.component.ts"), result, ct);
         }
 

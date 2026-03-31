@@ -1,0 +1,170 @@
+﻿-- ============================================================
+-- AIGEN — Menu Seed para {{ project_name }}
+-- Generado : {{ now }}
+-- Esquema  : Seguridad (patron historico TiGlobal SAS — mejorado)
+-- Idempotente: puede ejecutarse multiples veces sin duplicar
+-- ============================================================
+
+-- Schema
+IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'Seguridad')
+    EXEC('CREATE SCHEMA [Seguridad]');
+GO
+
+-- TP_Menu
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES
+               WHERE TABLE_SCHEMA = 'Seguridad' AND TABLE_NAME = 'TP_Menu')
+BEGIN
+    CREATE TABLE [Seguridad].[TP_Menu](
+        [Id]                    INT          IDENTITY(1,1) NOT NULL,
+        [Nombre]                VARCHAR(160) NOT NULL,
+        [Descripcion]           VARCHAR(300) NULL,
+        [Controlador]           VARCHAR(160) NOT NULL,
+        [Accion]                VARCHAR(160) NOT NULL DEFAULT('Index'),
+        [GrupoEsquema]          VARCHAR(160) NOT NULL,
+        [Link]                  VARCHAR(160) NOT NULL,
+        [Orden]                 INT          NULL,
+        [OrdenPadre]            INT          NULL,
+        [Padre]                 INT          NULL,
+        [Icono]                 VARCHAR(80)  NULL,
+        [Badge]                 VARCHAR(50)  NULL,
+        [Visible]               BIT          NOT NULL DEFAULT(1),
+        [RequiereAutenticacion] BIT          NOT NULL DEFAULT(1),
+        [EstadoMenu]            BIT          NOT NULL DEFAULT(1),
+        [Estado]                BIT          NOT NULL DEFAULT(1),
+        [auditoria]             VARCHAR(MAX) NULL,
+        CONSTRAINT [PK_TP_Menu] PRIMARY KEY CLUSTERED ([Id] ASC)
+    );
+    PRINT 'Tabla Seguridad.TP_Menu creada';
+END
+ELSE
+BEGIN
+    -- Agregar columnas nuevas si no existen (migracion incremental)
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+                   WHERE TABLE_SCHEMA='Seguridad' AND TABLE_NAME='TP_Menu' AND COLUMN_NAME='Descripcion')
+        ALTER TABLE [Seguridad].[TP_Menu] ADD [Descripcion] VARCHAR(300) NULL;
+
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+                   WHERE TABLE_SCHEMA='Seguridad' AND TABLE_NAME='TP_Menu' AND COLUMN_NAME='Badge')
+        ALTER TABLE [Seguridad].[TP_Menu] ADD [Badge] VARCHAR(50) NULL;
+
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+                   WHERE TABLE_SCHEMA='Seguridad' AND TABLE_NAME='TP_Menu' AND COLUMN_NAME='Visible')
+        ALTER TABLE [Seguridad].[TP_Menu] ADD [Visible] BIT NOT NULL DEFAULT(1);
+
+    IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.COLUMNS
+                   WHERE TABLE_SCHEMA='Seguridad' AND TABLE_NAME='TP_Menu' AND COLUMN_NAME='RequiereAutenticacion')
+        ALTER TABLE [Seguridad].[TP_Menu] ADD [RequiereAutenticacion] BIT NOT NULL DEFAULT(1);
+
+    PRINT 'Tabla Seguridad.TP_Menu actualizada con columnas nuevas';
+END
+GO
+
+-- TR_MenuRol
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES
+               WHERE TABLE_SCHEMA = 'Seguridad' AND TABLE_NAME = 'TR_MenuRol')
+BEGIN
+    CREATE TABLE [Seguridad].[TR_MenuRol](
+        [Id_TP_Menu]  INT           NOT NULL,
+        [AspNetRoles] NVARCHAR(256) NOT NULL,
+        [Estado]      BIT           NOT NULL DEFAULT(1),
+        [auditoria]   VARCHAR(MAX)  NULL,
+        CONSTRAINT [PK_TR_MenuRol] PRIMARY KEY CLUSTERED ([Id_TP_Menu] ASC, [AspNetRoles] ASC)
+    );
+    PRINT 'Tabla Seguridad.TR_MenuRol creada';
+END
+GO
+
+-- TP_Privilegio
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES
+               WHERE TABLE_SCHEMA = 'Seguridad' AND TABLE_NAME = 'TP_Privilegio')
+BEGIN
+    CREATE TABLE [Seguridad].[TP_Privilegio](
+        [Id]        INT           NOT NULL,
+        [Nombre]    NVARCHAR(128) NOT NULL,
+        [Estado]    BIT           NOT NULL DEFAULT(1),
+        [auditoria] VARCHAR(MAX)  NULL,
+        CONSTRAINT [PK_TP_Privilegio] PRIMARY KEY CLUSTERED ([Id] ASC)
+    );
+    INSERT INTO [Seguridad].[TP_Privilegio] VALUES (1,'Ver',1,NULL);
+    INSERT INTO [Seguridad].[TP_Privilegio] VALUES (2,'Crear',1,NULL);
+    INSERT INTO [Seguridad].[TP_Privilegio] VALUES (3,'Editar',1,NULL);
+    INSERT INTO [Seguridad].[TP_Privilegio] VALUES (4,'Eliminar',1,NULL);
+    INSERT INTO [Seguridad].[TP_Privilegio] VALUES (5,'Exportar',1,NULL);
+    INSERT INTO [Seguridad].[TP_Privilegio] VALUES (6,'Imprimir',1,NULL);
+    INSERT INTO [Seguridad].[TP_Privilegio] VALUES (7,'Descargar',1,NULL);
+    INSERT INTO [Seguridad].[TP_Privilegio] VALUES (8,'Cargar',1,NULL);
+    INSERT INTO [Seguridad].[TP_Privilegio] VALUES (9,'Actualizar',1,NULL);
+    INSERT INTO [Seguridad].[TP_Privilegio] VALUES (10,'Firmar',1,NULL);
+    INSERT INTO [Seguridad].[TP_Privilegio] VALUES (11,'Aprobar',1,NULL);
+    PRINT 'Tabla Seguridad.TP_Privilegio creada con datos base — 11 privilegios';
+END
+GO
+
+-- TR_RolPrivilegio
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES
+               WHERE TABLE_SCHEMA = 'Seguridad' AND TABLE_NAME = 'TR_RolPrivilegio')
+BEGIN
+    CREATE TABLE [Seguridad].[TR_RolPrivilegio](
+        [AspNetRoles]      NVARCHAR(256) NOT NULL,
+        [Id_TP_Privilegio] INT           NOT NULL,
+        [Estado]           BIT           NOT NULL DEFAULT(1),
+        [auditoria]        VARCHAR(MAX)  NULL,
+        CONSTRAINT [PK_TR_RolPrivilegio] PRIMARY KEY CLUSTERED ([Id_TP_Privilegio] ASC, [AspNetRoles] ASC)
+    );
+    PRINT 'Tabla Seguridad.TR_RolPrivilegio creada';
+END
+GO
+
+-- ============================================================
+-- SEED: un item de menu por controller generado por AIGEN
+-- MERGE garantiza idempotencia
+-- ============================================================
+{{ $orden = 1 }}
+{{ for table in all_tables_script }}
+{{ if table.has_full_crud }}
+MERGE [Seguridad].[TP_Menu] AS target
+USING (SELECT '{{ table.controller_name }}' AS Controlador, 'Index' AS Accion) AS source
+ON  target.[Controlador] = source.Controlador
+AND target.[Accion]      = source.Accion
+WHEN NOT MATCHED THEN
+    INSERT ([Nombre],[Descripcion],[Controlador],[Accion],[GrupoEsquema],
+            [Link],[Orden],[OrdenPadre],[Padre],[Icono],[Visible],[RequiereAutenticacion],[EstadoMenu],[Estado])
+    VALUES (
+        '{{ table.entity_name_plural }}',
+        'Gestion de {{ table.entity_name_plural }}',
+        '{{ table.controller_name }}',
+        'Index',
+        '{{ project_name }}',
+        '/{{ table.kebab_name_plural }}',
+        {{ $orden }},
+        NULL,
+        NULL,
+        'pi pi-table',
+        1, 1, 1, 1
+    );
+{{ $orden = $orden + 1 }}
+{{ end }}
+{{ end }}
+GO
+
+-- Rol Admin tiene acceso a todos los menus
+INSERT INTO [Seguridad].[TR_MenuRol] ([Id_TP_Menu], [AspNetRoles], [Estado])
+SELECT m.[Id], 'Admin', 1
+FROM   [Seguridad].[TP_Menu] m
+WHERE  NOT EXISTS (
+    SELECT 1 FROM [Seguridad].[TR_MenuRol] r
+    WHERE r.[Id_TP_Menu] = m.[Id] AND r.[AspNetRoles] = 'Admin'
+);
+
+-- Rol Admin tiene todos los privilegios
+INSERT INTO [Seguridad].[TR_RolPrivilegio] ([AspNetRoles], [Id_TP_Privilegio], [Estado])
+SELECT 'Admin', p.[Id], 1
+FROM   [Seguridad].[TP_Privilegio] p
+WHERE  NOT EXISTS (
+    SELECT 1 FROM [Seguridad].[TR_RolPrivilegio] r
+    WHERE r.[AspNetRoles] = 'Admin' AND r.[Id_TP_Privilegio] = p.[Id]
+);
+GO
+
+PRINT 'Menu seed completado — {{ project_name }}';
+GO

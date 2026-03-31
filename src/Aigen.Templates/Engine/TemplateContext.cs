@@ -17,7 +17,6 @@ public class TemplateContext
     public List<TableMetadata>?       AllTables { get; init; }
     // AllTablesScript: convierte AllTables a List<ScriptObject> para Scriban
     // Necesario porque Scriban no itera List<TableMetadata> directamente.
-    // Usado en program.scriban para registrar repositorios y servicios en DI.
     public List<ScriptObject> AllTablesScript
     {
         get
@@ -26,13 +25,28 @@ public class TemplateContext
             return AllTables.Select(t =>
             {
                 var obj = new ScriptObject();
-                obj["RepositoryName"] = t.RepositoryName;
-                obj["ServiceName"]    = t.ServiceName;
-                obj["HasRepository"]  = t.HasRepository;
-                obj["HasService"]     = t.HasService;
-                obj["ClassNamePlural"] = t.ClassNamePlural;
-                obj["KebabName"]      = ToKebab(t.ClassName);
-                obj["ClassName"]      = t.ClassName;
+                // PascalCase — compatibilidad con program.scriban
+                obj["RepositoryName"]   = t.RepositoryName;
+                obj["ServiceName"]      = t.ServiceName;
+                obj["HasRepository"]    = t.HasRepository;
+                obj["HasService"]       = t.HasService;
+                obj["ClassNamePlural"]  = t.ClassNamePlural;
+                obj["KebabName"]        = ToKebab(t.ClassName);
+                obj["ClassName"]        = t.ClassName;
+                obj["ControllerName"]   = t.ControllerName;
+                // snake_case — para menu_seed y otras plantillas de solucion
+                obj["repository_name"]   = t.RepositoryName;
+                obj["service_name"]      = t.ServiceName;
+                obj["class_name"]        = t.ClassName;
+                obj["class_name_plural"] = t.ClassNamePlural;
+                obj["kebab_name"]        = ToKebab(t.ClassName);
+                obj["kebab_name_plural"] = ToKebab(t.ClassNamePlural);
+                obj["controller_name"]   = t.ControllerName;
+                obj["entity_name"]       = t.ClassName;
+                obj["entity_name_plural"] = t.ClassNamePlural;
+                obj["table_name"]        = t.TableName;
+                obj["has_full_crud"]     = Aigen.Core.Metadata.TableMetadataExtensions.HasFullCrud(t);
+                obj["has_estado"]        = t.Columns.Any(c => c.ColumnName.Equals("Estado", StringComparison.OrdinalIgnoreCase));
                 return obj;
             }).ToList();
         }

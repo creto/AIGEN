@@ -166,6 +166,25 @@ app.UseAuthentication();
 {{ end }}
 app.UseAuthorization();
 app.MapControllers();
+
+// -- Health endpoints -----------------------------------------
+// GET /health  — liveness  (el proceso vive)
+// GET /ready   — readiness (la BD responde)
+app.MapGet("/health", () => Results.Ok(new {
+    status  = "healthy",
+    service = "{{ project_name }}",
+    time    = DateTime.UtcNow
+})).WithTags("Health").AllowAnonymous();
+
+app.MapGet("/ready", async ({{ root_namespace }}.Infrastructure.Persistence.{{ project_name }}DbContext db) => {
+    try {
+        await db.Database.ExecuteSqlRawAsync("SELECT 1");
+        return Results.Ok(new { status = "ready", service = "{{ project_name }}", time = DateTime.UtcNow });
+    } catch (Exception ex) {
+        return Results.Problem(detail: ex.Message, title: "Database not ready", statusCode: 503);
+    }
+}).WithTags("Health").AllowAnonymous();
+
 Log.Information("{{ project_name }} API iniciado");
 app.Run();
 

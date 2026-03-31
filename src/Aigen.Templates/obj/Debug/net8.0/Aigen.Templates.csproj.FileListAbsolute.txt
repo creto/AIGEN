@@ -70,3 +70,7 @@ C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\Aigen.Templates
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\refint\Aigen.Templates.dll
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\Aigen.Templates.pdb
 C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\obj\Debug\net8.0\ref\Aigen.Templates.dll
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\bin\Debug\net8.0\Templates\Solution\menu_controller.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\bin\Debug\net8.0\Templates\Solution\menu_seed.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\bin\Debug\net8.0\Templates\Solution\angular_menu_service.scriban
+C:\DevOps\AIGEN\AIGEN\aigen\src\Aigen.Templates\bin\Debug\net8.0\Templates\Solution\app_component.scriban
