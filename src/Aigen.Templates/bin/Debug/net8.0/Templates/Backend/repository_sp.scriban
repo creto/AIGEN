@@ -18,21 +18,21 @@ public class {{ entity_name }}Repository : I{{ entity_name }}Repository
 
     public {{ entity_name }}Repository(IDbConnection db) => _db = db;
 
-    public async Task<(IEnumerable<{{ entity_name }}Dto> Items, int TotalCount)> GetPagedAsync(
+    public async Task<{{ entity_name }}PagedResponse> GetPagedAsync(
         int page, int pageSize, CancellationToken ct = default)
     {
         using var multi = await _db.QueryMultipleAsync(
-            "{{ db_schema }}.sp_GetPaged_{{ table_name }}",
-            new { Page = page, PageSize = pageSize },
+            "{{ db_schema }}.{{ sp_prefix }}{{ table_name }}GetByFilter",
+            new { TamPag = pageSize, Pag = page },
             commandType: CommandType.StoredProcedure);
 
         var items = (await multi.ReadAsync<{{ entity_name }}Dto>()).ToList();
         var total = await multi.ReadFirstAsync<int>();
-        return (items, total);
+        return new {{ entity_name }}PagedResponse(items, total, page, pageSize);
     }
 
     public async Task<{{ entity_name }}Dto?> GetByIdAsync(
-        {{ pk_ts_type }} id, CancellationToken ct = default)
+        {{ pk_type }} id, CancellationToken ct = default)
     {
         return await _db.QueryFirstOrDefaultAsync<{{ entity_name }}Dto>(
             "{{ db_schema }}.sp_GetById_{{ table_name }}",
@@ -41,10 +41,10 @@ public class {{ entity_name }}Repository : I{{ entity_name }}Repository
     }
 
     {{ if has_full_crud }}
-    public async Task<{{ pk_ts_type }}> CreateAsync(
+    public async Task<{{ pk_type }}> CreateAsync(
         Create{{ entity_name }}Request req, CancellationToken ct = default)
     {
-        var result = await _db.ExecuteScalarAsync<{{ pk_ts_type }}>(
+        var result = await _db.ExecuteScalarAsync<{{ pk_type }}>(
             "{{ db_schema }}.sp_Insert_{{ table_name }}",
             req,
             commandType: CommandType.StoredProcedure);
@@ -52,7 +52,7 @@ public class {{ entity_name }}Repository : I{{ entity_name }}Repository
     }
 
     public async Task UpdateAsync(
-        {{ pk_ts_type }} id, Update{{ entity_name }}Request req, CancellationToken ct = default)
+        {{ pk_type }} id, Update{{ entity_name }}Request req, CancellationToken ct = default)
     {
         var parameters = new DynamicParameters(req);
         parameters.Add("{{ pk_name }}", id);
@@ -62,7 +62,7 @@ public class {{ entity_name }}Repository : I{{ entity_name }}Repository
             commandType: CommandType.StoredProcedure);
     }
 
-    public async Task DeleteAsync({{ pk_ts_type }} id, CancellationToken ct = default)
+    public async Task DeleteAsync({{ pk_type }} id, CancellationToken ct = default)
     {
         await _db.ExecuteAsync(
             "{{ db_schema }}.sp_Delete_{{ table_name }}",
@@ -71,12 +71,21 @@ public class {{ entity_name }}Repository : I{{ entity_name }}Repository
     }
     {{ end }}
 
+    public async Task<bool> ExistsAsync({{ pk_type }} id, CancellationToken ct = default)
+    {
+        var result = await _db.ExecuteScalarAsync<int>(
+            "SELECT COUNT(1) FROM [{{ db_schema }}].[{{ table_name }}] WHERE [{{ pk_column_name }}] = @{{ pk_name }}",
+            new { {{ pk_name }} = id });
+        return result > 0;
+    }
+
     {{ if has_estado }}
-    public async Task ToggleEstadoAsync({{ pk_ts_type }} id, CancellationToken ct = default)
+    public async Task ToggleEstadoAsync({{ pk_type }} id, CancellationToken ct = default)
     {
         await _db.ExecuteAsync(
-            "UPDATE {{ db_schema }}.{{ table_name }} SET {{ estado_property_name }} = ~{{ estado_property_name }} WHERE {{ pk_column_name }} = @id",
-            new { id });
+            "{{ db_schema }}.{{ sp_prefix }}{{ table_name }}ToggleEstado",
+            new { {{ pk_name }} = id },
+            commandType: CommandType.StoredProcedure);
     }
     {{ end }}
 }

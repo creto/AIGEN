@@ -248,3 +248,27 @@ BEGIN
         @offset = @offset, @tamPag = @TamPag;
 END
 GO
+
+{{ if has_estado }}
+-- -----------------------------------------------------------------
+-- TOGGLEESTADO: Activa/desactiva un registro (Estado = ~Estado)
+-- -----------------------------------------------------------------
+CREATE OR ALTER PROCEDURE [{{ sp_schema }}].[{{ sp_prefix }}{{ table_name }}ToggleEstado]
+    @{{ pk_column_name }} {{ pk_sql_type }},
+    @auditoria VarChar(MAX) = NULL
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE [{{ db_schema }}].[{{ table_name }}]
+    SET    [{{ estado_property_name }}] = CASE WHEN [{{ estado_property_name }}] = 1 THEN 0 ELSE 1 END
+           {{ if has_auditoria_column }}, Auditoria = @auditoria{{ end }}
+    WHERE  [{{ pk_column_name }}] = @{{ pk_column_name }};
+
+    -- Retornar el estado resultante
+    SELECT [{{ pk_column_name }}], [{{ estado_property_name }}]
+    FROM   [{{ db_schema }}].[{{ table_name }}]
+    WHERE  [{{ pk_column_name }}] = @{{ pk_column_name }};
+END
+GO
+{{ end }}
