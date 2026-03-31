@@ -1,0 +1,128 @@
+﻿{
+    "aigenVersion":  "1.0",
+    "project":  {
+                    "projectName":  "Doc4Us",
+                    "rootNamespace":  "Doc4us.SGDEA",
+                    "version":  "1.0.0",
+                    "author":  "TiGlobal SAS",
+                    "year":  "2026",
+                    "description":  "Sistema de Gestion Documental Empresarial - Doc4Us SGDEA",
+                    "language":  "Spanish"
+                },
+    "database":  {
+                     "engine":  "SqlServer",
+                     "connectionString":  "Server=200.31.22.7,1437;Database=Doc4UsAIGen;User Id=Oscar;Password=Dukakis2701;TrustServerCertificate=True;Connect Timeout=30;",
+                     "schema":  "dbo",
+                     "schemas":  [
+                                     "dbo",
+                                     "Interop"
+                                 ],
+                     "tableSelection":  "Exclude",
+                     "includedTables":  [
+
+                                        ],
+                     "excludedPrefixes":  [
+                                              "TH_"
+                                          ],
+                     "excludedTables":  [
+                                            "__EFMigrationsHistory",
+                                            "sysdiagrams",
+                                            "Elmah_Error",
+                                            "Tab",
+                                            "Tabparameter",
+                                            "Tapo_Reporte",
+                                            "Taunter",
+                                            "TE_ascii",
+                                            "TempMunicipios",
+                                            "tmpdependencia",
+                                            "tmpTBR",
+                                            "TmpSerie",
+                                            "TmpInforme",
+                                            "TT_MigracionTipologias",
+                                            "STG_Terceros",
+                                            "STG_Documentos",
+                                            "STG_MigracionTipologias",
+                                            "STGDctosExpediente",
+                                            "STGExpediente",
+                                            "TMP_CorrespondenciaElaborar",
+                                            "Wsusuarios",
+                                            "TAR_ActividadTramite",
+                                            "TAR_Trd",
+                                            "TH_DetalleLogCargueMasivo",
+                                            "TH_Documentos",
+                                            "TH_Fondo",
+                                            "TH_Serie"
+                                        ]
+                 },
+    "architecture":  {
+                         "pattern":  "CleanArchitecture",
+                         "separateSolutionPerService":  false
+                     },
+    "backend":  {
+                    "orm":  "EFCoreWithDapper",
+                    "repositoryPattern":  "RepositoryUnitOfWork",
+                    "efStrategy":  "DatabaseFirst",
+                    "useCQRS":  false,
+                    "dotnetVersion":  "net8.0",
+                    "crudStrategy":  "mixed",
+                    "spPrefix":  "PA_",
+                    "spSchema":  "API",
+                    "spTables":  [
+                                     "TP_Dependencia",
+                                     "TB_Empresa",
+                                     "TB_Funcionario"
+                                 ]
+                },
+    "frontend":  {
+                     "generateFrontend":  true,
+                     "framework":  "Angular",
+                     "angularVersion":  "17",
+                     "uiLibrary":  "PrimeNG",
+                     "generateRouting":  true,
+                     "generateModule":  false,
+                     "useStandalone":  true
+                 },
+    "security":  {
+                     "authenticationType":  "JWT",
+                     "jwtSource":  "DatabaseTable",
+                     "userTable":  "TB_Funcionario",
+                     "jwtKey":  "Doc4Us_SecretKey_2026_CAMBIAR_EN_PROD_Min32Chars!",
+                     "jwtIssuer":  "Doc4UsApi",
+                     "jwtAudience":  "Doc4UsClient",
+                     "jwtExpiresMinutes":  60,
+                     "refreshExpiresDays":  7,
+                     "useRefreshToken":  true,
+                     "oidcProvider":  "None",
+                     "corsOrigins":  "http://localhost:4200",
+                     "useHttps":  true
+                 },
+    "features":  {
+                     "generatePagination":  true,
+                     "softDelete":  true,
+                     "auditing":  true,
+                     "validation":  "FluentValidation",
+                     "mapping":  "Manual",
+                     "logging":  "Serilog",
+                     "apiDoc":  "Swagger",
+                     "cache":  "None",
+                     "generateTests":  false
+                 },
+    "audit":  {
+                  "provider":  "EFInterceptor",
+                  "globalEnabled":  true,
+                  "auditTable":  "TA_AuditoriaTransacciones",
+                  "tables":  {
+
+                             }
+              },
+    "ai":  {
+               "provider":  "None",
+               "enrichEntities":  false
+           },
+    "output":  {
+                   "path":  "C:\\DevOps\\AIGEN\\AIGEN\\GeneratedMixed",
+                   "type":  "LocalPath",
+                   "overwriteExisting":  true,
+                   "createSolutionFile":  true
+               }
+}

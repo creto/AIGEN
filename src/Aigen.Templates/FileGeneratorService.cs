@@ -68,8 +68,6 @@ public class FileGeneratorService
             progress?.Report(new(i + 1, tables.Count, table.ClassName));
 
             var ctx = new TemplateContext { Table = table, Db = db, Config = config };
-
-            File.AppendAllText("C:\\debug_aigen.txt", "BACKEND:" + table.TableName + "|" + table.HasFullCrud() + Environment.NewLine);
             await GenerateBackendAsync(ctx, outPath, result, ct);
 
             // Frontend solo para tablas no-audit/no-historical
@@ -138,21 +136,21 @@ public class FileGeneratorService
         if (!ctx.HasFullCrud) return;
         t.HasRepository = true;
         t.HasService    = true;
-
         // Service
         await Save(ctx, "service.scriban",
             Path.Combine(outPath, "src", $"{ns}.Application",
                 t.ClassNamePlural, $"{t.ServiceName}.cs"), result, ct);
-        // Repository: Dapper | EF Core | EFCore+Dapper
-        // Repository: estrategia segun CrudStrategy + ORM
-        var crudStrategy = config.Backend.CrudStrategy;
-                if (crudStrategy == "storedProcedures")
+
+        var crudStrategy      = config.Backend.CrudStrategy;
+        var useSpForThisTable = crudStrategy == "storedProcedures" ||
+            (crudStrategy == "mixed" &&
+             config.Backend.SpTables.Contains(t.TableName, StringComparer.OrdinalIgnoreCase));
+        if (useSpForThisTable)
         {
             await Save(ctx, "repository_sp.scriban",
                 Path.Combine(outPath, "src", $"{ns}.Infrastructure",
                     "Persistence", "Repositories", $"{t.RepositoryName}.cs"),
                 result, ct);
-            // SP script SQL
             await Save(ctx, "sp_crud.scriban",
                 Path.Combine(outPath, "sql", $"sp_{t.TableName}.sql"),
                 result, ct);
