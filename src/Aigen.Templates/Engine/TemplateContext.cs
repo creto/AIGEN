@@ -156,6 +156,19 @@ public class TemplateContext
     public string AuditTable      => Config.Audit.AuditTable;
     public bool   UseEfInterceptor => Config.Audit.Provider is "EFInterceptor" or "Both";
     public bool   UseAuditSp       => Config.Audit.Provider is "StoredProcedure" or "Both";
+
+    // Lista de tablas habilitadas para auditoria — genera diccionario en interceptor
+    public List<AuditTableFilter> AuditTableFilters =>
+        Config.Audit.Tables
+            .Where(kvp => kvp.Value.Enabled)
+            .Select(kvp => new AuditTableFilter
+            {
+                EntityName   = kvp.Key.Contains("_") ? kvp.Key.Substring(kvp.Key.IndexOf("_") + 1) : kvp.Key,
+                Fields       = kvp.Value.Fields.Contains("*") ? "*" : string.Join(",", kvp.Value.Fields),
+                FieldsQuoted = kvp.Value.Fields.Contains("*") ? ""
+                    : string.Join(", ", kvp.Value.Fields.Select(f => $"\"{f}\""))
+            })
+            .ToList();
     // Cache
     public string CacheProvider   => Config.Features.Cache.ToString();
     public bool   UseCache        => Config.Features.Cache != Aigen.Core.Config.Enums.CacheProvider.None;
@@ -324,3 +337,10 @@ public class TemplateContext
 
 
 
+
+public record AuditTableFilter
+{
+    public string EntityName   { get; init; } = string.Empty;
+    public string Fields       { get; init; } = "*";
+    public string FieldsQuoted { get; init; } = string.Empty;
+}

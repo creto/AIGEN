@@ -94,20 +94,38 @@ public class AuditSaveChangesInterceptor : SaveChangesInterceptor
         var username  = _userCtx.Username;
         var ip        = _userCtx.IpAddress;
 
+        // Mapa de filtros por entidad generado por AIGEN desde auditing.tables
+        // Formato: { "NombreEntidad": ["Campo1","Campo2"] } — null = auditar todos
+        var _auditFields = new Dictionary<string, HashSet<string>?>(StringComparer.OrdinalIgnoreCase)
+        {
+{{ for table in audit_table_filters }}
+            { "{{ table.entity_name }}", {{ if table.fields == "*" }}null{{ else }}new HashSet<string>(StringComparer.OrdinalIgnoreCase) { {{ table.fields_quoted }} }{{ end }} },
+{{ end }}
+        };
+
         foreach (var entry in ctx.ChangeTracker.Entries())
         {
             if (entry.State == EntityState.Detached || entry.State == EntityState.Unchanged)
                 continue;
 
             var entityName = entry.Entity.GetType().Name;
+
+            // Saltar entidades no configuradas para auditoría o deshabilitadas
+            if (!_auditFields.ContainsKey(entityName)) continue;
+
             var operation  = entry.State.ToString();
             var recordId   = entry.Properties
                 .FirstOrDefault(p => p.Metadata.IsPrimaryKey())?.CurrentValue?.ToString();
+            var fieldFilter = _auditFields[entityName]; // null = todos los campos
 
             if (entry.State == EntityState.Modified)
             {
                 foreach (var prop in entry.Properties.Where(p => p.IsModified))
                 {
+                    // Aplicar filtro de campos si está configurado
+                    if (fieldFilter is not null && !fieldFilter.Contains(prop.Metadata.Name))
+                        continue;
+
                     entries.Add(new AuditEntry
                     {
                         EntityName = entityName, Operation  = operation,
