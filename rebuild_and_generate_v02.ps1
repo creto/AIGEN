@@ -1,6 +1,6 @@
-# ============================================================
+﻿# ============================================================
 #  AIGEN - Rebuild completo y regeneracion
-#  Version: 4.1 - Semana 16
+#  Version: 4.0 - Semana 14
 #
 #  Uso:
 #  .\rebuild_and_generate.ps1                                     # SqlServer completo
@@ -12,10 +12,6 @@
 #  .\rebuild_and_generate.ps1 -SkipGenerate                       # Solo compilar sin regenerar
 #  .\rebuild_and_generate.ps1 -RunApi                             # Levanta API al finalizar
 #  .\rebuild_and_generate.ps1 -Db SqlServer -SkipTests -RunApi    # Ciclo rapido + API
-#
-#  NOTA: Si falla por politica de ejecucion:
-#    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-#    Unblock-File -Path .\rebuild_and_generate.ps1
 # ============================================================
 param(
     [ValidateSet("SqlServer", "Postgres", "Microservices", "SP")]
@@ -39,7 +35,7 @@ $configs = @{
         DbLabel      = "Doc4UsAIGen (SQL Server)"
         Color        = "Cyan"
     }
-    Postgres = @{
+    Postgres  = @{
         ConfigFile   = "C:\DevOps\AIGEN\AIGEN\aigen\configs\aigen_postgres.json"
         OutputPath   = "C:\DevOps\AIGEN\AIGEN\GeneratedPostgres"
         SolutionName = "AigenTest.sln"
@@ -73,7 +69,7 @@ $cfg = $configs[$Db]
 # -- Header ----------------------------------------------------------------
 Write-Host "================================================" -ForegroundColor $cfg.Color
 Write-Host "  AIGEN - Rebuild + Generate + Compile + Docs"  -ForegroundColor $cfg.Color
-Write-Host "  Version 4.1 | Semana 16"                       -ForegroundColor $cfg.Color
+Write-Host "  Version 4.0 | Semana 14"                       -ForegroundColor $cfg.Color
 Write-Host "  Base de datos : $($cfg.DbLabel)"              -ForegroundColor $cfg.Color
 Write-Host "  Config        : $($cfg.ConfigFile)"           -ForegroundColor $cfg.Color
 Write-Host "  Output        : $($cfg.OutputPath)"           -ForegroundColor $cfg.Color
@@ -96,10 +92,6 @@ if ($SkipGenerate) {
     if ($Db -eq "SP") {
         Remove-Item "$($cfg.OutputPath)\sql"  -Recurse -Force -ErrorAction SilentlyContinue
     }
-    # SqlServer: limpiar sql (menu_seed)
-    if ($Db -eq "SqlServer") {
-        Remove-Item "$($cfg.OutputPath)\sql"  -Recurse -Force -ErrorAction SilentlyContinue
-    }
     Write-Host "  OK - Carpetas limpiadas" -ForegroundColor Green
 }
 
@@ -109,7 +101,7 @@ Write-Host "[2/8] Rebuilding AIGEN..." -ForegroundColor Yellow
 Set-Location "C:\DevOps\AIGEN\AIGEN\aigen"
 dotnet restore --verbosity quiet
 
-$buildResult  = dotnet build "aigen.sln" 2>&1
+$buildResult = dotnet build "aigen.sln" 2>&1
 $buildErrLine = $buildResult | Select-String "Error\(s\)" | Select-Object -Last 1
 $buildErrors  = if ($buildErrLine -match "(\d+) Error") { [int]$Matches[1] } else { 0 }
 
@@ -232,7 +224,7 @@ if ($SkipFrontend) {
 } elseif ($Db -eq "Microservices") {
     Write-Host "[6/8] Frontend omitido (modo Microservices)" -ForegroundColor DarkGray
 } elseif ($Db -eq "SP") {
-    Write-Host "[6/8] Frontend omitido (modo SP - usa frontend del modo SqlServer)" -ForegroundColor DarkGray
+    Write-Host "[6/8] Frontend omitido (modo SP — usa frontend del modo SqlServer)" -ForegroundColor DarkGray
 } else {
     Write-Host "[6/8] Compilando Frontend Angular (ng build)..." -ForegroundColor Yellow
     $frontendPath = "$($cfg.OutputPath)\frontend"
@@ -286,16 +278,14 @@ if ($Db -eq "Microservices") {
     $folders += @{ Path = "src\$projectName.Domain";         Label = "Domain (Entidades C#)" }
     $folders += @{ Path = "src\$projectName.Application";    Label = "Application (DTOs + Interfaces)" }
     $folders += @{ Path = "src\$projectName.Infrastructure"; Label = "Infrastructure (Repos + Config)" }
-    $folders += @{ Path = "src\$projectName.API";            Label = "API (Controllers + Hubs + Program)" }
+    $folders += @{ Path = "src\$projectName.API";            Label = "API (Controllers + Program)" }
 
     if ($Db -eq "SqlServer") {
         $folders += @{ Path = "frontend\src\app\features"; Label = "Angular Features (Components)" }
-        $folders += @{ Path = "frontend\src\app\core";     Label = "Angular Core (Services + Guards)" }
-        $folders += @{ Path = "frontend\src\app";          Label = "Angular App (Component + Routes)" }
-        $folders += @{ Path = "sql";                       Label = "SQL Scripts (Menu Seed)" }
+        $folders += @{ Path = "frontend\src\app";          Label = "Angular Core (App + Routes)" }
     }
     if ($Db -eq "SP") {
-        $folders += @{ Path = "sql"; Label = "SQL Scripts (Stored Procedures + Menu Seed)" }
+        $folders += @{ Path = "sql"; Label = "SQL Scripts (Stored Procedures)" }
     }
 }
 
@@ -352,7 +342,7 @@ $summaryLines += "| Total archivos de codigo | $totalFiles |"
 $summaryLines += "| Total lineas de codigo | $("{0:N0}" -f $totalLines) |"
 $summaryLines += "| Base de datos origen | $($cfg.DbLabel) |"
 $summaryLines += "| Estrategia | $Db |"
-$summaryLines += "| Generado por | AIGEN v4.1.0 |"
+$summaryLines += "| Generado por | AIGEN v4.0.0 |"
 $summaryLines += "| Fecha generacion | $fecha |"
 $summaryLines += ""
 $summaryLines += "---"
@@ -368,7 +358,7 @@ Write-Host "       $totalFiles archivos | $("{0:N0}" -f $totalLines) lineas tota
 Write-Host ""
 if ($RunApi) {
     if ($Db -eq "Microservices") {
-        Write-Host "[8/8] WARN: RunApi no aplica en modo Microservices - usar docker-compose" -ForegroundColor Yellow
+        Write-Host "[8/8] WARN: RunApi no aplica en modo Microservices — usar docker-compose" -ForegroundColor Yellow
     } elseif (-not $cfg.ApiFolder) {
         Write-Host "[8/8] WARN: ApiFolder no configurado para este perfil" -ForegroundColor Yellow
     } else {
@@ -377,9 +367,8 @@ if ($RunApi) {
             Write-Host "[8/8] WARN: Carpeta API no encontrada: $apiPath" -ForegroundColor Yellow
         } else {
             Write-Host "[8/8] Levantando API ($Db) en modo Development..." -ForegroundColor Yellow
-            Write-Host "  Swagger   : http://localhost:5000/swagger" -ForegroundColor $cfg.Color
-            Write-Host "  SignalR   : ws://localhost:5000/hubs/notifications" -ForegroundColor $cfg.Color
-            Write-Host "  Ctrl+C    : para detener" -ForegroundColor DarkGray
+            Write-Host "  Swagger : http://localhost:5000/swagger" -ForegroundColor $cfg.Color
+            Write-Host "  Ctrl+C  : para detener" -ForegroundColor DarkGray
             Set-Location $apiPath
             $env:ASPNETCORE_ENVIRONMENT = "Development"
             dotnet run
@@ -400,8 +389,6 @@ if ($RunApi) {
         Write-Host "  cd $apiPath" -ForegroundColor DarkGray
         Write-Host "  `$env:ASPNETCORE_ENVIRONMENT = 'Development'" -ForegroundColor DarkGray
         Write-Host "  dotnet run" -ForegroundColor DarkGray
-        Write-Host "  Swagger  : http://localhost:5000/swagger" -ForegroundColor DarkGray
-        Write-Host "  SignalR  : ws://localhost:5000/hubs/notifications" -ForegroundColor DarkGray
     }
 }
 
@@ -419,11 +406,11 @@ Write-Host "  Docs     : CODE_SUMMARY.md generado"           -ForegroundColor Gr
 Write-Host "  Codigo   : $totalFiles archivos | $("{0:N0}" -f $totalLines) lineas" -ForegroundColor Green
 Write-Host "================================================" -ForegroundColor $cfg.Color
 Write-Host ""
-Write-Host "  Uso:"                                                                                          -ForegroundColor DarkGray
-Write-Host "  .\rebuild_and_generate.ps1                                    # SqlServer completo"            -ForegroundColor DarkGray
-Write-Host "  .\rebuild_and_generate.ps1 -Db Postgres                       # PostgreSQL completo"           -ForegroundColor DarkGray
-Write-Host "  .\rebuild_and_generate.ps1 -Db Microservices                  # 4 microservicios + Gateway"    -ForegroundColor DarkGray
-Write-Host "  .\rebuild_and_generate.ps1 -Db SP                             # Stored Procedures"             -ForegroundColor DarkGray
-Write-Host "  .\rebuild_and_generate.ps1 -Db SqlServer -SkipTests -RunApi   # rapido + API"                  -ForegroundColor DarkGray
-Write-Host "  .\rebuild_and_generate.ps1 -Db SqlServer -SkipGenerate        # solo compilar"                 -ForegroundColor DarkGray
+Write-Host "  Uso:"                                                                                         -ForegroundColor DarkGray
+Write-Host "  .\rebuild_and_generate.ps1                                    # SqlServer completo"           -ForegroundColor DarkGray
+Write-Host "  .\rebuild_and_generate.ps1 -Db Postgres                       # PostgreSQL completo"          -ForegroundColor DarkGray
+Write-Host "  .\rebuild_and_generate.ps1 -Db Microservices                  # 4 microservicios + Gateway"   -ForegroundColor DarkGray
+Write-Host "  .\rebuild_and_generate.ps1 -Db SP                             # Stored Procedures"            -ForegroundColor DarkGray
+Write-Host "  .\rebuild_and_generate.ps1 -Db SqlServer -SkipTests -RunApi   # rapido + API"                 -ForegroundColor DarkGray
+Write-Host "  .\rebuild_and_generate.ps1 -Db SqlServer -SkipGenerate        # solo compilar"                -ForegroundColor DarkGray
 Write-Host "================================================" -ForegroundColor $cfg.Color

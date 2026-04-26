@@ -1,6 +1,7 @@
-# ============================================================
-#  AIGEN - Launcher Interactivo v2.1
-#  Version: 2.1 - Semana 16
+﻿# ============================================================
+#  AIGEN — Launcher Interactivo v2.0
+#  Invoca rebuild_and_generate.ps1 con los parametros correctos
+#  segun la base de datos y modo de ejecucion deseado.
 #
 #  Uso directo (sin menu):
 #    .\aigen.ps1                                   # Menu interactivo (default)
@@ -9,13 +10,7 @@
 #    .\aigen.ps1 -Db SqlServer  -Mode api          # SqlServer + RunApi
 #    .\aigen.ps1 -Db SP         -Mode backend      # Stored Procedures solo backend
 #    .\aigen.ps1 -Db Microservices -Mode backend   # Microservicios solo backend
-#    .\aigen.ps1 -Db SqlServer  -Mode compile      # Solo compilar sin regenerar
 #    .\aigen.ps1 -Mode menu                        # Menu interactivo explicito
-#
-#  NOTA: Si el script falla por politica de ejecucion, ejecutar:
-#    Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-#    Unblock-File -Path .\aigen.ps1
-#    Unblock-File -Path .\rebuild_and_generate.ps1
 # ============================================================
 
 param(
@@ -34,9 +29,9 @@ function Header {
     Write-Host "  +=====================================================+" -ForegroundColor Cyan
     Write-Host "  |         AIGEN - Code Generator Launcher           |" -ForegroundColor Cyan
     Write-Host "  |   .NET 8 * Angular * SQL Server * PostgreSQL      |" -ForegroundColor Cyan
-    Write-Host "  |   Microservicios YARP * SP * SignalR              |" -ForegroundColor Cyan
+    Write-Host "  |   Microservicios YARP * Stored Procedures         |" -ForegroundColor Cyan
     Write-Host "  +=====================================================+" -ForegroundColor Cyan
-    Write-Host "  Version 2.1 | Semana 16" -ForegroundColor DarkCyan
+    Write-Host "  Version 2.0 | Semana 14" -ForegroundColor DarkCyan
     Write-Host ""
 }
 
@@ -62,13 +57,13 @@ $profiles = [ordered]@{
     }
     "2" = @{
         Label = "Rapido sin tests"
-        Desc  = "Build * Generate * Compile * Frontend (sin tests)"
+        Desc  = "Build * Generate * Compile * Frontend  (sin tests)"
         Flags = @("-SkipTests")
         Key   = "fast"
     }
     "3" = @{
         Label = "Solo backend"
-        Desc  = "Build * Generate * Compile (sin tests, sin frontend)"
+        Desc  = "Build * Generate * Compile  (sin tests, sin frontend)"
         Flags = @("-SkipTests", "-SkipFrontend")
         Key   = "backend"
     }
@@ -80,13 +75,13 @@ $profiles = [ordered]@{
     }
     "5" = @{
         Label = "Sin frontend (con tests)"
-        Desc  = "Build * Tests * Generate * Compile (sin frontend)"
+        Desc  = "Build * Tests * Generate * Compile  (sin frontend)"
         Flags = @("-SkipFrontend")
         Key   = "nofront"
     }
     "6" = @{
         Label = "Solo compilar (sin regenerar)"
-        Desc  = "Build AIGEN * Compile generado (no regenera archivos)"
+        Desc  = "Build AIGEN * Compile generado  (no regenera archivos)"
         Flags = @("-SkipTests", "-SkipFrontend", "-SkipGenerate")
         Key   = "compile"
     }
@@ -94,29 +89,29 @@ $profiles = [ordered]@{
 
 $databases = [ordered]@{
     "1" = @{
-        Label = "SQL Server - Monolito EF Core + Dapper"
-        Value = "SqlServer"
-        Desc  = "Doc4UsAIGen | crudStrategy: direct | Frontend Angular | SignalR"
+        Label  = "SQL Server — Monolito EF Core + Dapper"
+        Value  = "SqlServer"
+        Desc   = "Doc4UsAIGen | crudStrategy: direct | Frontend Angular"
     }
     "2" = @{
-        Label = "PostgreSQL - Monolito EF Core + Dapper"
-        Value = "Postgres"
-        Desc  = "aigen_test | crudStrategy: direct | Sin frontend"
+        Label  = "PostgreSQL — Monolito EF Core + Dapper"
+        Value  = "Postgres"
+        Desc   = "aigen_test | crudStrategy: direct | Sin frontend"
     }
     "3" = @{
-        Label = "SQL Server - Stored Procedures"
-        Value = "SP"
-        Desc  = "Doc4UsAIGen | crudStrategy: storedProcedures | Schema [API] | Prefijo PA_"
+        Label  = "SQL Server — Stored Procedures"
+        Value  = "SP"
+        Desc   = "Doc4UsAIGen | crudStrategy: storedProcedures | Schema [API] | Prefijo PA_"
     }
     "4" = @{
-        Label = "SQL Server - Microservicios + Gateway YARP"
-        Value = "Microservices"
-        Desc  = "Doc4UsAIGen | 4 servicios: Basic/Document/Parameter/Relational + Gateway"
+        Label  = "SQL Server — Microservicios + Gateway YARP"
+        Value  = "Microservices"
+        Desc   = "Doc4UsAIGen | 4 servicios: Basic/Document/Parameter/Relational + Gateway"
     }
     "5" = @{
-        Label = "Ambos: SqlServer + PostgreSQL"
-        Value = "Both"
-        Desc  = "Ejecuta SqlServer primero, luego Postgres - mismo modo"
+        Label  = "Ambos: SqlServer + PostgreSQL"
+        Value  = "Both"
+        Desc   = "Ejecuta SqlServer primero, luego Postgres — mismo modo"
     }
 }
 
@@ -131,7 +126,7 @@ function Run-Build([string]$dbValue, [string[]]$extraFlags) {
         return $false
     }
 
-    $flagStr = "-Db $dbValue " + ($extraFlags -join " ")
+    $flagStr  = "-Db $dbValue " + ($extraFlags -join " ")
 
     Write-Host ""
     Section "Ejecutando"
@@ -139,7 +134,6 @@ function Run-Build([string]$dbValue, [string[]]$extraFlags) {
     Write-Host ""
 
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
-    # Splatting correcto: -Db como parametro nombrado, extraFlags como array
     & $script -Db $dbValue @extraFlags
     $exitCode = $LASTEXITCODE
     $sw.Stop()
@@ -195,7 +189,6 @@ function Show-Menu {
     Write-Host "  Selecciona BD [1-5]: " -ForegroundColor Yellow -NoNewline
     $dbChoice = Read-Host
 
-    # OrderedDictionary usa .Contains() no .ContainsKey()
     if (-not $databases.Contains($dbChoice)) {
         Err "Opcion invalida: $dbChoice"
         pause
@@ -227,21 +220,18 @@ function Show-Menu {
     # Advertencias especificas por combinacion BD + modo
     Write-Host ""
     if ($selectedDb.Value -eq "Microservices" -and $selectedProfile.Flags -contains "-RunApi") {
-        Warn "RunApi no aplica para Microservices � se ignorara (usar docker-compose)"
+        Warn "RunApi no aplica para Microservices — se ignorara (usar docker-compose)"
         $selectedProfile.Flags = $selectedProfile.Flags | Where-Object { $_ -ne "-RunApi" }
     }
     if ($selectedDb.Value -eq "SP" -and $selectedProfile.Flags -notcontains "-SkipFrontend") {
-        Info "Modo SP no genera frontend - se omitira automaticamente"
-    }
-    if ($selectedDb.Value -eq "Microservices" -and $selectedProfile.Flags -notcontains "-SkipFrontend") {
-        Info "Modo Microservices no genera frontend - se omitira automaticamente"
+        Info "Modo SP no genera frontend — se omitira automaticamente"
     }
 
     # Confirmacion
     Section "Confirmacion"
-    Write-Host "  BD    : $($selectedDb.Label)"               -ForegroundColor White
-    Write-Host "  Modo  : $($selectedProfile.Label)"          -ForegroundColor White
-    Write-Host "  Flags : $($selectedProfile.Flags -join ' ')" -ForegroundColor DarkGray
+    Write-Host "  BD    : $($selectedDb.Label)"                       -ForegroundColor White
+    Write-Host "  Modo  : $($selectedProfile.Label)"                  -ForegroundColor White
+    Write-Host "  Flags : $($selectedProfile.Flags -join ' ')"        -ForegroundColor DarkGray
     Write-Host ""
     Write-Host "  Continuar? [S/n]: " -ForegroundColor Yellow -NoNewline
     $confirm = Read-Host
@@ -251,7 +241,7 @@ function Show-Menu {
         return
     }
 
-    # Ejecutar � si eligio "Ambos", corre SqlServer primero luego Postgres
+    # Ejecutar — si eligio "Ambos", corre SqlServer primero luego Postgres
     if ($selectedDb.Value -eq "Both") {
         Write-Host ""
         Section "Ejecutando SqlServer"
@@ -263,8 +253,8 @@ function Show-Menu {
 
         Write-Host ""
         if ($ok1 -and $ok2)  { Ok   "Ambas BDs completadas exitosamente" }
-        elseif ($ok1)         { Warn "SqlServer OK - PostgreSQL con errores" }
-        elseif ($ok2)         { Warn "PostgreSQL OK - SqlServer con errores" }
+        elseif ($ok1)         { Warn "SqlServer OK — PostgreSQL con errores" }
+        elseif ($ok2)         { Warn "PostgreSQL OK — SqlServer con errores" }
         else                  { Err  "Ambas BDs fallaron" }
     }
     else {
