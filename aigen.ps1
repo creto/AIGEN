@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 #  AIGEN — Launcher Interactivo v2.0
 #  Invoca rebuild_and_generate.ps1 con los parametros correctos
 #  segun la base de datos y modo de ejecucion deseado.
@@ -126,8 +126,7 @@ function Run-Build([string]$dbValue, [string[]]$extraFlags) {
         return $false
     }
 
-    $allFlags = @("-Db", $dbValue) + $extraFlags
-    $flagStr  = $allFlags -join " "
+    $flagStr  = "-Db $dbValue " + ($extraFlags -join " ")
 
     Write-Host ""
     Section "Ejecutando"
@@ -135,7 +134,7 @@ function Run-Build([string]$dbValue, [string[]]$extraFlags) {
     Write-Host ""
 
     $sw = [System.Diagnostics.Stopwatch]::StartNew()
-    & $script @allFlags
+    & $script -Db $dbValue @extraFlags
     $exitCode = $LASTEXITCODE
     $sw.Stop()
     $elapsed = $sw.Elapsed.ToString("mm\:ss")
@@ -190,7 +189,7 @@ function Show-Menu {
     Write-Host "  Selecciona BD [1-5]: " -ForegroundColor Yellow -NoNewline
     $dbChoice = Read-Host
 
-    if (-not $databases.ContainsKey($dbChoice)) {
+    if (-not $databases.Contains($dbChoice)) {
         Err "Opcion invalida: $dbChoice"
         pause
         return
@@ -210,7 +209,7 @@ function Show-Menu {
     Write-Host "  Selecciona modo [1-6]: " -ForegroundColor Yellow -NoNewline
     $modeChoice = Read-Host
 
-    if (-not $profiles.ContainsKey($modeChoice)) {
+    if (-not $profiles.Contains($modeChoice)) {
         Err "Opcion invalida: $modeChoice"
         pause
         return

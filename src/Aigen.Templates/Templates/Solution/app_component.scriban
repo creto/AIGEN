@@ -8,6 +8,9 @@ import { SidebarModule }              from 'primeng/sidebar';
 import { ButtonModule }               from 'primeng/button';
 import { MenuItem }                   from 'primeng/api';
 import { MenuService }                from './core/services/menu.service';
+import { SignalRService, Notification } from './core/services/signalr.service';
+import { MessageService }               from 'primeng/api';
+import { ToastModule }                  from 'primeng/toast';
 import { AuthService }                from './core/services/auth.service';
 
 @Component({
@@ -15,9 +18,10 @@ import { AuthService }                from './core/services/auth.service';
   standalone: true,
   imports:    [
     RouterOutlet, CommonModule,
-    MenubarModule, PanelMenuModule, SidebarModule, ButtonModule
+    MenubarModule, PanelMenuModule, SidebarModule, ButtonModule, ToastModule
   ],
   template: `
+    <p-toast position="top-right" [baseZIndex]="5000" />
     <!-- Top navbar -->
     <div class="flex align-items-center justify-content-between px-4 py-2 surface-card shadow-1">
       <div class="flex align-items-center gap-2">
@@ -68,15 +72,36 @@ export class AppComponent implements OnInit {
 
   constructor(
     public authService: AuthService,
-    private menuService: MenuService
+    private menuService: MenuService,
+    private signalR: SignalRService,
+    private messageService: MessageService
   ) {}
 
   ngOnInit(): void {
     if (this.authService.isAuthenticated()) {
       this.loadMenu();
+      this.signalR.startAsync();
     }
+
+    // Mostrar notificaciones como toast PrimeNG
+    this.signalR.notification$.subscribe((n: Notification) => {
+      this.messageService.add({
+        severity: this.getSeverity(n.type),
+        summary:  n.type,
+        detail:   n.message,
+        life:     5000
+      });
+    });
     // Recargar menu cuando cambia el usuario
     this.authService.currentUser$.subscribe(() => this.loadMenu());
+  }
+
+  private getSeverity(type: string): string {
+    const map: Record<string, string> = {
+      success: 'success', error: 'error', warn: 'warn',
+      info: 'info', warning: 'warn'
+    };
+    return map[type?.toLowerCase()] ?? 'info';
   }
 
   private loadMenu(): void {

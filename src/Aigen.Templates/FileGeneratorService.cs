@@ -317,6 +317,16 @@ public class FileGeneratorService
             Path.Combine(outPath, "src", $"{ns}.API", "Controllers", "MenuController.cs"),
             result, ct);
 
+        // SignalR Hub + INotificationService
+        await Save(ctx, "signalr_hub.scriban",
+            Path.Combine(outPath, "src", $"{ns}.API", "Hubs", "NotificationHub.cs"),
+            result, ct);
+
+        // SignalR Hub + INotificationService
+        await Save(ctx, "signalr_hub.scriban",
+            Path.Combine(outPath, "src", $"{ns}.API", "Hubs", "NotificationHub.cs"),
+            result, ct);
+
         // -- Angular scaffolding -------------------------------------------
         if (config.Frontend.GenerateFrontend)
         {
@@ -341,6 +351,11 @@ public class FileGeneratorService
             // Menu Service Angular — consume GET /api/menu
             await Save(ctx, "angular_menu_service.scriban",
                 Path.Combine(fe, "src", "app", "core", "services", "menu.service.ts"),
+                result, ct);
+
+            // SignalR Angular client
+            await Save(ctx, "angular_signalr_service.scriban",
+                Path.Combine(fe, "src", "app", "core", "services", "signalr.service.ts"),
                 result, ct);
             await Save(ctx, "app_component.scriban", Path.Combine(fe, "src", "app", "app.component.ts"), result, ct);
             await Save(ctx, "angular_dashboard.scriban",     Path.Combine(fe, "src", "app", "dashboard", "dashboard.component.ts"), result, ct);

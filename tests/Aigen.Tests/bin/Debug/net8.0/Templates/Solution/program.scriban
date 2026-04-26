@@ -121,6 +121,11 @@ builder.Services.AddScoped<{{ table.ServiceName }}>();
 builder.Services.AddControllers();
 {{ if use_swagger }}
 builder.Services.AddEndpointsApiExplorer();
+
+// -- SignalR -------------------------------------------------
+builder.Services.AddSignalR();
+builder.Services.AddSingleton<{{ root_namespace }}.API.Hubs.INotificationService,
+    {{ root_namespace }}.API.Hubs.SignalRNotificationService>();
 builder.Services.AddSwaggerGen(c => {
     c.SwaggerDoc("v1", new() {
         Title   = "{{ project_name }} API",
@@ -166,6 +171,9 @@ app.UseAuthentication();
 {{ end }}
 app.UseAuthorization();
 app.MapControllers();
+
+// -- SignalR Hub ---------------------------------------------
+app.MapHub<{{ root_namespace }}.API.Hubs.NotificationHub>("/hubs/notifications");
 
 // -- Health endpoints -----------------------------------------
 // GET /health  — liveness  (el proceso vive)
